@@ -8,8 +8,11 @@ import 'dart:io';
 
 import 'package:wewatchapp/consts.dart';
 import 'package:wewatchapp/data/models/projectSiteVisitorModel.dart';
+import 'package:wewatchapp/data/screens/dashboard.dart';
 import 'package:wewatchapp/data/screens/guard/guard_Drawer.dart';
 import 'package:http/http.dart' as http;
+import 'package:wewatchapp/data/screens/guard/guard_dashboard.dart';
+import 'package:wewatchapp/data/screens/wewatchManager/wwmanager_dashboard.dart';
 import 'dart:io' as Io;
 
 import 'package:wewatchapp/data/widgets/navDrawerWidget.dart';
@@ -42,7 +45,18 @@ class _project_site_reg extends State<project_site_reg> {
   final drivercontController = TextEditingController();
   bool CarPressed = false;
   bool IDPressed = false;
+  String userType = ""?? "";
 
+
+
+
+
+  _User() async {
+    SharedPreferences userData = await SharedPreferences.getInstance();
+    setState(() {
+      userType = (userData.getString('user_type') ?? '');
+    });
+  }
 
 
 
@@ -52,6 +66,7 @@ class _project_site_reg extends State<project_site_reg> {
 
   @override
   void initState() {
+    _User();
     IDPressed = false;
     CarPressed = false;
     super.initState();
@@ -66,7 +81,11 @@ class _project_site_reg extends State<project_site_reg> {
   @override
   Widget build(BuildContext context) {
 
-    return SafeArea(
+    return WillPopScope (
+        onWillPop: () {
+      return  NavigateToDashboard () ;
+    },
+    child:SafeArea(
         child: Scaffold(
         key: scaffoldKey,
         drawer: Theme(
@@ -153,8 +172,7 @@ class _project_site_reg extends State<project_site_reg> {
 
         body:
         Center (
-            child:  Form(
-                key: _formKey,
+
                 child:    Container(
                   height: MediaQuery.of(context).size.height,
                   width: MediaQuery.of(context).size.width ,
@@ -164,190 +182,197 @@ class _project_site_reg extends State<project_site_reg> {
                   child:Column(
                     children: [
                       Expanded(
-                        child: Scrollbar(
-                          child: ListView(
-                            children: <Widget>[
-                              SizedBox(height: 40.0,),
+                  child: Scrollbar(
+                  child: SingleChildScrollView(
+                    child: Form(
+                    key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          SizedBox(height: 40.0,),
 
 
-                              TextFormField(
-                                decoration: new InputDecoration(
-
-//                              border: InputBorder.none,
-//                              focusedBorder: InputBorder.none,
-//                              enabledBorder: InputBorder.none,
-//                              errorBorder: InputBorder.none,
-//                              disabledBorder: InputBorder.none,
-                                    contentPadding:
-                                    EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
-//                    hintText: "Name / Staff ID*",
-                                    labelText:"Company Name",
-                                    labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Colors.grey)
-                                ),
-                                validator: (value) {
-                                  if (value.isEmpty) {
-                                    return 'Please enter some text';
-                                  }
-                                  return null;
-                                },
-                                controller: companyController,
-                              ),
-                              SizedBox(height: 50.0,),
-
-                              TextFormField(
-                                decoration: new InputDecoration(
+                          TextFormField(
+                            decoration: new InputDecoration(
 
 //                              border: InputBorder.none,
 //                              focusedBorder: InputBorder.none,
 //                              enabledBorder: InputBorder.none,
 //                              errorBorder: InputBorder.none,
 //                              disabledBorder: InputBorder.none,
-                                    contentPadding:
-                                    EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
+                                contentPadding:
+                                EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
 //                    hintText: "Name / Staff ID*",
-                                    labelText:"Driver Contact Number" ,
-                                    labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Colors.grey)
+                                labelText:"Company Name",
+                                labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Colors.grey)
+                            ),
+                            validator: (value) {
+                              if (value.isEmpty) {
+                                return 'Please enter some text';
+                              }
+                              return null;
+                            },
+                            controller: companyController,
+                          ),
+                          SizedBox(height: 50.0,),
 
-                                ),
-                                validator: (value) {
-                                  if (value.isEmpty) {
-                                    return 'Please enter some text';
-                                  }
-                                  return null;
-                                },
-                                controller: drivercontController,
+                          TextFormField(
+                            keyboardType: TextInputType.number,
+                            decoration: new InputDecoration(
+
+//                              border: InputBorder.none,
+//                              focusedBorder: InputBorder.none,
+//                              enabledBorder: InputBorder.none,
+//                              errorBorder: InputBorder.none,
+//                              disabledBorder: InputBorder.none,
+                                contentPadding:
+                                EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
+//                    hintText: "Name / Staff ID*",
+                                labelText:"Driver Contact Number" ,
+                                labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Colors.grey)
+
+                            ),
+                            validator: (value) {
+                              if (value.isEmpty) {
+                                return 'Please enter some text';
+                              }
+                              return null;
+                            },
+                            controller: drivercontController,
+                          ),
+                          SizedBox(height: 30.0,),
+                          Padding(
+                            padding: EdgeInsets.only(left:15.0,),
+                            child:   Text("Reason For Visit", style: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(89, 89, 89, 1)
+                            )),
+                          ),
+                          SizedBox(height: 30.0,),
+
+                          ButtonTheme(
+                            alignedDropdown: true,
+                            child: DropdownButton<String>(
+
+                              isExpanded: true,
+                              value: visitReason,
+                              icon: Icon(Icons.arrow_drop_down),
+                              iconSize: 24,
+                              elevation: 16,
+                              style: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Colors.grey
                               ),
-                              SizedBox(height: 30.0,),
-                              Padding(
-                                padding: EdgeInsets.only(left:15.0,),
-                                child:   Text("Reason For Visit", style: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(89, 89, 89, 1)
-                                )),
+                              underline: Container(
+                                height: 1,
+                                color: Colors.grey,
+
                               ),
-                              SizedBox(height: 30.0,),
+                              onChanged: (String newValue) {
+                                setState(() {
+                                  visitReason = newValue;
+                                });
+                              },
+                              items: <String>['Client', 'Supplier', 'Spectator', 'Visitor']
+                                  .map<DropdownMenuItem<String>>((String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(value),
+                                );
+                              }).toList(),
+                            ),
+                          ),
 
-                              ButtonTheme(
-                                alignedDropdown: true,
-                                child: DropdownButton<String>(
+                          SizedBox(height: 40.0,),
+                          new Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
 
-                                  isExpanded: true,
-                                  value: visitReason,
-                                  icon: Icon(Icons.arrow_drop_down),
-                                  iconSize: 24,
-                                  elevation: 16,
-                                  style: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Colors.grey
-                                  ),
-                                  underline: Container(
-                                    height: 1,
-                                    color: Colors.grey,
+                                  children: <Widget>[
+                                    new Container(
+                                      child: file ==null
+                                          ? new Text("")
+                                          : new Text("attachment added"),
+                                    ),
 
-                                  ),
-                                  onChanged: (String newValue) {
-                                    setState(() {
-                                      visitReason = newValue;
-                                    });
-                                  },
-                                  items: <String>['Client', 'Supplier', 'Spectator', 'Visitor']
-                                      .map<DropdownMenuItem<String>>((String value) {
-                                    return DropdownMenuItem<String>(
-                                      value: value,
-                                      child: Text(value),
-                                    );
-                                  }).toList(),
-                                ),
-                              ),
-
-                              SizedBox(height: 40.0,),
-                              new Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-
-                                      children: <Widget>[
-                                        new Container(
-                                          child: file ==null
-                                              ? new Text("")
-                                              : new Text("attachment added"),
-                                        ),
-
-                                        new IconButton(
-                                          icon: new Icon(Icons.camera_alt, color:(CarPressed) ? Colors.red
-                                              : DarkBlue),
+                                    new IconButton(
+                                      icon: new Icon(Icons.camera_alt, color:(CarPressed) ? Colors.red
+                                          : DarkBlue),
 //                                                highlightColor: Colors.deepOrangeAccent,
 
-                                          iconSize: 50.0,
-                                          onPressed: (){
-                                            getCarImage();
-                                            },
-                                        ),
-//
-                                      ],
+                                      iconSize: 50.0,
+                                      onPressed: (){
+                                        getCarImage();
+                                      },
                                     ),
-                                    SizedBox(width: 20.0,),
-                                    Container(
-                                      width: 200,
-                                      padding: EdgeInsets.only(top: 20.0),
-                                      child:  new Text(
-                                        'Take Picture of car including (make model & license plate)',
-                                        style: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Colors.grey,
+//
+                                  ],
+                                ),
+                                SizedBox(width: 20.0,),
+                                Container(
+                                  width: 200,
+                                  padding: EdgeInsets.only(top: 20.0),
+                                  child:  new Text(
+                                    'Take Picture of car including (make model & license plate)',
+                                    style: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Colors.grey,
 
-                                        ),
-                                      ),
-                                    )
+                                    ),
+                                  ),
+                                )
 
-                                  ]
-                              ),
+                              ]
+                          ),
 
-                              SizedBox(height: 40.0,),
-                              new Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                          SizedBox(height: 40.0,),
+                          new Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
 
-                                      children: <Widget>[
-                                        new Container(
+                                  children: <Widget>[
+                                    new Container(
                                       child: file2 ==null
                                           ? new Text("")
                                           : new Text("attachment added"),
-                                            ),
+                                    ),
 
 
-                                        new IconButton(
-                                          icon: new Icon(Icons.camera_alt, color:(IDPressed) ? Colors.red
-                                              : DarkBlue),
+                                    new IconButton(
+                                      icon: new Icon(Icons.camera_alt, color:(IDPressed) ? Colors.red
+                                          : DarkBlue),
 //                                                highlightColor: Colors.deepOrangeAccent,
 
-                                          iconSize: 50.0,
-                                          onPressed: (){
-                                            getIdImage();
-                                            },
-                                        ),
+                                      iconSize: 50.0,
+                                      onPressed: (){
+                                        getIdImage();
+                                      },
+                                    ),
 //
 
-                                      ],
-                                    ),
+                                  ],
+                                ),
 //                              new  Icon(Icons.camera_alt,color: Color.fromRGBO(45, 87, 163, 1), size: 50.0,),
-                                    SizedBox(width: 20.0,),
-                                    Container(
-                                      width: 200,
-                                      padding: EdgeInsets.only(top: 20.0),
+                                SizedBox(width: 20.0,),
+                                Container(
+                                  width: 200,
+                                  padding: EdgeInsets.only(top: 20.0),
 
-                                      child:  new Text(
-                                        'Take Picture of Identification',
-                                        style: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Colors.grey,
+                                  child:  new Text(
+                                    'Take Picture of Identification',
+                                    style: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Colors.grey,
 
-                                        ),
-                                      ),
-                                    )
+                                    ),
+                                  ),
+                                )
 
-                                  ]
-                              ),
-
-
-
-                            ],
+                              ]
                           ),
+
+
+
+                        ],
+                      ),
+                      ))
+
                         ),
                       ),
                       Align(
@@ -413,6 +438,7 @@ class _project_site_reg extends State<project_site_reg> {
 
         )
         )
+
     );
   }
 
@@ -426,8 +452,9 @@ class _project_site_reg extends State<project_site_reg> {
 //    //Return int
 //    int Value = prefs.getInt('jobId');
     int u_id = userData.getInt('user_id');
+    int p_id = userData.getInt('project_id');
     AddSiteVisitor.userId = u_id;
-    AddSiteVisitor.projectId = 1;
+    AddSiteVisitor.projectId = p_id;
     AddSiteVisitor.companyName =companyController.text;
     AddSiteVisitor.driverContact = drivercontController.text;
     AddSiteVisitor.visitReason=visitReason;
@@ -621,7 +648,30 @@ class _project_site_reg extends State<project_site_reg> {
     });
   }
 
+  Future NavigateToDashboard () async {
 
+    if(userType == "User"){
+      Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => Dashboard()),
+              (Route<dynamic> route) => false
+      );
+    }
+    else if(userType == "Security Guard"){
+      Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => GuardDashboard()),
+              (Route<dynamic> route) => false
+      );
+    }
+    else if(userType == "Wewatch Manager"){
+      Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => wwmanager_Dashboard()),
+              (Route<dynamic> route) => false
+      );
+    }
+  }
 
 }
 

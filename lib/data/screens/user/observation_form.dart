@@ -11,6 +11,9 @@ import 'package:http/http.dart' as http;
 import 'dart:io' as Io;
 
 import 'package:wewatchapp/data/models/observationModel.dart';
+import 'package:wewatchapp/data/screens/dashboard.dart';
+import 'package:wewatchapp/data/screens/guard/guard_dashboard.dart';
+import 'package:wewatchapp/data/screens/wewatchManager/wwmanager_dashboard.dart';
 import 'package:wewatchapp/data/widgets/navDrawerWidget.dart';
 
 import '../../../consts.dart';
@@ -40,20 +43,28 @@ class _ObservationForm extends State<ObservationForm> {
   final req_actionController = TextEditingController();
   final AddObservation = ObservationModel();
   final picker = ImagePicker();
+  bool  imagePressed = false;
+  String userType = ""?? "";
 
 
 
 
 
-
+  _User() async {
+    SharedPreferences userData = await SharedPreferences.getInstance();
+    setState(() {
+      userType = (userData.getString('user_type') ?? '');
+    });
+  }
 
 
 
   @override
   void initState() {
+    _User();
+    locationController.text ="Location";
 
       super.initState();
-      locationController.text ="Location";
   }
 
   @override
@@ -68,7 +79,11 @@ class _ObservationForm extends State<ObservationForm> {
   @override
   Widget build(BuildContext context) {
 
-    return SafeArea(
+    return WillPopScope (
+        onWillPop: () {
+      return NavigateToDashboard ();
+    },
+    child: SafeArea(
         child: Scaffold(
         key: scaffoldKey,
         drawer: Theme(
@@ -152,8 +167,6 @@ class _ObservationForm extends State<ObservationForm> {
 
         body:
         Center (
-            child:  Form(
-                key: _formKey,
                 child:    Container(
                   height: MediaQuery.of(context).size.height,
                   width: MediaQuery.of(context).size.width ,
@@ -163,125 +176,188 @@ class _ObservationForm extends State<ObservationForm> {
                   child:Column(
                     children: [
                       Expanded(
-                        child: Scrollbar(
-                          child: ListView(
-                            children: <Widget>[
-                              SizedBox(height: 40.0,),
+                  child: Scrollbar(
+                  child: SingleChildScrollView(
+                    child: Form(
+                    key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          SizedBox(height: 40.0,),
 
 
-                              TextFormField(
-                                decoration: new InputDecoration(
+                          TextFormField(
+                            decoration: new InputDecoration(
 
 //                              border: InputBorder.none,
 //                              focusedBorder: InputBorder.none,
 //                              enabledBorder: InputBorder.none,
 //                              errorBorder: InputBorder.none,
 //                              disabledBorder: InputBorder.none,
-                                    contentPadding:
-                                    EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
+                                contentPadding:
+                                EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
 //                    hintText: "Name / Staff ID*",
-                                    labelText:"Observations's Description",
-                                    labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
-                                ),
+                                labelText:"Observations's Description",
+                                labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
+                            ),
 //                                validator: (value) {
 //                                  if (value.isEmpty) {
 //                                    return 'Please enter some text';
 //                                  }
 //                                  return null;
 //                                },
-                                controller: observertionController,
-                              ),
-                              SizedBox(height: 30.0,),
-                              TextFormField(
+                            controller: observertionController,
+                          ),
+                          SizedBox(height: 30.0,),
+                          TextFormField(
 
-                                readOnly: true,
-                                decoration: new InputDecoration(
+                            readOnly: true,
+                            decoration: new InputDecoration(
 
 //                              border: InputBorder.none,
 //                              focusedBorder: InputBorder.none,
 //                              enabledBorder: InputBorder.none,
 //                              errorBorder: InputBorder.none,
 //                              disabledBorder: InputBorder.none,
-                                    contentPadding:
-                                    EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
+                                contentPadding:
+                                EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
 //                    hintText: "Name / Staff ID*",
-                                    labelText:"Location to fetched from project",
+                                labelText:"Location to fetched from project",
 
-                                    labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
-                                ),
+                                labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
+                            ),
 //                                validator: (value) {
 //                                  if (value.isEmpty) {
 //                                    return 'Please enter some text';
 //                                  }
 //                                  return null;
 //                                },
-                                controller: locationController,
-                              ),
-                              SizedBox(height: 30.0,), TextFormField(
-                                decoration: new InputDecoration(
+                            controller: locationController,
+                          ),
+                          SizedBox(height: 30.0,), TextFormField(
+                            decoration: new InputDecoration(
 
 //                              border: InputBorder.none,
 //                              focusedBorder: InputBorder.none,
 //                              enabledBorder: InputBorder.none,
 //                              errorBorder: InputBorder.none,
 //                              disabledBorder: InputBorder.none,
-                                    contentPadding:
-                                    EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
+                                contentPadding:
+                                EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
 //                    hintText: "Name / Staff ID*",
-                                    labelText:"Required Action",
-                                    labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
-                                ),
-                                validator: (value) {
-                                  if (value.isEmpty) {
-                                    return 'Please enter some text';
-                                  }
-                                  return null;
-                                },
-                                controller: req_actionController,
-                              ),
-                              SizedBox(height: 40.0,),
-                              Container(
-                                child: file ==null
-                                    ? new Text("No attachment!",style: TextStyle(fontSize: 20.0),)
-                                    : new Text("attachment added",style: TextStyle(fontSize: 20.0)),
-                              ),
-                              Padding(
+                                labelText:"Required Action",
+                                labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
+                            ),
+                            validator: (value) {
+                              if (value.isEmpty) {
+                                return 'Please enter some text';
+                              }
+                              return null;
+                            },
+                            controller: req_actionController,
+                          ),
+                          SizedBox(height: 40.0,),
+                          new  Container(
+                            margin: EdgeInsets.only(left:8.0,),
 
-                                  padding: const EdgeInsets.symmetric(vertical: 16.0),
-                                  child: Align(
-                                      alignment: Alignment.topLeft,
-                                      child:SizedBox(
-                                        width: 150,
-                                        child: ElevatedButton(
-                                                  style: ElevatedButton.styleFrom(
-                                                    primary: Color.fromRGBO(45, 87, 163, 1),
-                                                    onPrimary: Color.fromRGBO(32, 87, 163, 1),
-                                                  ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+
+                              children: <Widget>[
+                                Container(
+                                  child: file == null
+                                      ? new Text("Add attachment",style: TextStyle(fontSize: 20.0,color: DarkBlue,),)
+                                      : new Text("Attachment added",style: TextStyle(fontSize: 20.0,color: Colors.green,)),
+                                ),
+                                Container(
+
+                                    child:  Row(
+
+                                      children: <Widget>[
+                                        RaisedButton(
+                                          color: (imagePressed) ? Colors.red
+                                              : DarkBlue,
+                                          child: Icon(Icons.camera_alt, color: Colors.white,),
+                                          onPressed: getImageCamera,
+                                        ),
+                                        SizedBox(width: 10.0,),
+                                        Padding(
+
+                                            padding: const EdgeInsets.symmetric(vertical: 16.0),
+                                            child: Align(
+                                                alignment: Alignment.topLeft,
+                                                child:SizedBox(
+                                                  width: 120,
+                                                  child: ElevatedButton(
+                                                      style: ElevatedButton.styleFrom(
+                                                        primary: (imagePressed) ? Colors.red
+                                                            : DarkBlue,
+                                                        onPrimary: Color.fromRGBO(32, 87, 163, 1),
+                                                      ),
 
 //                                                       ),
-                                        child: Container(
-                                          child: Row(
-                                        children: <Widget>[
-                                        Icon(Icons.file_upload,color: Colors.white,),
-                                          SizedBox(width: 10.0,),
-                                          Text('Upload', style: TextStyle(color: Colors.white),),
-                                          ],
+                                                      child: Container(
+                                                        child: Row(
+                                                          children: <Widget>[
+                                                            Icon(Icons.image,color: Colors.white,),
+                                                            SizedBox(width: 10.0,),
+                                                            Text('Gallery', style: TextStyle(color: Colors.white),),
+                                                          ],
+                                                        ),
+                                                      ),
+
+                                                      onPressed: (){
+                                                        getImageGallery();
+                                                        //Actions
+                                                      }
+                                                  ),
+                                                )
+                                            )
+
                                         ),
-                                        ),
 
-                                            onPressed: (){
-                                              getImageGallery();
-                                              //Actions
-                                            }),
-                                      )
-                                  )
+                                      ],
+                                    )
+                                ),
+                                SizedBox(height: 15.0,),
+//                                              Container(
+//
+//                                                  child:  Row(
+//
+//                                                    children: <Widget>[
+//
+//                                                      ElevatedButton(
+//                                                        style: ElevatedButton.styleFrom(
+//                                                          primary: Color.fromRGBO(45, 87, 163, 1),
+////                            onPrimary: Color.fromRGBO(32, 87, 163, 1),
+//
+//
+//                                                        ),
+//
+//                                                        child: Icon(Icons.camera_alt,color: Colors.blue,),
+//                                                        onPressed: getImageCamera,
+//                                                      ),
+////                                              RaisedButton(
+////                                                child: Text("UPLOAD video"),
+////                                                onPressed:(){
+//////                                                  uploadVideo(_video);
+////                                                },
+////                                              ),
+//
+//                                                    ],
+//                                                  )
+//                                              ),
 
-                              ),
-
-
-
-                            ],
+                              ],
+                            ),
                           ),
+
+
+
+                        ],
+                      ),
+                      )
+                    )
                         ),
                       ),
                       Align(
@@ -298,9 +374,18 @@ class _ObservationForm extends State<ObservationForm> {
                               onPressed: () {
 //                                   Validate returns true if the form is valid, or false
 //                                   otherwise.
-                                if (_formKey.currentState.validate()) {
+                                if (_formKey.currentState.validate() && file != null ) {
                                   showLoaderDialog(context);
                                   _submitForm();
+
+
+                                }
+                                else if ( file == null ){
+
+                                  setState(()
+                                  {
+                                    imagePressed = true;
+                                  });
                                 }
                               },
                               child: Container(
@@ -324,6 +409,7 @@ class _ObservationForm extends State<ObservationForm> {
 
         )
         )
+
     );
   }
   Future<void> _submitForm() async {
@@ -336,8 +422,9 @@ class _ObservationForm extends State<ObservationForm> {
 //    //Return int
 //    int Value = prefs.getInt('jobId');
     int u_id = userData.getInt('user_id');
+    int p_id = userData.getInt('project_id');
     AddObservation.userId = u_id;
-    AddObservation.projectId = 1;
+    AddObservation.projectId = p_id;
     AddObservation.observationDescription = observertionController.text;
     AddObservation.location = locationController.text;
     AddObservation.action =req_actionController.text;
@@ -513,10 +600,52 @@ class _ObservationForm extends State<ObservationForm> {
     String fi = fileExt +","+ file ;
 
     setState(()  {
-
+      imagePressed = false;
       AddObservation.attachments = fi;
 
     });
+  }
+
+  Future getImageCamera() async{
+    final pickedFile = await picker.getImage(source: ImageSource.camera);
+    File imageFile = new File(pickedFile.path);
+    String fileExt = imageFile.path.split('.').last;
+//    String basename = basename(imageFile.path);
+    List<int> videoBytes = imageFile.readAsBytesSync();
+    file = base64.encode(videoBytes);
+    String fi = fileExt +","+ file ;
+
+    setState(()  {
+      imagePressed = false;
+      AddObservation.attachments = fi;
+
+    });
+  }
+
+
+  Future NavigateToDashboard () async {
+
+    if(userType == "User"){
+       Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => Dashboard()),
+              (Route<dynamic> route) => false
+      );
+    }
+    else if(userType == "Security Guard"){
+      Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => GuardDashboard()),
+              (Route<dynamic> route) => false
+      );
+    }
+    else if(userType == "Wewatch Manager"){
+      Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => wwmanager_Dashboard()),
+              (Route<dynamic> route) => false
+      );
+    }
   }
 }
 

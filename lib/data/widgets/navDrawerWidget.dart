@@ -40,6 +40,7 @@ class _NavDrawer extends State<NavDrawer> {
 //class NavDrawer extends StatelessWidget {
   bool _isExpanded = false;
   String userType;
+  String project_name = "" ?? "";
 
   Future<SharedPreferences> sharedPreferences() async => await SharedPreferences.getInstance();
   @override
@@ -52,6 +53,7 @@ class _NavDrawer extends State<NavDrawer> {
     SharedPreferences userData = await SharedPreferences.getInstance();
     setState(() {
       userType = (userData.getString('user_type') ?? '');
+      project_name =(userData.getString('project_name') ?? '');
     });
   }
   @override
@@ -138,6 +140,11 @@ class _NavDrawer extends State<NavDrawer> {
             child: ListView(
               padding: EdgeInsets.all(0.0),
               children: <Widget>[
+                NavigatorListItem(
+                  icon: Icons.bubble_chart,
+                  title: "Project: "+ project_name,
+
+                ),
                 if(userType == 'User')
                 NavigatorListItem(
                   icon: Icons.home,
@@ -197,7 +204,7 @@ class _NavDrawer extends State<NavDrawer> {
                           builder: (context) => ObservationForm()));                   },
                   ),
 
-                if (userType == "User" || userType == "Wewatch Manager")
+                if (userType == "User" || userType == "Wewatch Manager" || userType == 'Security Guard')
                   NavigatorListItem(
                     icon: Icons.work,
                     title: "Training Induction Form",

@@ -12,6 +12,8 @@ import 'package:wewatchapp/consts.dart';
 import 'package:wewatchapp/data/models/covid19Model.dart';
 import 'package:wewatchapp/data/screens/dashboard.dart';
 import 'package:wewatchapp/data/screens/guard/guard_Drawer.dart';
+import 'package:wewatchapp/data/screens/guard/guard_dashboard.dart';
+import 'package:wewatchapp/data/screens/wewatchManager/wwmanager_dashboard.dart';
 import 'package:wewatchapp/data/widgets/navDrawerWidget.dart';
 import 'package:http/http.dart' as http;
 import 'dart:io' as Io;
@@ -47,6 +49,18 @@ class _covid_19_reg  extends State<covid_19_reg > {
   TextEditingController company_nameController = TextEditingController();
   TextEditingController remarksController = TextEditingController();
   final AddCovid = CovidModel();
+  String userType = ""?? "";
+
+
+
+
+
+  _User() async {
+    SharedPreferences userData = await SharedPreferences.getInstance();
+    setState(() {
+      userType = (userData.getString('user_type') ?? '');
+    });
+  }
 
 
   void _handleRadioValueChange(int value) {
@@ -70,6 +84,7 @@ class _covid_19_reg  extends State<covid_19_reg > {
   @override
   void initState() {
     setState(() {
+      _User();
       isPressed = false;
       picker == null ?? "no image";
 
@@ -86,7 +101,12 @@ class _covid_19_reg  extends State<covid_19_reg > {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
+    return WillPopScope (
+        onWillPop: ()  {
+      return NavigateToDashboard();
+    },
+    child:
+      SafeArea(
         child: Scaffold(
             key: scaffoldKey,
             drawer: Theme(
@@ -169,8 +189,6 @@ class _covid_19_reg  extends State<covid_19_reg > {
             ),
             body:
             Center (
-                child:  Form(
-                    key: _formKey,
                     child:    Container(
                         height: MediaQuery.of(context).size.height,
                         width: MediaQuery.of(context).size.width ,
@@ -181,144 +199,148 @@ class _covid_19_reg  extends State<covid_19_reg > {
                             children: [
 
                               Expanded(
-                                  child: Scrollbar(
-                                    child: ListView(
-                                      children: <Widget>[
-                                        Container(
+                        child: Scrollbar(
+                        child: SingleChildScrollView(
+                          child: Form(
+                          key: _formKey,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Container(
 //                  color: Colors.blue,
-                                          alignment: Alignment.topLeft,
-                                          child:  Align(
+                                  alignment: Alignment.topLeft,
+                                  child:  Align(
 //                          alignment: Alignment.topRight,
-                                            child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                Text("Body Temperature is ",style: new TextStyle(fontSize: 20.0,fontWeight:FontWeight.w500,color: Colors.grey) ),
-                                                new Row(
-                                                    mainAxisAlignment: MainAxisAlignment.start,
-                                                    children: [
-                                                      new Radio(
-                                                        value: 1,
-                                                        groupValue: tempVal,
-                                                        onChanged: _handleRadioValueChange,
-                                                        activeColor: Colors.blue,
-                                                      ),
-                                                      new Text(
-                                                        '37.6 +',
-                                                        style: new  TextStyle(fontSize: 16.0,fontWeight:FontWeight.w500,color: Colors.grey),
-                                                      ),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text("Body Temperature is ",style: new TextStyle(fontSize: 20.0,fontWeight:FontWeight.w500,color: Colors.grey) ),
+                                        new Row(
+                                            mainAxisAlignment: MainAxisAlignment.start,
+                                            children: [
+                                              new Radio(
+                                                value: 1,
+                                                groupValue: tempVal,
+                                                onChanged: _handleRadioValueChange,
+                                                activeColor: Colors.blue,
+                                              ),
+                                              new Text(
+                                                '37.6 +',
+                                                style: new  TextStyle(fontSize: 16.0,fontWeight:FontWeight.w500,color: Colors.grey),
+                                              ),
 
-                                                    ]
-                                                ),
-                                              ],
-                                            ),
-                                          ),
+                                            ]
                                         ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
 
-                                        SizedBox(height: 10.0,),
+                                SizedBox(height: 10.0,),
 
-                                        TextFormField(
+                                TextFormField(
 
-                                          decoration: new InputDecoration(
+                                  decoration: new InputDecoration(
 
 //                              border: InputBorder.none,
 //                              focusedBorder: InputBorder.none,
 //                              enabledBorder: InputBorder.none,
 //                              errorBorder: InputBorder.none,
 //                              disabledBorder: InputBorder.none,
-                                              contentPadding:
-                                              EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
+                                      contentPadding:
+                                      EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
 //                    hintText: "Name / Staff ID*",
-                                              labelText:"Name / Staff ID*",
-                                              labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w500,color: Colors.grey)
-                                          ),
-                                          validator: (value) {
-                                            if (value.isEmpty) {
-                                              return 'Please enter some text';
-                                            }
-                                            return null;
-                                          },
-                                          onSaved: (val) {
-                                            AddCovid.staffName = val;
-                                            print( AddCovid.staffName);
-                                          },
-                                        ),
-                                        SizedBox(height: 15.0,),
+                                      labelText:"Name / Staff ID*",
+                                      labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w500,color: Colors.grey)
+                                  ),
+                                  validator: (value) {
+                                    if (value.isEmpty) {
+                                      return 'Please enter some text';
+                                    }
+                                    return null;
+                                  },
+                                  onSaved: (val) {
+                                    AddCovid.staffName = val;
+                                    print( AddCovid.staffName);
+                                  },
+                                ),
+                                SizedBox(height: 15.0,),
 
-                                        TextFormField(
-                                          decoration: new InputDecoration(
+                                TextFormField(
+                                  decoration: new InputDecoration(
 //                              border: InputBorder.none,
 //                              focusedBorder: InputBorder.none,
 //                              enabledBorder: InputBorder.none,
 //                              errorBorder: InputBorder.none,
 //                              disabledBorder: InputBorder.none,
-                                              contentPadding:
-                                              EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
+                                      contentPadding:
+                                      EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
 //                    hintText: "Name / Staff ID*",
-                                              labelText:"Company Name*" ,
-                                              labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w500,color: Colors.grey)
+                                      labelText:"Company Name*" ,
+                                      labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w500,color: Colors.grey)
 
-                                          ),
-                                          validator: (value) {
-                                            if (value.isEmpty) {
-                                              return 'Please enter some text';
-                                            }
-                                            return null;
-                                          },
-                                          onSaved: (val) {
-                                            AddCovid.company = val;
-                                            print( AddCovid.company);
-                                          },
-                                        ),
-                                        SizedBox(height: 15.0,),
+                                  ),
+                                  validator: (value) {
+                                    if (value.isEmpty) {
+                                      return 'Please enter some text';
+                                    }
+                                    return null;
+                                  },
+                                  onSaved: (val) {
+                                    AddCovid.company = val;
+                                    print( AddCovid.company);
+                                  },
+                                ),
+                                SizedBox(height: 15.0,),
 
-                                        TextFormField(
-                                          decoration: new InputDecoration(
+                                TextFormField(
+                                  decoration: new InputDecoration(
 //                              border: InputBorder.none,
 //                              focusedBorder: InputBorder.none,
 //                              enabledBorder: InputBorder.none,
 //                              errorBorder: InputBorder.none,
 //                              disabledBorder: InputBorder.none,
-                                              contentPadding:
-                                              EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
+                                      contentPadding:
+                                      EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
 //                    hintText: "Name / Staff ID*",
-                                              labelText:"Remarks*" ,
-                                              labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w500,color: Colors.grey)
+                                      labelText:"Remarks*" ,
+                                      labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w500,color: Colors.grey)
 
-                                          ),
+                                  ),
 //                                          validator: (value) {
 //                                            if (value.isEmpty) {
 //                                              return 'Please enter some text';
 //                                            }
 //                                            return null;
 //                                          },
-                                          onSaved: (val) {
-                                            AddCovid.remarks = val;
-                                            print( AddCovid.remarks);
-                                          },
-                                        ),
-                                        SizedBox(height: 30.0,),
-                                        new  Container(
-                                          margin: EdgeInsets.only(left:8.0,),
+                                  onSaved: (val) {
+                                    AddCovid.remarks = val;
+                                    print( AddCovid.remarks);
+                                  },
+                                ),
+                                SizedBox(height: 30.0,),
+                                new  Container(
+                                  margin: EdgeInsets.only(left:8.0,),
 
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
 
-                                            children: <Widget>[
-                                              Container(
+                                    children: <Widget>[
+                                      Container(
 
-                                                child: file ==null
-                                                    ? new Text("No attachment!")
-                                                    : new Text("attachment added", ),
+                                        child: file ==null
+                                            ? new Text("No attachment!")
+                                            : new Text("attachment added", ),
 
-                                              ),
-                                              new IconButton(
-                                                icon: new Icon(Icons.camera_alt, color:(isPressed) ? Colors.red
-                                                    : DarkBlue),
+                                      ),
+                                      new IconButton(
+                                        icon: new Icon(Icons.camera_alt, color:(isPressed) ? Colors.red
+                                            : DarkBlue),
 //                                                highlightColor: Colors.deepOrangeAccent,
 
-                                                iconSize: 50.0,
-                                                onPressed: (){getImageCamera();},
-                                              ),
+                                        iconSize: 50.0,
+                                        onPressed: (){getImageCamera();},
+                                      ),
 //                                              Container(
 //
 //                                                  child:  Row(
@@ -347,17 +369,19 @@ class _covid_19_reg  extends State<covid_19_reg > {
 //                                                  )
 //                                              ),
 
-                                            ],
-                                          ),
-                                        ),
-                                        SizedBox(height: 20.0,),
+                                    ],
+                                  ),
+                                ),
+                                SizedBox(height: 20.0,),
 
 
 
 
 
-                                      ],
-                                    ),
+                              ],
+                            ),
+                            )
+                          )
 
 
 
@@ -412,6 +436,7 @@ class _covid_19_reg  extends State<covid_19_reg > {
                 )
             )
         )
+
     );
   }
 
@@ -436,8 +461,10 @@ class _covid_19_reg  extends State<covid_19_reg > {
 //    //Return int
 //    int Value = prefs.getInt('jobId');
     int u_id = userData.getInt('user_id');
+    int p_id = userData.getInt('project_id');
+
     AddCovid.userId = u_id;
-    AddCovid.projectId = 1;
+    AddCovid.projectId = p_id;
     AddCovid.temperature = "p";
 
 
@@ -611,6 +638,31 @@ class _covid_19_reg  extends State<covid_19_reg > {
         return alert;
       },
     );
+  }
+
+  Future NavigateToDashboard () async {
+
+    if(userType == "User"){
+      Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => Dashboard()),
+              (Route<dynamic> route) => false
+      );
+    }
+    else if(userType == "Security Guard"){
+      Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => GuardDashboard()),
+              (Route<dynamic> route) => false
+      );
+    }
+    else if(userType == "Wewatch Manager"){
+      Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => wwmanager_Dashboard()),
+              (Route<dynamic> route) => false
+      );
+    }
   }
 
 }

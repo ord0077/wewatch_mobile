@@ -209,10 +209,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
                                       SharedPreferences userData = await SharedPreferences.getInstance();
                                       String userJSON = jsonEncode(loginModel);
-                                      userData.setString('token', loginModel.token.toString());
-                                      userData.setInt('user_id', loginModel.user.id);
-                                      userData.setString('user_type', loginModel.user.userType );
-                                      userData.remove(userKey);
+                                      userData.setString('token', loginModel.token.toString() ?? '');
+
+                                      userData.setInt('user_id', loginModel.user.id?? '');
+                                      userData.setString('user_type', loginModel.user.userType?? '' );
+                                      userData.setInt('project_id', loginModel.project.first.projectId?? '');
+                                      userData.setString('project_name', loginModel.project.first.projectName?? '');
+
+
                                       userData.setString(userKey, userJSON);
                                       var tokenn = userData.getString('token');
                                       print(tokenn);
@@ -300,7 +304,7 @@ class _LoginScreenState extends State<LoginScreen> {
         backgroundColor: Colors.white,
         body: Builder(
             builder: (context) {
-              return Stack(
+              return  Stack(
                 children: <Widget>[
 
 //              Container(
@@ -313,7 +317,7 @@ class _LoginScreenState extends State<LoginScreen> {
 //              ),
 
                   Padding(
-                    padding: const EdgeInsets.only(top: 56.0),
+                    padding: const EdgeInsets.only(top: 20.0),
                     child: Container(
 //                  child: Image.asset(
 //                    'assets/images/login_top.png',
@@ -335,21 +339,24 @@ class _LoginScreenState extends State<LoginScreen> {
                             children: <Widget>[
 
                               // Logo image of login screen
-                              Image.asset(
-                                  "assets/images/wewatch_logo.png"
+                              Container(
+                                width: 400,
+                                height: 200,
+                                child: Image.asset(
+                                    "assets/images/wewatch_logo.png"
+                                ),
                               ),
 
-                              SizedBox(height: 25.0,),
+
+                              SizedBox(height: 60.0,),
                               Align(
                                 alignment: Alignment.centerLeft,
-                                child: Text('Proceed with your', style: TextStyle(
-                                    fontSize: 18.0, fontWeight: FontWeight.w400)),
+                                child: Text('Proceed with your',style: TextStyle(fontSize: 20.0,fontWeight: FontWeight.w400) ),
                               ),
-                              SizedBox(height: 8.0,),
+                              SizedBox(height: 16.0,),
                               Align(
                                 alignment: Alignment.centerLeft,
-                                child: Text('Login', style: TextStyle(
-                                    fontSize: 18.0, fontWeight: FontWeight.bold)),
+                                child: Text('Login',style: TextStyle(fontSize: 25.0,fontWeight: FontWeight.bold)),
                               ),
 
                               SizedBox(height: 20.0,),
@@ -362,7 +369,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 textController: emailController,
                               ),
 
-                              SizedBox(height: 8.0,),
+                              SizedBox(height: 20.0,),
 
 
                               // Input textfields for password
@@ -374,6 +381,14 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
 
                               // Forgot password
+
+//                              SizedBox(height: 10.0,),
+//                            Align(
+//                              alignment: Alignment.centerRight,
+//                              child: Container(
+//                                  width: 200.0,
+////                                  color: Colors.blue,
+//                                    child:
                               CheckboxListTile(
                                 checkColor: Colors.white,
                                 activeColor: DarkBlue,
@@ -390,7 +405,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
                                 controlAffinity: ListTileControlAffinity.leading,  //  <-- leading Checkbox
                               ),
-                              SizedBox(height: 20.0,),
+//                                  )
+//
+//                              ),
+
+
+
+
+                              SizedBox(height: 10.0,),
 
                               // Button
                               InkWell(
@@ -398,37 +420,33 @@ class _LoginScreenState extends State<LoginScreen> {
                                   padding: EdgeInsets.all(12.0),
                                   color: Color.fromRGBO(30, 75, 156, 1),
                                   child: Center(
-                                    child: loginIsTapped ? Center(
+                                    child: loginIsTapped? Center(
                                         child: SizedBox(
                                           width: 20.0,
                                           height: 20.0,
                                           child: CircularProgressIndicator(
                                             backgroundColor: Colors.white,
-                                            valueColor: new AlwaysStoppedAnimation<
-                                                Color>(
-                                                Theme
-                                                    .of(context)
-                                                    .accentColor),
+                                            valueColor: new AlwaysStoppedAnimation<Color>(Theme.of(context).accentColor),
                                             strokeWidth: 3.0,
                                           ),
                                         )
-                                    ) : Text(
+                                    ):Text(
                                       "Login",
                                       style: TextStyle(
-                                          color: Colors.white, fontSize: 16.0
+                                          color: Colors.white,fontSize: 16.0
                                       ),
                                     ),
                                   ),
                                 ),
 
                                 onTap: () async {
-                                  if (emailController.text == "" ||
-                                      passwordController.text == "") {
-                                    _showToast(
-                                        context, 'One or more feild(s) are empty');
-                                  } else {
+
+                                  if (emailController.text == "" || passwordController.text == ""){
+                                    _showToast(context, 'One or more feild(s) are empty');
+                                  } else{
+
                                     setState(() {
-                                      loginIsTapped = loginIsTapped ? false : true;
+                                      loginIsTapped = loginIsTapped? false:true;
                                     });
 
                                     // String _email = "customer2@ord.com";
@@ -437,21 +455,29 @@ class _LoginScreenState extends State<LoginScreen> {
                                     String _password = passwordController.text;
 
 
-                                    Future<LoginModel> loginResponse = _login.login(
-                                        _email, _password);
+
+                                    Future<LoginModel> loginResponse = _login.login(_email, _password);
 
                                     loginResponse.then((loginModel) async {
+
                                       SharedPreferences userData = await SharedPreferences.getInstance();
                                       String userJSON = jsonEncode(loginModel);
-                                      userData.setString('token', loginModel.token.toString());
-                                      userData.setInt('user_id', loginModel.user.id);
-                                      userData.setString('user_type', loginModel.user.userType );
+                                      userData.setString('token', loginModel.token.toString() ?? '');
 
-                                      userData.remove(userKey);
+                                      userData.setInt('user_id', loginModel.user.id?? '');
+                                      userData.setString('user_type', loginModel.user.userType?? '' );
+                                      userData.setInt('project_id', loginModel.project.first.projectId?? '');
+                                      userData.setString('project_name', loginModel.project.first.projectName?? '');
+
+
                                       userData.setString(userKey, userJSON);
                                       var tokenn = userData.getString('token');
                                       print(tokenn);
+                                      userData.remove(userKey);
+                                      userData.setString(userKey, userJSON);
+
                                       print(loginModel.user.userType.toLowerCase());
+//                                      loginModel.user.userType = "User";
                                       switch (loginModel.user.userType) {
                                         case "User":
                                           Navigator.pushReplacementNamed(
@@ -474,47 +500,42 @@ class _LoginScreenState extends State<LoginScreen> {
                                           );
                                           break;
 
-//                                        case "cold storage":
-//                                          Navigator.pushReplacementNamed(
-//                                            context,
-//                                            '/coldstorage',
-//                                          );
-//                                          break;
                                         default:
-                                          _showToast(context,
-                                              'Some error occurred please try again later');
+                                          _showToast(context, 'Some error occurred please try again later');
                                       }
-                                    }).catchError((error) {
+                                    }).catchError((error){
                                       _showToast(context, error);
-                                    }).whenComplete(() {
+
+                                    }).whenComplete((){
                                       setState(() {
                                         loginIsTapped = false;
+
                                       });
                                     });
+
                                   }
                                 },
 
                               ),
-                              SizedBox(height: 20.0,),
+                              SizedBox(height: 60.0,),
 
 //                              GestureDetector(
 //                                child: Align(
 //                                  alignment: Alignment.center,
 //                                  child: Text(
-//                                    "Forgot Password?",
+//                                    "Forgot Password ?",
 //                                    style: TextStyle(
-//                                        color: Colors.black87, fontSize: 16.0
+//                                        color: Colors.black87,fontSize: 18.0
 //                                    ),
 //                                  ),
 //                                ),
-//                                onTap: () {
+//                                onTap: (){
 ////                               Navigator.push(
 ////                                 context,
 ////                                 MaterialPageRoute(builder: (context) => ForgotPasswordScreen()),
 ////                               );
 //                                },
 //                              ),
-
                             ],
 
                           ),

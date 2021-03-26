@@ -8,7 +8,8 @@ import 'package:wewatchapp/data/models/loginModel.dart';
 
 /// This class is responsible for hendling the network request related to login
 class LoginRepository {
-
+//  project: List<Project>.from(json["project"].map((x) => Project.fromJson(x))),
+//  "project": List<dynamic>.from(project.map((x) => x.toJson())),
 
   /// The function takes email and password as parameters and than recives a
   /// Customer object if the credentials are valid else throws exceptions

@@ -4,12 +4,18 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wewatchapp/CustomAppBar.dart';
+import 'package:wewatchapp/data/models/dailysecurityModel.dart';
+import 'package:wewatchapp/data/screens/dashboard.dart';
+import 'package:wewatchapp/data/screens/guard/guard_dashboard.dart';
+import 'package:wewatchapp/data/screens/wewatchManager/wwmanager_dashboard.dart';
 import 'dart:io';
 
 import 'package:wewatchapp/data/widgets/navDrawerWidget.dart';
 
 import '../../../consts.dart';
+import 'package:http/http.dart' as http;
 
 
 
@@ -31,7 +37,30 @@ class _DailySecurityReport extends State<DailySecurityReport> {
   final _formKey = GlobalKey<FormState>();
   String file;
   String _character ;
+  final ElementsController = TextEditingController();
+  final GuardController = TextEditingController();
+  final StaffController = TextEditingController();
+  final IncidentsController = TextEditingController();
+  final VisitorController = TextEditingController();
+  final SecurityController = TextEditingController();
+  final SubcontController = TextEditingController();
+  final TravelController = TextEditingController();
+  final RedflagController = TextEditingController();
+  final AddDailySecurity = DailySecurityModel();
+  bool  imagePressed = false;
+  final picker = ImagePicker();
+  String userType = ""?? "";
 
+
+
+
+
+  _User() async {
+    SharedPreferences userData = await SharedPreferences.getInstance();
+    setState(() {
+      userType = (userData.getString('user_type') ?? '');
+    });
+  }
 
 
 
@@ -39,6 +68,7 @@ class _DailySecurityReport extends State<DailySecurityReport> {
 
   @override
   void initState() {
+    _User();
     super.initState();
   }
 
@@ -51,7 +81,12 @@ class _DailySecurityReport extends State<DailySecurityReport> {
   @override
   Widget build(BuildContext context) {
 
-    return SafeArea(
+    return WillPopScope (
+        onWillPop: () {
+      return NavigateToDashboard ();
+    },
+    child:
+    SafeArea(
         child: Scaffold(
         key: scaffoldKey,
         drawer: Theme(
@@ -134,9 +169,7 @@ class _DailySecurityReport extends State<DailySecurityReport> {
     ),
         body:
         Center (
-            child:  Form(
-                key: _formKey,
-                child:    Container(
+            child:    Container(
                   height: MediaQuery.of(context).size.height,
                   width: MediaQuery.of(context).size.width ,
 //          color: Color.fromRGBO(246,246,246, 1),
@@ -146,9 +179,12 @@ class _DailySecurityReport extends State<DailySecurityReport> {
                       children: [
                         Expanded(
                           child: Scrollbar(
-                          child: ListView(
-                            children: <Widget>[
-
+                    child: SingleChildScrollView(
+                      child: Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
                               TextFormField(
                                 decoration: new InputDecoration(
 
@@ -168,6 +204,13 @@ class _DailySecurityReport extends State<DailySecurityReport> {
                                     return 'Please enter some text';
                                   }
                                   return null;
+                                },
+                                controller: ElementsController,
+                                onChanged: (value){
+                                  setState(() {
+                                    AddDailySecurity.dailyReportElements= ElementsController.text;
+
+                                  });
                                 },
                               ),
                               SizedBox(height: 30.0,),
@@ -192,10 +235,18 @@ class _DailySecurityReport extends State<DailySecurityReport> {
                                   }
                                   return null;
                                 },
+                                controller: GuardController,
+                                onChanged: (value){
+                                  setState(() {
+                                    AddDailySecurity.guardOrganization= GuardController.text;
+
+                                  });
+                                },
                               ),
                               SizedBox(height: 30.0,),
 
                               TextFormField(
+                                keyboardType: TextInputType.number,
                                 decoration: new InputDecoration(
 
 //                              border: InputBorder.none,
@@ -215,10 +266,18 @@ class _DailySecurityReport extends State<DailySecurityReport> {
                                   }
                                   return null;
                                 },
+                                controller: StaffController,
+                                onChanged: (value){
+                                  setState(() {
+                                    AddDailySecurity.noStaff = int.parse(StaffController.text);
+
+                                  });
+                                },
                               ),
                               SizedBox(height: 30.0,),
 
                               TextFormField(
+                                keyboardType: TextInputType.number,
                                 decoration: new InputDecoration(
 
 //                              border: InputBorder.none,
@@ -238,12 +297,20 @@ class _DailySecurityReport extends State<DailySecurityReport> {
                                   }
                                   return null;
                                 },
+                                controller: IncidentsController,
+                                onChanged: (value){
+                                  setState(() {
+                                    AddDailySecurity.noIncidentsDaily = int.parse(IncidentsController.text);
+
+                                  });
+                                },
                               ),
                               SizedBox(height: 30.0,),
 
 
 
                               TextFormField(
+                                keyboardType: TextInputType.number,
                                 decoration: new InputDecoration(
 
 //                              border: InputBorder.none,
@@ -263,6 +330,13 @@ class _DailySecurityReport extends State<DailySecurityReport> {
                                     return 'Please enter some text';
                                   }
                                   return null;
+                                },
+                                controller: VisitorController,
+                                onChanged: (value){
+                                  setState(() {
+                                    AddDailySecurity.noVisitors = int.parse(VisitorController.text);
+
+                                  });
                                 },
                               ),
                               SizedBox(height: 30.0,),
@@ -286,6 +360,13 @@ class _DailySecurityReport extends State<DailySecurityReport> {
                                   }
                                   return null;
                                 },
+                                controller: SecurityController,
+                                onChanged: (value){
+                                  setState(() {
+                                    AddDailySecurity.inspections = SecurityController.text;
+
+                                  });
+                                },
                               ),
                               SizedBox(height: 30.0,), TextFormField(
                                 decoration: new InputDecoration(
@@ -307,6 +388,13 @@ class _DailySecurityReport extends State<DailySecurityReport> {
                                   }
                                   return null;
                                 },
+                            controller: SubcontController,
+                            onChanged: (value){
+                              setState(() {
+                                AddDailySecurity.observations = SubcontController.text;
+
+                              });
+                            },
                               ),
                               SizedBox(height: 30.0,), TextFormField(
                                 decoration: new InputDecoration(
@@ -328,6 +416,13 @@ class _DailySecurityReport extends State<DailySecurityReport> {
                                   }
                                   return null;
                                 },
+                            controller: TravelController,
+                            onChanged: (value){
+                              setState(() {
+                                AddDailySecurity.travelSecurityUpdates = TravelController.text;
+
+                              });
+                            },
                               ),
                               SizedBox(height: 30.0,), TextFormField(
                                 decoration: new InputDecoration(
@@ -343,116 +438,163 @@ class _DailySecurityReport extends State<DailySecurityReport> {
                                     labelText:"Any red flag ? ",
                                     labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
                                 ),
-                                validator: (value) {
-                                  if (value.isEmpty) {
-                                    return 'Please enter some text';
-                                  }
-                                  return null;
-                                },
+//                                validator: (value) {
+//                                  if (value.isEmpty) {
+//                                    return 'Please enter some text';
+//                                  }
+//                                  return null;
+//                                },
+                            controller: RedflagController,
+                            onChanged: (value){
+                              setState(() {
+                                AddDailySecurity.redFlag = RedflagController.text;
+
+                              });
+                            },
                               ),
                               SizedBox(height: 40.0,),
-                              Container(
-//                            color: Colors.blue,
-                                width: 500,
-                                padding: EdgeInsets.only(top: 20.0),
-                                child:  new Text(
-                                  'Please upload multiple files',
-                                  style: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1),
+                          new  Container(
+                            margin: EdgeInsets.only(left:8.0,),
 
-                                  ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+
+                              children: <Widget>[
+                                Container(
+                                  child: file == null
+                                      ? new Text("Add attachment",style: TextStyle(fontSize: 20.0,color: DarkBlue,),)
+                                      : new Text("Attachment added",style: TextStyle(fontSize: 20.0,color: Colors.green,)),
                                 ),
-                              ),
-                              Padding(
+                                Container(
 
-                                  padding: const EdgeInsets.symmetric(vertical: 16.0),
-                                  child: Align(
-                                      alignment: Alignment.topLeft,
-                                      child:SizedBox(
-                                        width: 200,
-                                        child: ElevatedButton(
+                                    child:  Row(
 
-                                            style: ElevatedButton.styleFrom(
-                                              primary: Color.fromRGBO(45, 87, 163, 1),
-//                            onPrimary: Color.fromRGBO(32, 87, 163, 1),
-
-
-                                            ),
-                                            onPressed: () {
-//                                   Validate returns true if the form is valid, or false
-//                                   otherwise.
-                                              if (_formKey.currentState.validate()) {
-                                                // If the form is valid, display a Snackbar.
-                                                Scaffold.of(context)
-                                                    .showSnackBar(SnackBar(content: Text('Processing Data')));
-                                              }
-                                            },
-                                            child: Container(
-                                              width: 150.0,
-                                              child:
-                                              Row(
-                                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                                  mainAxisAlignment: MainAxisAlignment.center,
-                                                  children: [
-                                                    Container(
-                                                      child: Icon(Icons.file_upload),
-
-                                                    ),
-                                                    Container(
-                                                        child: Text('Upload File',textAlign: TextAlign.center,style: TextStyle(fontSize: 20.0),
-
-
-                                                        )
-                                                    )
-                                                  ]
-                                              ),
-                                            )
+                                      children: <Widget>[
+                                        RaisedButton(
+                                          color: (imagePressed) ? Colors.red
+                                              : DarkBlue,
+                                          child: Icon(Icons.camera_alt, color: Colors.white,),
+                                          onPressed: getImageCamera,
                                         ),
-                                      )
-                                  )
+                                        SizedBox(width: 10.0,),
+                                        Padding(
 
-                              ),
+                                            padding: const EdgeInsets.symmetric(vertical: 16.0),
+                                            child: Align(
+                                                alignment: Alignment.topLeft,
+                                                child:SizedBox(
+                                                  width: 120,
+                                                  child: ElevatedButton(
+                                                      style: ElevatedButton.styleFrom(
+                                                        primary: (imagePressed) ? Colors.red
+                                                            : DarkBlue,
+                                                        onPrimary: Color.fromRGBO(32, 87, 163, 1),
+                                                      ),
+
+//                                                       ),
+                                                      child: Container(
+                                                        child: Row(
+                                                          children: <Widget>[
+                                                            Icon(Icons.image,color: Colors.white,),
+                                                            SizedBox(width: 10.0,),
+                                                            Text('Gallery', style: TextStyle(color: Colors.white),),
+                                                          ],
+                                                        ),
+                                                      ),
+
+                                                      onPressed: (){
+                                                        getImageGallery();
+                                                        //Actions
+                                                      }
+                                                  ),
+                                                )
+                                            )
+
+                                        ),
+
+                                      ],
+                                    )
+                                ),
+                                SizedBox(height: 15.0,),
+//                                              Container(
+//
+//                                                  child:  Row(
+//
+//                                                    children: <Widget>[
+//
+//                                                      ElevatedButton(
+//                                                        style: ElevatedButton.styleFrom(
+//                                                          primary: Color.fromRGBO(45, 87, 163, 1),
+////                            onPrimary: Color.fromRGBO(32, 87, 163, 1),
+//
+//
+//                                                        ),
+//
+//                                                        child: Icon(Icons.camera_alt,color: Colors.blue,),
+//                                                        onPressed: getImageCamera,
+//                                                      ),
+////                                              RaisedButton(
+////                                                child: Text("UPLOAD video"),
+////                                                onPressed:(){
+//////                                                  uploadVideo(_video);
+////                                                },
+////                                              ),
+//
+//                                                    ],
+//                                                  )
+//                                              ),
+
+                              ],
+                            ),
+                          ),
 
 
 
                             ],
                           ),
                         ),
+                    ),
                         ),
-                        Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 16.0),
-                            child:Align(
-                              child: SizedBox(
-                                width: 600,
-                                child: ElevatedButton(
+                        ),
+                        Align(
+                          child: SizedBox(
+//                              width: 600,
+                            child: ElevatedButton(
 
-                                    style: ElevatedButton.styleFrom(
-                                      primary: Color.fromRGBO(45, 87, 163, 1),
+                                style: ElevatedButton.styleFrom(
+                                  primary: Color.fromRGBO(45, 87, 163, 1),
 //                            onPrimary: Color.fromRGBO(32, 87, 163, 1),
 
 
-                                    ),
-                                    onPressed: () {
+                                ),
+                                onPressed: () {
 //                                   Validate returns true if the form is valid, or false
 //                                   otherwise.
-                                      if (_formKey.currentState.validate()) {
-                                        // If the form is valid, display a Snackbar.
-//                                        Navigator.push(
-//                                          context,
-//                                          MaterialPageRoute(builder: (context) => DailySecurityReportScrn2()),
-//                                        );
-                                      }
-                                    },
-                                    child: Container(
-                                      width: 600.0,
+                                  if (_formKey.currentState.validate() && file != null ) {
+                                    showLoaderDialog(context);
+                                    _submitForm();
 
-                                      child:Text('Submit',textAlign: TextAlign.center,style: TextStyle(fontSize: 20.0)
-                                      ),
-                                    )
-                                ),
-                              ),
-                            )
 
-                        ),
+                                  }
+                                  else if ( file == null ){
+
+                                    setState(()
+                                    {
+                                      imagePressed = true;
+                                    });
+                                  }
+                                },
+                                child: Container(
+//                                    height: MediaQuery.of(context).size.height,
+                                  width: MediaQuery.of(context).size.width ,
+//                                    width: 600.0,
+
+                                  child:Text('Submit',textAlign: TextAlign.center,style: TextStyle(fontSize: 20.0)
+                                  ),
+                                )
+                            ),
+                          ),
+                        )
                       ],
                     ),
 
@@ -462,9 +604,241 @@ class _DailySecurityReport extends State<DailySecurityReport> {
             )
 
         )
-        )
+                    )
+        );
+
+  }
+  Future<void> _submitForm() async {
+    final FormState form = _formKey.currentState;
+
+//    if (form.validate()) {
+//      String a= _fbKey.currentState.value.toString();
+//      _formResult.supporterType = a;
+    SharedPreferences userData = await SharedPreferences.getInstance();
+//    //Return int
+//    int Value = prefs.getInt('jobId');
+    int u_id = userData.getInt('user_id');
+    int p_id = userData.getInt('project_id');
+    AddDailySecurity.userId = u_id;
+    AddDailySecurity.projectId = p_id;
+
+
+
+
+
+//    _AddResult.name = widget.EconomicDetail.name.toString();
+    form.save();
+//    print(_AddResult.toMap());
+
+//    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    String tokenn = userData.getString('token');
+//    String tokenn ='90|ZHVdsajU7doU6LusdhVwd2D0s9zqZAebfnUhInLT';
+    String token = 'Bearer '+ tokenn;
+
+    final uri = 'https://wewatch.ordd.tk/api/dailysecurityreport';
+//    _onLoading();
+    http.Response response = await http.post(
+      uri, headers: { 'Content-type': 'application/json',
+      'Accept': 'application/json', HttpHeaders.authorizationHeader: token },body: (json.encode(AddDailySecurity.toMap())),
+    );
+    Navigator.pop(this.context);
+
+    print(response.body);
+
+
+    if (response.statusCode == 200) {
+      print('Data saved');
+      _onLoading();
+
+//      setState(() => _dialogState = DialogState.LOADING);
+//      Future.delayed(Duration(seconds: 5)).then((_) {
+//        setState(() => _dialogState = DialogState.COMPLETED);
+//        Timer(Duration(seconds: 5), () =>
+//            setState(() => _dialogState = DialogState.DISMISSED));
+//      });
+    } else {
+      _notUploaded();
+      print('Data not saved');
+      print(response.statusCode);
+      throw Exception("Problem in uploading");
+//      setState(() => _f_dialogState = F_DialogState.LOADING);
+//      setState(() => _f_dialogState = F_DialogState.Failed);
+//      Future.delayed(Duration(seconds: 5)).then((_) {
+//        setState(() => _f_dialogState = F_DialogState.DISMISSED);
+//      });
+    }
+
+
+//    print(response.body);
+    print(AddDailySecurity.toMap());
+
+
+
+//    }
+
+  }
+  void _onLoading() {
+    showDialog(
+        barrierDismissible: false,
+        context: this.context,
+        builder: (BuildContext context) {
+          return Dialog(
+            shape: RoundedRectangleBorder(
+                borderRadius:
+                BorderRadius.circular(20.0)), //this right here
+            child: Container(
+              height: 200,
+              width: 300,
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Container( margin: EdgeInsets.only(bottom: 20.0),
+                      child: Text("Form submitted",  style: TextStyle(fontWeight: FontWeight.bold,fontSize: 20.0),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 150.0,
+                      child: RaisedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (BuildContext context) =>  DailySecurityReport (),),
+                            );
+
+                          },
+                          child: Text(
+                            "Back to Form",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          color: DarkBlue
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ),
+          );
+        });
+  }
+  void _notUploaded() {
+    showDialog(
+        context: this.context,
+        builder: (BuildContext context) {
+          return Dialog(
+            shape: RoundedRectangleBorder(
+                borderRadius:
+                BorderRadius.circular(20.0)), //this right here
+            child: Container(
+              height: 200,
+              width: 300,
+
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Container(
+                      margin: EdgeInsets.only(bottom: 20.0),
+                      child:  Text("Something went wrong..!",  style: TextStyle(fontWeight: FontWeight.bold,fontSize: 20.0),
+                      ),
+
+                    ),
+                    SizedBox(
+                      width: 150.0,
+                      child: RaisedButton(
+                          onPressed: () {Navigator.pop(context);},
+                          child: Text(
+                            "OK",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          color: DarkBlue                     ),
+                    )
+                  ],
+                ),
+              ),
+            ),
+          );
+        });
+  }
+
+  showLoaderDialog(BuildContext context){
+    AlertDialog alert=AlertDialog(
+      content: new Row(
+        children: [
+          CircularProgressIndicator(),
+          Container(margin: EdgeInsets.only(left: 15.0),child:Text("please wait ..." )),
+        ],),
+    );
+    showDialog(barrierDismissible: false,
+      context:context,
+      builder:(BuildContext context){
+        return alert;
+      },
     );
   }
+
+
+  Future getImageGallery() async{
+    final pickedFile = await picker.getImage(source: ImageSource.gallery);
+    File imageFile = new File(pickedFile.path);
+    String fileExt = imageFile.path.split('.').last;
+//    String basename = basename(imageFile.path);
+    List<int> videoBytes = imageFile.readAsBytesSync();
+    file = base64.encode(videoBytes);
+    String fi = fileExt +","+ file ;
+
+    setState(()  {
+      imagePressed = false;
+      AddDailySecurity.attachments = fi;
+
+    });
+  }
+
+  Future getImageCamera() async{
+    final pickedFile = await picker.getImage(source: ImageSource.camera);
+    File imageFile = new File(pickedFile.path);
+    String fileExt = imageFile.path.split('.').last;
+//    String basename = basename(imageFile.path);
+    List<int> videoBytes = imageFile.readAsBytesSync();
+    file = base64.encode(videoBytes);
+    String fi = fileExt +","+ file ;
+
+    setState(()  {
+      imagePressed = false;
+      AddDailySecurity.attachments = fi;
+
+    });
+  }
+  Future NavigateToDashboard () async {
+
+    if(userType == "User"){
+      Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => Dashboard()),
+              (Route<dynamic> route) => false
+      );
+    }
+    else if(userType == "Security Guard"){
+      Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => GuardDashboard()),
+              (Route<dynamic> route) => false
+      );
+    }
+    else if(userType == "Wewatch Manager"){
+      Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => wwmanager_Dashboard()),
+              (Route<dynamic> route) => false
+      );
+    }
+  }
+
 
 }
 

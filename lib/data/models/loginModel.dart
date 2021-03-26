@@ -12,20 +12,56 @@ class LoginModel {
     LoginModel({
         this.token,
         this.user,
+        this.project,
+        this.userId,
     });
 
     String token;
     User user;
+    List<Project> project = [];
+    int userId;
 
     factory LoginModel.fromJson(Map<String, dynamic> json) => LoginModel(
         token: json["token"],
         user: User.fromJson(json["user"]),
+        project:json["project"] == null ? null : List<Project>.from(json["project"].map((x) => Project.fromJson(x))),
 
+        userId: json["user_id"],
     );
 
     Map<String, dynamic> toJson() => {
         "token": token,
         "user": user.toJson(),
+        "project" : project == null ? null : List<dynamic>.from(project.map((x) => x.toJson())),
+         "user_id": userId,
+    };
+}
+
+class Project {
+    Project({
+        this.projectId,
+        this.projectName,
+        this.user,
+        this.zones,
+    });
+
+    int projectId;
+    String projectName;
+    dynamic user;
+    List<dynamic> zones;
+
+    factory Project.fromJson(Map<String, dynamic> json) => Project(
+        projectId: json["project_id"],
+        projectName: json["project_name"],
+        user: json["user"],
+        zones: List<dynamic>.from(json["zones"].map((x) => x)),
+    );
+
+    Map<String, dynamic> toJson() => {
+        "project_id": projectId,
+        "project_name": projectName,
+        "user": user,
+        "zones": List<dynamic>.from(zones.map((x) => x)),
     };
 }
 
@@ -57,8 +93,8 @@ class User {
     bool isactive;
     dynamic currentTeamId;
     dynamic profilePhotoPath;
-    dynamic createdAt;
-    dynamic updatedAt;
+    DateTime createdAt;
+    DateTime updatedAt;
     String userType;
     String profilePhotoUrl;
     Role role;
@@ -74,8 +110,8 @@ class User {
         isactive: json["isactive"],
         currentTeamId: json["current_team_id"],
         profilePhotoPath: json["profile_photo_path"],
-        createdAt: json["created_at"],
-        updatedAt: json["updated_at"],
+        createdAt: DateTime.parse(json["created_at"]),
+        updatedAt: DateTime.parse(json["updated_at"]),
         userType: json["user_type"],
         profilePhotoUrl: json["profile_photo_url"],
         role: Role.fromJson(json["role"]),
@@ -92,8 +128,8 @@ class User {
         "isactive": isactive,
         "current_team_id": currentTeamId,
         "profile_photo_path": profilePhotoPath,
-        "created_at": createdAt,
-        "updated_at": updatedAt,
+        "created_at": createdAt.toIso8601String(),
+        "updated_at": updatedAt.toIso8601String(),
         "user_type": userType,
         "profile_photo_url": profilePhotoUrl,
         "role": role.toJson(),

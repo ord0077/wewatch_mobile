@@ -8,15 +8,17 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wewatchapp/CustomAppBar.dart';
 import 'package:wewatchapp/data/models/accidentModel.dart';
+import 'package:wewatchapp/data/screens/dashboard.dart';
+import 'package:wewatchapp/data/screens/guard/guard_dashboard.dart';
+import 'package:wewatchapp/data/screens/wewatchManager/wwmanager_dashboard.dart';
 import 'package:wewatchapp/data/widgets/navDrawerWidget.dart';
 import 'package:wewatchapp/data/widgets/testing.dart';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'dart:io' as Io;
-import 'package:path/path.dart';
-
-
 import '../../../consts.dart';
+import 'package:wewatchapp/consts.dart';
+
 
 class AccidentIncidentReport extends StatefulWidget {
 
@@ -57,7 +59,19 @@ class _AccidentIncidentReport extends State<AccidentIncidentReport> {
   TextEditingController _timeController1 = TextEditingController();
   DateFormat dateFormat = DateFormat("yyyy-MM-dd");
   final AddAccident = AccidentModel();
+  bool  imagePressed = false;
+  String userType = ""?? "";
 
+
+
+
+
+  _User() async {
+    SharedPreferences userData = await SharedPreferences.getInstance();
+    setState(() {
+      userType = (userData.getString('user_type') ?? '');
+    });
+  }
 
   Future<Null> _selectTime(BuildContext context) async {
     final TimeOfDay picked = await showTimePicker(
@@ -85,7 +99,8 @@ class _AccidentIncidentReport extends State<AccidentIncidentReport> {
 
   @override
   void initState() {
-     categoryIncident = 'Nearmiss';
+    _User();
+    categoryIncident = 'Nearmiss';
      typeInjury = 'none';
      typeIncident = 'Event Equipment';
      timeController.text = DateFormat.jm().format(DateTime.now());
@@ -106,7 +121,11 @@ class _AccidentIncidentReport extends State<AccidentIncidentReport> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
+    return WillPopScope (
+        onWillPop: ()  {
+          return NavigateToDashboard();
+        },
+    child: SafeArea(
         child: Scaffold(
             key: scaffoldKey,
             drawer: Theme(
@@ -190,8 +209,6 @@ class _AccidentIncidentReport extends State<AccidentIncidentReport> {
 
         body:
         Center (
-            child:  Form(
-                key: _formKey,
                 child:    Container(
                   height: MediaQuery.of(context).size.height,
                   width: MediaQuery.of(context).size.width ,
@@ -201,383 +218,402 @@ class _AccidentIncidentReport extends State<AccidentIncidentReport> {
                   child:Column(
                     children: [
                       Expanded(
-                        child: Scrollbar(
-                          child: ListView(
-                            children: <Widget>[
+                  child: Scrollbar(
+                  child: SingleChildScrollView(
+                    child: Form(
+                    key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
 
 
-                              TextFormField(
-                                decoration: new InputDecoration(
+                          TextFormField(
+                            decoration: new InputDecoration(
 
 //                              border: InputBorder.none,
 //                              focusedBorder: InputBorder.none,
 //                              enabledBorder: InputBorder.none,
 //                              errorBorder: InputBorder.none,
 //                              disabledBorder: InputBorder.none,
-                                    contentPadding:
-                                    EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
+                                contentPadding:
+                                EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
 //                    hintText: "Name / Staff ID*",
-                                    labelText:"Location",
-                                    labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
-                                ),
-                                validator: (value) {
-                                  if (value.isEmpty) {
-                                    return 'Please enter some text';
-                                  }
-                                  return null;
-                                },
-                                controller: locationController,
+                                labelText:"Location",
+                                labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
+                            ),
+                            validator: (value) {
+                              if (value.isEmpty) {
+                                return 'Please enter some text';
+                              }
+                              return null;
+                            },
+                            controller: locationController,
+
+                          ),
+                          SizedBox(height: 30.0,),
+
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              new Flexible(
+                                  child: Container(
+                                    width: 230.0,
+                                    child:Center(
+                                      child: Text(
+                                        "Date",
+
+                                        textAlign: TextAlign.center,
+                                        style:  TextStyle(fontSize: 20.0,fontWeight:FontWeight.w500,color: Color.fromRGBO(45, 87, 163, 1),),
+                                      ),
+                                    ),
+                                  )
 
                               ),
-                              SizedBox(height: 30.0,),
+                              SizedBox(width: 20.0,),
+                              new Flexible(
+                                  child: Container(
+                                    width: 230.0,
+                                    child:Center(
+                                      child: Text(
+                                        "Time",
+                                        textAlign: TextAlign.center,
+                                        style:  TextStyle(fontSize: 20.0,fontWeight:FontWeight.w500,color: Color.fromRGBO(45, 87, 163, 1),),
 
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  new Flexible(
-                                      child: Container(
-                                        width: 230.0,
-                                        child:Center(
-                                          child: Text(
-                                            "Date",
+                                      ),
+                                    ),
+                                  )
 
-                                            textAlign: TextAlign.center,
-                                            style:  TextStyle(fontSize: 20.0,fontWeight:FontWeight.w500,color: Color.fromRGBO(45, 87, 163, 1),),
-                                          ),
-                                        ),
-                                      )
-
-                                  ),
-                                  SizedBox(width: 20.0,),
-                                  new Flexible(
-                                      child: Container(
-                                        width: 230.0,
-                                        child:Center(
-                                          child: Text(
-                                            "Time",
-                                            textAlign: TextAlign.center,
-                                            style:  TextStyle(fontSize: 20.0,fontWeight:FontWeight.w500,color: Color.fromRGBO(45, 87, 163, 1),),
-
-                                          ),
-                                        ),
-                                      )
-
-                                  ),
-                                  SizedBox(width: 20.0,),
-                                ],
                               ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  new Flexible(
+                              SizedBox(width: 20.0,),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              new Flexible(
+                                  child: Container(
+                                    width: 230.0,
+                                    child:InkWell(
+                                      onTap: () async {
+                                        var date =  await showDatePicker(
+                                            context: context,
+                                            initialDate:DateTime.now(),
+                                            firstDate:DateTime(2021),
+                                            lastDate: DateTime(2100)
+                                        );
+                                        dateController.text = date.toString().substring(0,10);
+                                      },
                                       child: Container(
-                                          width: 230.0,
-                                          child:InkWell(
-                                            onTap: () async {
-                                              var date =  await showDatePicker(
-                                                  context: context,
-                                                  initialDate:DateTime.now(),
-                                                  firstDate:DateTime(2021),
-                                                  lastDate: DateTime(2100)
-                                              );
-                                              dateController.text = date.toString().substring(0,10);
-                                            },
-                                            child: Container(
-                                              margin: EdgeInsets.only(top: 10),
+                                        margin: EdgeInsets.only(top: 10),
 //                                  width: _width / 1.7,
 //                                  height: _height / 9,
-                                              alignment: Alignment.center,
-                                              decoration: BoxDecoration(color: Colors.grey[200]),
-                                              child: TextFormField(
-                                                style: TextStyle(fontSize: 25),
-                                                textAlign: TextAlign.center,
-                                                onSaved: (String val) {
-                                                  _setTime = val;
-                                                },
-                                                enabled: false,
+                                        alignment: Alignment.center,
+                                        decoration: BoxDecoration(color: Colors.grey[200]),
+                                        child: TextFormField(
+                                          style: TextStyle(fontSize: 25),
+                                          textAlign: TextAlign.center,
+                                          onSaved: (String val) {
+                                            _setTime = val;
+                                          },
+                                          enabled: false,
 
-                                                keyboardType: TextInputType.text,
-                                                controller: dateController,
-                                                decoration: InputDecoration(
-                                                    disabledBorder:
-                                                    UnderlineInputBorder(borderSide: BorderSide.none),
-                                                    // labelText: 'Time',
-                                                    contentPadding: EdgeInsets.all(5)),
-                                              ),
-                                            ),
-                                          ),
-                                      )
+                                          keyboardType: TextInputType.text,
+                                          controller: dateController,
+                                          decoration: InputDecoration(
+                                              disabledBorder:
+                                              UnderlineInputBorder(borderSide: BorderSide.none),
+                                              // labelText: 'Time',
+                                              contentPadding: EdgeInsets.all(5)),
+                                        ),
+                                      ),
+                                    ),
+                                  )
 
-                                  ),
-                                  SizedBox(width: 20.0,),
-                                  new Flexible(
+                              ),
+                              SizedBox(width: 20.0,),
+                              new Flexible(
+                                  child: Container(
+                                    width: 230.0,
+                                    child: InkWell(
+                                      onTap: () {
+                                        _selectTime(context);
+                                      },
                                       child: Container(
-                                          width: 230.0,
-                                          child: InkWell(
-                                            onTap: () {
-                                              _selectTime(context);
-                                            },
-                                            child: Container(
-                                              margin: EdgeInsets.only(top: 10),
+                                        margin: EdgeInsets.only(top: 10),
 //                                  width: _width / 1.7,
 //                                  height: _height / 9,
-                                              alignment: Alignment.center,
-                                              decoration: BoxDecoration(color: Colors.grey[200]),
-                                              child: TextFormField(
-                                                style: TextStyle(fontSize: 25),
-                                                textAlign: TextAlign.center,
-                                                onSaved: (String val) {
-                                                  _setTime = val;
-                                                },
-                                                enabled: false,
+                                        alignment: Alignment.center,
+                                        decoration: BoxDecoration(color: Colors.grey[200]),
+                                        child: TextFormField(
+                                          style: TextStyle(fontSize: 25),
+                                          textAlign: TextAlign.center,
+                                          onSaved: (String val) {
+                                            _setTime = val;
+                                          },
+                                          enabled: false,
 
-                                                keyboardType: TextInputType.text,
-                                                controller: timeController,
-                                                decoration: InputDecoration(
-                                                    disabledBorder:
-                                                    UnderlineInputBorder(borderSide: BorderSide.none),
-                                                    // labelText: 'Time',
-                                                    contentPadding: EdgeInsets.all(5)),
-                                              ),
-                                            ),
-                                          ),
-                                      )
-
-                                  ),
-                                  SizedBox(width: 20.0,),
-                                ],
-                              ),
-                              SizedBox(height: 30.0,),
-                              Padding(
-                                  padding: EdgeInsets.only(left:15.0,),
-                                child:   Text("Category of Incident", style: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(89, 89, 89, 1)
-                                  )),
-                              ),
-
-
-                              ButtonTheme(
-                                alignedDropdown: true,
-                                child: DropdownButton<String>(
-
-                                  isExpanded: true,
-                                  value: categoryIncident,
-                                  icon: Icon(Icons.arrow_drop_down),
-                                  iconSize: 24,
-                                  elevation: 16,
-                                  style: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400, color: Color.fromRGBO(113, 113, 113, 1)
-                                  ),
-                                  underline: Container(
-                                    height: 1,
-                                      color: Color.fromRGBO(113, 113, 113, 1)
-
-                                  ),
-                                  onChanged: (String newValue) {
-                                    setState(() {
-                                      categoryIncident = newValue;
-                                    });
-                                  },
-                                  items: <String>['Nearmiss', 'Personal Injury', 'Property Damage', 'Environmental','Security']
-                                      .map<DropdownMenuItem<String>>((String value) {
-                                    return DropdownMenuItem<String>(
-                                      value: value,
-                                      child: Text(value),
-                                    );
-                                  }).toList(),
-                                ),
-                              ),
-                              SizedBox(height: 30.0,),
-                              Padding(
-                                padding: EdgeInsets.only(left:15.0,),
-                                child:   Text("Type of Injury (if any)", style: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(89, 89, 89, 1)
-                                )),
-                              ),
-
-
-                              ButtonTheme(
-                                alignedDropdown: true,
-                                child: DropdownButton<String>(
-
-                                  isExpanded: true,
-                                  value: typeInjury,
-                                  icon: Icon(Icons.arrow_drop_down),
-                                  iconSize: 24,
-                                  elevation: 16,
-                                  style: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400, color: Color.fromRGBO(113, 113, 113, 1)
-                                  ),
-                                  underline: Container(
-                                      height: 1,
-                                      color: Color.fromRGBO(113, 113, 113, 1)
-
-                                  ),
-                                  onChanged: (String newValue) {
-                                    setState(() {
-                                      typeInjury = newValue;
-                                    });
-                                  },
-                                  items: <String>['First Aid Case', 'Medical Treatment Case', 'Lost Time Injury', 'Environmental','Security','none']
-                                      .map<DropdownMenuItem<String>>((String value) {
-                                    return DropdownMenuItem<String>(
-                                      value: value,
-                                      child: Text(value),
-                                    );
-                                  }).toList(),
-                                ),
-                              ),
-                              SizedBox(height: 30.0,),
-                              Padding(
-                                padding: EdgeInsets.only(left:15.0,),
-                                child:   Text("Type of Incident", style: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(89, 89, 89, 1)
-                                )),
-                              ),
-
-
-                              ButtonTheme(
-                                alignedDropdown: true,
-                                child: DropdownButton<String>(
-
-                                  isExpanded: true,
-                                  value: typeIncident,
-                                  icon: Icon(Icons.arrow_drop_down),
-                                  iconSize: 24,
-                                  elevation: 16,
-                                  style: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400, color: Color.fromRGBO(113, 113, 113, 1)
-                                  ),
-                                  underline: Container(
-                                      height: 1,
-                                      color: Color.fromRGBO(113, 113, 113, 1)
-
-                                  ),
-                                  onChanged: (String newValue) {
-                                    setState(() {
-                                      typeIncident = newValue;
-                                    });
-                                  },
-                                  items: <String>['Event Equipment', 'Scaffolding Collapse', 'Road Traffic Accident', 'Falls from Height','Other']
-                                      .map<DropdownMenuItem<String>>((String value) {
-                                    return DropdownMenuItem<String>(
-                                      value: value,
-                                      child: Text(value),
-                                    );
-                                  }).toList(),
-                                ),
-                              ),
-                              SizedBox(height: 30.0,),
-
-                              TextFormField(
-                                decoration: new InputDecoration(
-
-//                              border: InputBorder.none,
-//                              focusedBorder: InputBorder.none,
-//                              enabledBorder: InputBorder.none,
-//                              errorBorder: InputBorder.none,
-//                              disabledBorder: InputBorder.none,
-                                    contentPadding:
-                                    EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
-//                    hintText: "Name / Staff ID*",
-                                    labelText:"Other",
-                                    labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
-                                ),
-//                                validator: (value) {
-//                                  if (value.isEmpty) {
-//                                    return 'Please enter some text';
-//                                  }
-//                                  return null;
-//                                },
-                                controller: otherController,
-                              ),
-                              SizedBox(height: 30.0,),
-                              TextFormField(
-                                decoration: new InputDecoration(
-
-//                              border: InputBorder.none,
-//                              focusedBorder: InputBorder.none,
-//                              enabledBorder: InputBorder.none,
-//                              errorBorder: InputBorder.none,
-//                              disabledBorder: InputBorder.none,
-                                    contentPadding:
-                                    EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
-//                    hintText: "Name / Staff ID*",
-                                    labelText:"Details of fatality",
-                                    labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
-                                ),
-//                                validator: (value) {
-//                                  if (value.isEmpty) {
-//                                    return 'Please enter some text';
-//                                  }
-//                                  return null;
-//                                },
-                                controller: fatalityController,
-                              ),
-                              SizedBox(height: 30.0,),
-                              TextFormField(
-                                decoration: new InputDecoration(
-
-//                              border: InputBorder.none,
-//                              focusedBorder: InputBorder.none,
-//                              enabledBorder: InputBorder.none,
-//                              errorBorder: InputBorder.none,
-//                              disabledBorder: InputBorder.none,
-                                    contentPadding:
-                                    EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
-//                    hintText: "Name / Staff ID*",
-                                    labelText:"Describe the incident",
-                                    labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
-                                ),
-//                                validator: (value) {
-//                                  if (value.isEmpty) {
-//                                    return 'Please enter some text';
-//                                  }
-//                                  return null;
-//                                },
-                                controller: incidentController,
-                              ),
-                              SizedBox(height: 30.0,),
-                              TextFormField(
-                                decoration: new InputDecoration(
-
-//                              border: InputBorder.none,
-//                              focusedBorder: InputBorder.none,
-//                              enabledBorder: InputBorder.none,
-//                              errorBorder: InputBorder.none,
-//                              disabledBorder: InputBorder.none,
-                                    contentPadding:
-                                    EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
-//                    hintText: "Name / Staff ID*",
-                                    labelText:"Immediate Action (taken)",
-                                    labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
-                                ),
-//                                validator: (value) {
-//                                  if (value.isEmpty) {
-//                                    return 'Please enter some text';
-//                                  }
-//                                  return null;
-//                                },
-                                controller: immediateController,
-                              ),
-                              SizedBox(height: 20.0,),
-
-                              Row(
-                                children: [
-                                  new Container(
-                                    child:  Column(
-                                      children: [
-                                        Container(
-                                          child: file ==null
-                                              ? new Text("")
-                                              : new Text("attachment added"),
+                                          keyboardType: TextInputType.text,
+                                          controller: timeController,
+                                          decoration: InputDecoration(
+                                              disabledBorder:
+                                              UnderlineInputBorder(borderSide: BorderSide.none),
+                                              // labelText: 'Time',
+                                              contentPadding: EdgeInsets.all(5)),
                                         ),
+                                      ),
+                                    ),
+                                  )
+
+                              ),
+                              SizedBox(width: 20.0,),
+                            ],
+                          ),
+                          SizedBox(height: 30.0,),
+                          Padding(
+                            padding: EdgeInsets.only(left:15.0,),
+                            child:   Text("Category of Incident", style: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(89, 89, 89, 1)
+                            )),
+                          ),
+
+
+                          ButtonTheme(
+                            alignedDropdown: true,
+                            child: DropdownButton<String>(
+
+                              isExpanded: true,
+                              value: categoryIncident,
+                              icon: Icon(Icons.arrow_drop_down),
+                              iconSize: 24,
+                              elevation: 16,
+                              style: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400, color: Color.fromRGBO(113, 113, 113, 1)
+                              ),
+                              underline: Container(
+                                  height: 1,
+                                  color: Color.fromRGBO(113, 113, 113, 1)
+
+                              ),
+                              onChanged: (String newValue) {
+                                setState(() {
+                                  categoryIncident = newValue;
+                                });
+                              },
+                              items: <String>['Nearmiss', 'Personal Injury', 'Property Damage', 'Environmental','Security']
+                                  .map<DropdownMenuItem<String>>((String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(value),
+                                );
+                              }).toList(),
+                            ),
+                          ),
+                          SizedBox(height: 30.0,),
+                          Padding(
+                            padding: EdgeInsets.only(left:15.0,),
+                            child:   Text("Type of Injury (if any)", style: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(89, 89, 89, 1)
+                            )),
+                          ),
+
+
+                          ButtonTheme(
+                            alignedDropdown: true,
+                            child: DropdownButton<String>(
+
+                              isExpanded: true,
+                              value: typeInjury,
+                              icon: Icon(Icons.arrow_drop_down),
+                              iconSize: 24,
+                              elevation: 16,
+                              style: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400, color: Color.fromRGBO(113, 113, 113, 1)
+                              ),
+                              underline: Container(
+                                  height: 1,
+                                  color: Color.fromRGBO(113, 113, 113, 1)
+
+                              ),
+                              onChanged: (String newValue) {
+                                setState(() {
+                                  typeInjury = newValue;
+                                });
+                              },
+                              items: <String>['First Aid Case', 'Medical Treatment Case', 'Lost Time Injury', 'Environmental','Security','none']
+                                  .map<DropdownMenuItem<String>>((String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(value),
+                                );
+                              }).toList(),
+                            ),
+                          ),
+                          SizedBox(height: 30.0,),
+                          Padding(
+                            padding: EdgeInsets.only(left:15.0,),
+                            child:   Text("Type of Incident", style: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(89, 89, 89, 1)
+                            )),
+                          ),
+
+
+                          ButtonTheme(
+                            alignedDropdown: true,
+                            child: DropdownButton<String>(
+
+                              isExpanded: true,
+                              value: typeIncident,
+                              icon: Icon(Icons.arrow_drop_down),
+                              iconSize: 24,
+                              elevation: 16,
+                              style: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400, color: Color.fromRGBO(113, 113, 113, 1)
+                              ),
+                              underline: Container(
+                                  height: 1,
+                                  color: Color.fromRGBO(113, 113, 113, 1)
+
+                              ),
+                              onChanged: (String newValue) {
+                                setState(() {
+                                  typeIncident = newValue;
+                                });
+                              },
+                              items: <String>['Event Equipment', 'Scaffolding Collapse', 'Road Traffic Accident', 'Falls from Height','Other']
+                                  .map<DropdownMenuItem<String>>((String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(value),
+                                );
+                              }).toList(),
+                            ),
+                          ),
+                          SizedBox(height: 30.0,),
+
+                          TextFormField(
+                            decoration: new InputDecoration(
+
+//                              border: InputBorder.none,
+//                              focusedBorder: InputBorder.none,
+//                              enabledBorder: InputBorder.none,
+//                              errorBorder: InputBorder.none,
+//                              disabledBorder: InputBorder.none,
+                                contentPadding:
+                                EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
+//                    hintText: "Name / Staff ID*",
+                                labelText:"Other",
+                                labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
+                            ),
+//                                validator: (value) {
+//                                  if (value.isEmpty) {
+//                                    return 'Please enter some text';
+//                                  }
+//                                  return null;
+//                                },
+                            controller: otherController,
+                          ),
+                          SizedBox(height: 30.0,),
+                          TextFormField(
+                            decoration: new InputDecoration(
+
+//                              border: InputBorder.none,
+//                              focusedBorder: InputBorder.none,
+//                              enabledBorder: InputBorder.none,
+//                              errorBorder: InputBorder.none,
+//                              disabledBorder: InputBorder.none,
+                                contentPadding:
+                                EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
+//                    hintText: "Name / Staff ID*",
+                                labelText:"Details of fatality",
+                                labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
+                            ),
+//                                validator: (value) {
+//                                  if (value.isEmpty) {
+//                                    return 'Please enter some text';
+//                                  }
+//                                  return null;
+//                                },
+                            controller: fatalityController,
+                          ),
+                          SizedBox(height: 30.0,),
+                          TextFormField(
+                            decoration: new InputDecoration(
+
+//                              border: InputBorder.none,
+//                              focusedBorder: InputBorder.none,
+//                              enabledBorder: InputBorder.none,
+//                              errorBorder: InputBorder.none,
+//                              disabledBorder: InputBorder.none,
+                                contentPadding:
+                                EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
+//                    hintText: "Name / Staff ID*",
+                                labelText:"Describe the incident",
+                                labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
+                            ),
+//                                validator: (value) {
+//                                  if (value.isEmpty) {
+//                                    return 'Please enter some text';
+//                                  }
+//                                  return null;
+//                                },
+                            controller: incidentController,
+                          ),
+                          SizedBox(height: 30.0,),
+                          TextFormField(
+                            decoration: new InputDecoration(
+
+//                              border: InputBorder.none,
+//                              focusedBorder: InputBorder.none,
+//                              enabledBorder: InputBorder.none,
+//                              errorBorder: InputBorder.none,
+//                              disabledBorder: InputBorder.none,
+                                contentPadding:
+                                EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
+//                    hintText: "Name / Staff ID*",
+                                labelText:"Immediate Action (taken)",
+                                labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
+                            ),
+//                                validator: (value) {
+//                                  if (value.isEmpty) {
+//                                    return 'Please enter some text';
+//                                  }
+//                                  return null;
+//                                },
+                            controller: immediateController,
+                          ),
+                          SizedBox(height: 20.0,),
+
+                          new  Container(
+                            margin: EdgeInsets.only(left:8.0,),
+
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+
+                              children: <Widget>[
+                                Container(
+                                  child: file == null
+                                      ? new Text("Add attachment",style: TextStyle(fontSize: 20.0,color: DarkBlue,),)
+                                      : new Text("Attachment added",style: TextStyle(fontSize: 20.0,color: Colors.green,)),
+                                ),
+                                Container(
+
+                                    child:  Row(
+
+                                      children: <Widget>[
+                                        RaisedButton(
+                                          color: (imagePressed) ? Colors.red
+                                              : DarkBlue,
+                                          child: Icon(Icons.camera_alt, color: Colors.white,),
+                                          onPressed: getImageCamera,
+                                        ),
+                                        SizedBox(width: 10.0,),
                                         Padding(
 
                                             padding: const EdgeInsets.symmetric(vertical: 16.0),
                                             child: Align(
                                                 alignment: Alignment.topLeft,
                                                 child:SizedBox(
-                                                  width: 150,
+                                                  width: 120,
                                                   child: ElevatedButton(
                                                       style: ElevatedButton.styleFrom(
-                                                        primary: Color.fromRGBO(45, 87, 163, 1),
+                                                        primary: (imagePressed) ? Colors.red
+                                                            : DarkBlue,
                                                         onPrimary: Color.fromRGBO(32, 87, 163, 1),
                                                       ),
 
@@ -585,9 +621,9 @@ class _AccidentIncidentReport extends State<AccidentIncidentReport> {
                                                       child: Container(
                                                         child: Row(
                                                           children: <Widget>[
-                                                            Icon(Icons.file_upload,color: Colors.white,),
+                                                            Icon(Icons.image,color: Colors.white,),
                                                             SizedBox(width: 10.0,),
-                                                            Text('Upload', style: TextStyle(color: Colors.white),),
+                                                            Text('Gallery', style: TextStyle(color: Colors.white),),
                                                           ],
                                                         ),
                                                       ),
@@ -601,69 +637,50 @@ class _AccidentIncidentReport extends State<AccidentIncidentReport> {
                                             )
 
                                         ),
+
                                       ],
-                                    ),
-                                  ),
-
-
-//                                  new  Container(
-//                                    margin: EdgeInsets.only(left:8.0,),
+                                    )
+                                ),
+                                SizedBox(height: 15.0,),
+//                                              Container(
 //
-//                                    child: Column(
-//                                      crossAxisAlignment: CrossAxisAlignment.start,
+//                                                  child:  Row(
 //
-//                                      children: <Widget>[
-//                                        Container(
-//                                          child: file ==null
-//                                              ? new Text("")
-//                                              : new Text("attachment added"),
-//                                        ),
-//                                        new IconButton(
-//                                          icon: new Icon(Icons.camera_alt, color: DarkBlue,),
-////                                                highlightColor: Colors.deepOrangeAccent,
+//                                                    children: <Widget>[
 //
-//                                          iconSize: 50.0,
-//                                          onPressed: (){getImageCamera();},
-//                                        ),
-////                                              Container(
-////
-////                                                  child:  Row(
-////
-////                                                    children: <Widget>[
-////
-////                                                      ElevatedButton(
-////                                                        style: ElevatedButton.styleFrom(
-////                                                          primary: Color.fromRGBO(45, 87, 163, 1),
-//////                            onPrimary: Color.fromRGBO(32, 87, 163, 1),
-////
-////
-////                                                        ),
-////
-////                                                        child: Icon(Icons.camera_alt,color: Colors.blue,),
-////                                                        onPressed: getImageCamera,
-////                                                      ),
-//////                                              RaisedButton(
-//////                                                child: Text("UPLOAD video"),
-//////                                                onPressed:(){
-////////                                                  uploadVideo(_video);
-//////                                                },
-//////                                              ),
-////
-////                                                    ],
-////                                                  )
+//                                                      ElevatedButton(
+//                                                        style: ElevatedButton.styleFrom(
+//                                                          primary: Color.fromRGBO(45, 87, 163, 1),
+////                            onPrimary: Color.fromRGBO(32, 87, 163, 1),
+//
+//
+//                                                        ),
+//
+//                                                        child: Icon(Icons.camera_alt,color: Colors.blue,),
+//                                                        onPressed: getImageCamera,
+//                                                      ),
+////                                              RaisedButton(
+////                                                child: Text("UPLOAD video"),
+////                                                onPressed:(){
+//////                                                  uploadVideo(_video);
+////                                                },
 ////                                              ),
 //
-//                                      ],
-//                                    ),
-//                                  ),
-                                ],
-                              )
+//                                                    ],
+//                                                  )
+//                                              ),
 
-
-
-
-                            ],
+                              ],
+                            ),
                           ),
+
+
+
+
+                        ],
+                      ),
+                      )
+                    )
                         ),
                       ),
                       Align(
@@ -680,10 +697,18 @@ class _AccidentIncidentReport extends State<AccidentIncidentReport> {
                               onPressed: () {
 //                                   Validate returns true if the form is valid, or false
 //                                   otherwise.
-                                if (_formKey.currentState.validate()) {
+                                if (_formKey.currentState.validate() && file != null ) {
                                   showLoaderDialog(context);
-
                                   submitForm();
+
+
+                                }
+                                else if ( file == null ){
+
+                                  setState(()
+                                  {
+                                    imagePressed = true;
+                                  });
                                 }
                               },
                               child: Container(
@@ -707,7 +732,7 @@ class _AccidentIncidentReport extends State<AccidentIncidentReport> {
 
         )
                     )
-    );
+                  );
   }
   Future<void> submitForm() async {
     final FormState form = _formKey.currentState;
@@ -719,8 +744,9 @@ class _AccidentIncidentReport extends State<AccidentIncidentReport> {
 //    //Return int
 //    int Value = prefs.getInt('jobId');
     int u_id = userData.getInt('user_id');
+    int p_id = userData.getInt('project_id');
     AddAccident.userId = u_id;
-    AddAccident.projectId = 1;
+    AddAccident.projectId = p_id;
     AddAccident.location = locationController.text;
     AddAccident.reportedDate = dateController.text;
     AddAccident.reportedTime = timeController.text;
@@ -892,7 +918,30 @@ class _AccidentIncidentReport extends State<AccidentIncidentReport> {
     );
   }
 
+  Future NavigateToDashboard () async {
 
+    if(userType == "User"){
+      Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => Dashboard()),
+              (Route<dynamic> route) => false
+      );
+    }
+    else if(userType == "Security Guard"){
+      Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => GuardDashboard()),
+              (Route<dynamic> route) => false
+      );
+    }
+    else if(userType == "Wewatch Manager"){
+      Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => wwmanager_Dashboard()),
+              (Route<dynamic> route) => false
+      );
+    }
+  }
   Future getImageGallery() async{
     final pickedFile = await picker.getImage(source: ImageSource.gallery);
     File imageFile = new File(pickedFile.path);
@@ -903,7 +952,7 @@ class _AccidentIncidentReport extends State<AccidentIncidentReport> {
     String fi = fileExt +","+ file ;
 
     setState(()  {
-
+      imagePressed = false;
       AddAccident.attachment = fi;
 
     });
@@ -919,7 +968,7 @@ class _AccidentIncidentReport extends State<AccidentIncidentReport> {
     String fi = fileExt +","+ file ;
 
     setState(()  {
-
+      imagePressed = false;
       AddAccident.attachment = fi;
 
     });
