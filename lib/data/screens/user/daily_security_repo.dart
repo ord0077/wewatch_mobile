@@ -35,7 +35,7 @@ class _DailySecurityReport extends State<DailySecurityReport> {
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
-  String file;
+  String file = "";
   String _character ;
   final ElementsController = TextEditingController();
   final GuardController = TextEditingController();

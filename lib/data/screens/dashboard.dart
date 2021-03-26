@@ -5,7 +5,7 @@ import 'package:wewatchapp/data/widgets/navDrawerWidget.dart';
 import '../../consts.dart';
 
 class Dashboard extends StatefulWidget {
-  Dashboard({Key key, this.title}) : super(key: key);
+  Dashboard({Key key,}) : super(key: key);
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -16,7 +16,6 @@ class Dashboard extends StatefulWidget {
   // used by the build method of the State. Fields in a Widget subclass are
   // always marked "final".
 
-  final String title;
 
   @override
   _Dashboard createState() => _Dashboard();

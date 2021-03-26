@@ -19,7 +19,7 @@ import 'package:wewatchapp/data/screens/wewatchManager/wwmanager_dashboard.dart'
 
 
 class NavDrawer extends StatefulWidget {
-  NavDrawer({Key key, this.title}) : super(key: key);
+  NavDrawer({Key key,}) : super(key: key);
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -30,7 +30,6 @@ class NavDrawer extends StatefulWidget {
   // used by the build method of the State. Fields in a Widget subclass are
   // always marked "final".
 
-  final String title;
 
   @override
   _NavDrawer createState() => _NavDrawer();
@@ -39,7 +38,7 @@ class NavDrawer extends StatefulWidget {
 class _NavDrawer extends State<NavDrawer> {
 //class NavDrawer extends StatelessWidget {
   bool _isExpanded = false;
-  String userType;
+  String userType = ""?? "";
   String project_name = "" ?? "";
 
   Future<SharedPreferences> sharedPreferences() async => await SharedPreferences.getInstance();

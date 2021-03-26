@@ -36,31 +36,31 @@ class _DailyHscReport extends State<DailyHscReport> {
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
-  String file;
-  String _incidents;
-  String misses ;
-  String voilaions;
-  String first_aid;
-  String environment;
-  String housekeeping;
-  String barriers;
-  String complince;
-  String stored_properly;
-  String concerns;
-  String mask_complince;
-  String hygiene_place;
-  String distancing_compl;
-  String disinfecting_prot;
+  String file = "";
+  String _incidents= "";
+  String misses = "";
+  String voilaions= "";
+  String first_aid= "";
+  String environment= "";
+  String housekeeping= "";
+  String barriers= "";
+  String complince= "";
+  String stored_properly= "";
+  String concerns= "";
+  String mask_complince= "";
+  String hygiene_place= "";
+  String distancing_compl= "";
+  String disinfecting_prot= "";
 
   double _height;
   double _width;
-  String _setTime, _setDate;
-  String _setTime2;
+  String _setTime, _setDate = "";
+  String _setTime2= "";
 
-  String _hour, _minute, _time ;
-  String _hour2, _minute2, _time2;
+  String _hour, _minute, _time  = "";
+  String _hour2, _minute2, _time2 = "";
 
-  String dateTime;
+  String dateTime = "";
 
   DateTime selectedDate = DateTime.now();
   final  dateController = TextEditingController();

@@ -35,8 +35,8 @@ class _training_induction_form extends State<training_induction_form> {
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
-  String file;
-  String _character ;
+  String file = "";
+  String _character= "" ;
   final picker = ImagePicker();
   final AddTraining = TrainingInducModel();
   final trainingController = TextEditingController();

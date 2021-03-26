@@ -7,7 +7,7 @@ import 'wwmanager_Drawer.dart';
 
 
 class wwmanager_Dashboard extends StatefulWidget {
-  wwmanager_Dashboard({Key key, this.title}) : super(key: key);
+  wwmanager_Dashboard({Key key,}) : super(key: key);
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -18,7 +18,6 @@ class wwmanager_Dashboard extends StatefulWidget {
   // used by the build method of the State. Fields in a Widget subclass are
   // always marked "final".
 
-  final String title;
 
   @override
   _wwmanager_Dashboard createState() => _wwmanager_Dashboard();

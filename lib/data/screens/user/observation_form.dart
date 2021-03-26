@@ -36,8 +36,8 @@ class _ObservationForm extends State<ObservationForm> {
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
-  String file;
-  String _character ;
+  String file = "";
+  String _character = "" ;
   final observertionController = TextEditingController();
   final locationController = TextEditingController();
   final req_actionController = TextEditingController();

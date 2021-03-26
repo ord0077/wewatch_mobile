@@ -36,8 +36,8 @@ class _project_site_reg extends State<project_site_reg> {
   final scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
   String visitReason = 'Client';
-  String file;
-  String file2;
+  String file = "";
+  String file2 = "";
   final picker = ImagePicker();
   final picker2 = ImagePicker();
   final AddSiteVisitor = ProjectvisitorModel();

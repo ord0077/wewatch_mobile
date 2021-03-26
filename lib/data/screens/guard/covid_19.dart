@@ -36,7 +36,7 @@ class covid_19_reg  extends StatefulWidget {
 class _covid_19_reg  extends State<covid_19_reg > {
 
   final _formKey = GlobalKey<FormState>();
-  String file;
+  String file = "";
   final picker = ImagePicker();
   bool isPressed = false;
 
