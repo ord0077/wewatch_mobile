@@ -38,7 +38,7 @@ class AccidentModel {
   String describeIncident;
   String immediateAction;
   String attachment;
-
+//  xyz
   factory AccidentModel.fromMap(Map<String, dynamic> json) => AccidentModel(
     userId: json["user_id"],
     projectId: json["project_id"],
