@@ -1,3 +1,5 @@
+//@dart=2.9
+
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
@@ -41,12 +43,13 @@ class MyApp extends StatelessWidget {
     ]);
 
 //    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      return new FutureBuilder<SharedPreferences> (
+      return new FutureBuilder<SharedPreferences>  (
           future: sharedPreferences(),
           builder: (context, snapshot) {
-            if (snapshot.hasData) {
+            if (  snapshot.hasData && snapshot !=null) {
 
               isLogged = snapshot.data.containsKey(userKey);
+              print(userKey);
 
               if (isLogged ) {
                 Map userMap = jsonDecode(snapshot.data.getString(userKey));
@@ -132,32 +135,34 @@ class MyApp extends StatelessWidget {
 
             }
             else {
-              return MaterialApp(
-                debugShowCheckedModeBanner: false,
-                theme: ThemeData(
-                  primaryColorLight: Colors.black,
-                  accentColor: Color(0xFFF9F8F4),
-                  buttonColor: Color(0xFF333333),
-                  backgroundColor: Color(0xFFF9F8F4),
-                ),
+              return Container(height: 0,width: 0,);
 
-                builder: (_, __) {
-                  return Scaffold(
-                    body: Container(
-                      color: Color(0xFFCCCCCC),
-                      child: Center(
-                        child: Text(
-                          'WELCOME BACK',
-                          style: TextStyle(
-                            fontSize: 32.0,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              );
+//                MaterialApp(
+//                debugShowCheckedModeBanner: false,
+//                theme: ThemeData(
+//                  primaryColorLight: Colors.black,
+//                  accentColor: Color(0xFFF9F8F4),
+//                  buttonColor: Color(0xFF333333),
+//                  backgroundColor: Color(0xFFF9F8F4),
+//                ),
+//
+//                builder: (_, __) {
+//                  return Scaffold(
+//                    body: Container(
+//                      color: Color(0xFFCCCCCC),
+//                      child: Center(
+//                        child: Text(
+//                          'WELCOME BACK',
+//                          style: TextStyle(
+//                            fontSize: 32.0,
+//                            color: Colors.black,
+//                          ),
+//                        ),
+//                      ),
+//                    ),
+//                  );
+//                },
+//              );
             }
           }
       );
