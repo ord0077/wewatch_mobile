@@ -35,7 +35,7 @@ class _training_induction_form extends State<training_induction_form> {
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
-  String file = "";
+  String file;
   String _character= "" ;
   final picker = ImagePicker();
   final AddTraining = TrainingInducModel();
@@ -519,7 +519,7 @@ class _training_induction_form extends State<training_induction_form> {
     int u_id = userData.getInt('user_id');
     int p_id = userData.getInt('project_id');
     AddTraining.userId = u_id;
-    AddTraining.projectId = p_id;
+    AddTraining.projectId = ModalRoute.of(context).settings.arguments;
 
 
 

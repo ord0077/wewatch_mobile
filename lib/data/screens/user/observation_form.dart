@@ -36,7 +36,7 @@ class _ObservationForm extends State<ObservationForm> {
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
-  String file = "";
+  String file ;
   String _character = "" ;
   final observertionController = TextEditingController();
   final locationController = TextEditingController();
@@ -424,7 +424,7 @@ class _ObservationForm extends State<ObservationForm> {
     int u_id = userData.getInt('user_id');
     int p_id = userData.getInt('project_id');
     AddObservation.userId = u_id;
-    AddObservation.projectId = p_id;
+    AddObservation.projectId = ModalRoute.of(context).settings.arguments;
     AddObservation.observationDescription = observertionController.text;
     AddObservation.location = locationController.text;
     AddObservation.action =req_actionController.text;

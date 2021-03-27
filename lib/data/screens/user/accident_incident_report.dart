@@ -66,6 +66,7 @@ class _AccidentIncidentReport extends State<AccidentIncidentReport> {
 
 
 
+
   _User() async {
     SharedPreferences userData = await SharedPreferences.getInstance();
     setState(() {
@@ -103,7 +104,7 @@ class _AccidentIncidentReport extends State<AccidentIncidentReport> {
     categoryIncident = 'Nearmiss';
      typeInjury = 'none';
      typeIncident = 'Event Equipment';
-     timeController.text = DateFormat.jm().format(DateTime.now());
+     timeController.text = DateFormat('HH:mm').format(DateTime.now());
      dateController.text = dateFormat.format(selectedDate) ;
     super.initState();
 
@@ -746,7 +747,7 @@ class _AccidentIncidentReport extends State<AccidentIncidentReport> {
     int u_id = userData.getInt('user_id');
     int p_id = userData.getInt('project_id');
     AddAccident.userId = u_id;
-    AddAccident.projectId = p_id;
+    AddAccident.projectId = ModalRoute.of(context).settings.arguments;
     AddAccident.location = locationController.text;
     AddAccident.reportedDate = dateController.text;
     AddAccident.reportedTime = timeController.text;

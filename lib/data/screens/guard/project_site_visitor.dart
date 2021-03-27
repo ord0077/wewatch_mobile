@@ -36,8 +36,8 @@ class _project_site_reg extends State<project_site_reg> {
   final scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
   String visitReason = 'Client';
-  String file = "";
-  String file2 = "";
+  String file ;
+  String file2;
   final picker = ImagePicker();
   final picker2 = ImagePicker();
   final AddSiteVisitor = ProjectvisitorModel();
@@ -308,11 +308,11 @@ class _project_site_reg extends State<project_site_reg> {
                                 ),
                                 SizedBox(width: 20.0,),
                                 Container(
-                                  width: 200,
+                                  width: MediaQuery.of(context).size.width / 2,
                                   padding: EdgeInsets.only(top: 20.0),
                                   child:  new Text(
                                     'Take Picture of car including (make model & license plate)',
-                                    style: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Colors.grey,
+                                    style: TextStyle(fontSize: 16.0,fontWeight:FontWeight.w400,color: Colors.grey,
 
                                     ),
                                   ),
@@ -353,12 +353,12 @@ class _project_site_reg extends State<project_site_reg> {
 //                              new  Icon(Icons.camera_alt,color: Color.fromRGBO(45, 87, 163, 1), size: 50.0,),
                                 SizedBox(width: 20.0,),
                                 Container(
-                                  width: 200,
+                                  width: MediaQuery.of(context).size.width / 2,
                                   padding: EdgeInsets.only(top: 20.0),
 
                                   child:  new Text(
                                     'Take Picture of Identification',
-                                    style: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Colors.grey,
+                                    style: TextStyle(fontSize: 16.0,fontWeight:FontWeight.w400,color: Colors.grey,
 
                                     ),
                                   ),
@@ -454,7 +454,7 @@ class _project_site_reg extends State<project_site_reg> {
     int u_id = userData.getInt('user_id');
     int p_id = userData.getInt('project_id');
     AddSiteVisitor.userId = u_id;
-    AddSiteVisitor.projectId = p_id;
+    AddSiteVisitor.projectId = ModalRoute.of(context).settings.arguments;
     AddSiteVisitor.companyName =companyController.text;
     AddSiteVisitor.driverContact = drivercontController.text;
     AddSiteVisitor.visitReason=visitReason;

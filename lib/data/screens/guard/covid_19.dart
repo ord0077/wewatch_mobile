@@ -36,7 +36,7 @@ class covid_19_reg  extends StatefulWidget {
 class _covid_19_reg  extends State<covid_19_reg > {
 
   final _formKey = GlobalKey<FormState>();
-  String file = "";
+  String file ;
   final picker = ImagePicker();
   bool isPressed = false;
 
@@ -464,7 +464,7 @@ class _covid_19_reg  extends State<covid_19_reg > {
     int p_id = userData.getInt('project_id');
 
     AddCovid.userId = u_id;
-    AddCovid.projectId = p_id;
+    AddCovid.projectId = ModalRoute.of(context).settings.arguments;
     AddCovid.temperature = "p";
 
 

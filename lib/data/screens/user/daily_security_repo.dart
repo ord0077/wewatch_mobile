@@ -35,7 +35,7 @@ class _DailySecurityReport extends State<DailySecurityReport> {
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
-  String file = "";
+  String file ;
   String _character ;
   final ElementsController = TextEditingController();
   final GuardController = TextEditingController();
@@ -620,7 +620,7 @@ class _DailySecurityReport extends State<DailySecurityReport> {
     int u_id = userData.getInt('user_id');
     int p_id = userData.getInt('project_id');
     AddDailySecurity.userId = u_id;
-    AddDailySecurity.projectId = p_id;
+    AddDailySecurity.projectId = ModalRoute.of(context).settings.arguments;
 
 
 
