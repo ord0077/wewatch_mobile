@@ -87,7 +87,7 @@ class _GuardDashboard extends State<GuardDashboard> {
           ),
         ),
         body:Center( child:Container(
-          child: Text('guard Dashboard',
+          child: Text('Guard Dashboard',
             style: TextStyle( fontSize: 20,fontWeight:FontWeight.bold,color: Colors.blue),),
         )),
 //      Stack(
