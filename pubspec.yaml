@@ -38,6 +38,7 @@ dependencies:
   path_provider: any
   path: any
   intl: ^0.16.1
+  flutter_statusbarcolor: any
 
 
 
