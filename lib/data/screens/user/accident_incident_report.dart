@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wewatchapp/CustomAppBar.dart';
+import 'package:wewatchapp/DbControllers/AccidentIncidentController.dart';
 import 'package:wewatchapp/data/models/accidentModel.dart';
 import 'package:wewatchapp/data/screens/dashboard.dart';
 import 'package:wewatchapp/data/screens/guard/guard_dashboard.dart';
@@ -18,6 +19,7 @@ import 'package:http/http.dart' as http;
 import 'dart:io' as Io;
 import '../../../consts.dart';
 import 'package:wewatchapp/consts.dart';
+import 'package:flutter/services.dart';
 
 
 class AccidentIncidentReport extends StatefulWidget {
@@ -61,8 +63,9 @@ class _AccidentIncidentReport extends State<AccidentIncidentReport> {
   final AddAccident = AccidentModel();
   bool  imagePressed = false;
   String userType = ""?? "";
-
-
+  int p_id;
+  int u_id;
+  String imgString;
 
 
 
@@ -70,6 +73,8 @@ class _AccidentIncidentReport extends State<AccidentIncidentReport> {
     SharedPreferences userData = await SharedPreferences.getInstance();
     setState(() {
       userType = (userData.getString('user_type') ?? '');
+      u_id = userData.getInt('user_id');
+      p_id = ModalRoute.of(context).settings.arguments;
     });
   }
 
@@ -93,18 +98,26 @@ class _AccidentIncidentReport extends State<AccidentIncidentReport> {
       });
   }
 
+  List list;
+  bool loading = true;
 
+  Future userList()async{
+    list = await AccidentIncidentController().fetchData();
+    setState(() {loading=false;});
+    //print(list);
+  }
 
 
 
   @override
   void initState() {
+    userList();
     _User();
     categoryIncident = 'Nearmiss';
-     typeInjury = 'none';
-     typeIncident = 'Event Equipment';
-     timeController.text = DateFormat.jm().format(DateTime.now());
-     dateController.text = dateFormat.format(selectedDate) ;
+    typeInjury = 'none';
+    typeIncident = 'Event Equipment';
+    timeController.text = DateFormat('HH:mm').format(DateTime.now());
+    dateController.text = dateFormat.format(selectedDate) ;
     super.initState();
 
 
@@ -113,7 +126,8 @@ class _AccidentIncidentReport extends State<AccidentIncidentReport> {
 
   @override
   void dispose() {
-    dateController.dispose();
+    this.dateController.dispose();
+    this.locationController.dispose();
 
     super.dispose();
   }
@@ -125,523 +139,540 @@ class _AccidentIncidentReport extends State<AccidentIncidentReport> {
         onWillPop: ()  {
           return NavigateToDashboard();
         },
-    child: SafeArea(
-        child: Scaffold(
-            key: scaffoldKey,
-            drawer: Theme(
-              data: Theme.of(context).copyWith(
-                  canvasColor: Color.fromRGBO(45, 87, 163, 1) //This will change the drawer background to blue.
-                //other styles
+        child: SafeArea(
+            child: Scaffold(
+              key: scaffoldKey,
+              drawer: Theme(
+                data: Theme.of(context).copyWith(
+                    canvasColor: Color.fromRGBO(45, 87, 163, 1) //This will change the drawer background to blue.
+                  //other styles
+                ),
+                child: NavDrawer(),
               ),
-              child: NavDrawer(),
-            ),
-            appBar: PreferredSize(
-                preferredSize: const Size.fromHeight(150.0),
-                child:Column(
-                  children: [
-                    Container(
-                      padding: EdgeInsets.only(top: 20.0,bottom: 20.0),
-                      // color: Theme.of(context).primaryColorLight,
-                      color: lightBackgroundColor,
-                      child:   Stack(
-                        children: <Widget>[
-                          new Center(
-                              child: new Column(
-                                children: <Widget>[
-                                  Container(
-//                        padding: EdgeInsets.only(top: 16.0),
-                                    width: 200,
-                                    child:Image(image: AssetImage('assets/images/wewatch_logo.png',)),
-
-                                  )
-                                ],
-                              )),
-                          Positioned(
-                            left: 10,
-//                top: 16,
-                            child:  GestureDetector(
-
-                                onTap: (){
-                                  scaffoldKey.currentState.openDrawer();
-                                },
-
-
-                                child: Image.asset(
-                                  'assets/images/drawer_icon.png',
-                                  height: 40,
-                                  width: 40,
-                                  fit: BoxFit.fitWidth,
-                                )
-                            ),
-                          ),
-
-
-                        ],
-                      ),
-                    ),
-                    Container(
-                        width: MediaQuery.of(context).size.width ,
-                        padding: const EdgeInsets.only(left: 20.0,top: 20.0,right: 20.0,bottom: 15.0,),
-//                  color: Colors.black54,
-                        color: Color.fromRGBO(45, 87, 163, 1),
-
-
-
-
-                        child: Align(
-                            alignment: Alignment.center,
-                            child: Container(
-                                child: FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  child: Text('Accident / Incident Form',
-                                    style: TextStyle( fontSize: 25,fontWeight:FontWeight.bold,color: Colors.white),),
-                                )
-
-                            )
-
-
-                        )
-                    ),
-                  ],
-                )
-
-            ),
-
-        body:
-        Center (
-                child:    Container(
-                  height: MediaQuery.of(context).size.height,
-                  width: MediaQuery.of(context).size.width ,
-//          color: Color.fromRGBO(246,246,246, 1),
-                  padding: EdgeInsets.all(20.0),
-//        color:Colors.green,
+              appBar: PreferredSize(
+                  preferredSize: const Size.fromHeight(150.0),
                   child:Column(
                     children: [
-                      Expanded(
-                  child: Scrollbar(
-                  child: SingleChildScrollView(
-                    child: Form(
-                    key: _formKey,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
+                      Container(
+                        padding: EdgeInsets.only(top: 20.0,bottom: 20.0),
+                        // color: Theme.of(context).primaryColorLight,
+                        color: lightBackgroundColor,
+                        child:   Stack(
+                          children: <Widget>[
+                            new Center(
+                                child: new Column(
+                                  children: <Widget>[
+                                    Container(
+//                        padding: EdgeInsets.only(top: 16.0),
+                                      width: 200,
+                                      child:Image(image: AssetImage('assets/images/wewatch_logo.png',)),
+
+                                    )
+                                  ],
+                                )),
+                            Positioned(
+                              left: 10,
+//                top: 16,
+                              child:  GestureDetector(
+
+                                  onTap: (){
+                                    scaffoldKey.currentState.openDrawer();
+                                  },
 
 
-                          TextFormField(
-                            decoration: new InputDecoration(
-
-//                              border: InputBorder.none,
-//                              focusedBorder: InputBorder.none,
-//                              enabledBorder: InputBorder.none,
-//                              errorBorder: InputBorder.none,
-//                              disabledBorder: InputBorder.none,
-                                contentPadding:
-                                EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
-//                    hintText: "Name / Staff ID*",
-                                labelText:"Location",
-                                labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
+                                  child: Image.asset(
+                                    'assets/images/drawer_icon.png',
+                                    height: 40,
+                                    width: 40,
+                                    fit: BoxFit.fitWidth,
+                                  )
+                              ),
                             ),
-                            validator: (value) {
-                              if (value.isEmpty) {
-                                return 'Please enter some text';
-                              }
-                              return null;
-                            },
-                            controller: locationController,
 
-                          ),
-                          SizedBox(height: 30.0,),
 
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              new Flexible(
-                                  child: Container(
-                                    width: 230.0,
-                                    child:Center(
-                                      child: Text(
-                                        "Date",
+                          ],
+                        ),
+                      ),
+                      Container(
+                          width: MediaQuery.of(context).size.width ,
+                          padding: const EdgeInsets.only(left: 20.0,top: 20.0,right: 20.0,bottom: 15.0,),
+//                  color: Colors.black54,
+                          color: Color.fromRGBO(45, 87, 163, 1),
 
-                                        textAlign: TextAlign.center,
-                                        style:  TextStyle(fontSize: 20.0,fontWeight:FontWeight.w500,color: Color.fromRGBO(45, 87, 163, 1),),
-                                      ),
-                                    ),
+
+
+
+                          child: Align(
+                              alignment: Alignment.center,
+                              child: Container(
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Text('Accident / Incident Form',
+                                      style: TextStyle( fontSize: 25,fontWeight:FontWeight.bold,color: Colors.white),),
                                   )
 
-                              ),
-                              SizedBox(width: 20.0,),
-                              new Flexible(
-                                  child: Container(
-                                    width: 230.0,
-                                    child:Center(
-                                      child: Text(
-                                        "Time",
-                                        textAlign: TextAlign.center,
-                                        style:  TextStyle(fontSize: 20.0,fontWeight:FontWeight.w500,color: Color.fromRGBO(45, 87, 163, 1),),
-
-                                      ),
-                                    ),
-                                  )
-
-                              ),
-                              SizedBox(width: 20.0,),
-                            ],
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              new Flexible(
-                                  child: Container(
-                                    width: 230.0,
-                                    child:InkWell(
-                                      onTap: () async {
-                                        var date =  await showDatePicker(
-                                            context: context,
-                                            initialDate:DateTime.now(),
-                                            firstDate:DateTime(2021),
-                                            lastDate: DateTime(2100)
-                                        );
-                                        dateController.text = date.toString().substring(0,10);
-                                      },
-                                      child: Container(
-                                        margin: EdgeInsets.only(top: 10),
-//                                  width: _width / 1.7,
-//                                  height: _height / 9,
-                                        alignment: Alignment.center,
-                                        decoration: BoxDecoration(color: Colors.grey[200]),
-                                        child: TextFormField(
-                                          style: TextStyle(fontSize: 25),
-                                          textAlign: TextAlign.center,
-                                          onSaved: (String val) {
-                                            _setTime = val;
-                                          },
-                                          enabled: false,
-
-                                          keyboardType: TextInputType.text,
-                                          controller: dateController,
-                                          decoration: InputDecoration(
-                                              disabledBorder:
-                                              UnderlineInputBorder(borderSide: BorderSide.none),
-                                              // labelText: 'Time',
-                                              contentPadding: EdgeInsets.all(5)),
-                                        ),
-                                      ),
-                                    ),
-                                  )
-
-                              ),
-                              SizedBox(width: 20.0,),
-                              new Flexible(
-                                  child: Container(
-                                    width: 230.0,
-                                    child: InkWell(
-                                      onTap: () {
-                                        _selectTime(context);
-                                      },
-                                      child: Container(
-                                        margin: EdgeInsets.only(top: 10),
-//                                  width: _width / 1.7,
-//                                  height: _height / 9,
-                                        alignment: Alignment.center,
-                                        decoration: BoxDecoration(color: Colors.grey[200]),
-                                        child: TextFormField(
-                                          style: TextStyle(fontSize: 25),
-                                          textAlign: TextAlign.center,
-                                          onSaved: (String val) {
-                                            _setTime = val;
-                                          },
-                                          enabled: false,
-
-                                          keyboardType: TextInputType.text,
-                                          controller: timeController,
-                                          decoration: InputDecoration(
-                                              disabledBorder:
-                                              UnderlineInputBorder(borderSide: BorderSide.none),
-                                              // labelText: 'Time',
-                                              contentPadding: EdgeInsets.all(5)),
-                                        ),
-                                      ),
-                                    ),
-                                  )
-
-                              ),
-                              SizedBox(width: 20.0,),
-                            ],
-                          ),
-                          SizedBox(height: 30.0,),
-                          Padding(
-                            padding: EdgeInsets.only(left:15.0,),
-                            child:   Text("Category of Incident", style: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(89, 89, 89, 1)
-                            )),
-                          ),
+                              )
 
 
-                          ButtonTheme(
-                            alignedDropdown: true,
-                            child: DropdownButton<String>(
+                          )
+                      ),
+                    ],
+                  )
 
-                              isExpanded: true,
-                              value: categoryIncident,
-                              icon: Icon(Icons.arrow_drop_down),
-                              iconSize: 24,
-                              elevation: 16,
-                              style: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400, color: Color.fromRGBO(113, 113, 113, 1)
-                              ),
-                              underline: Container(
-                                  height: 1,
-                                  color: Color.fromRGBO(113, 113, 113, 1)
+              ),
 
-                              ),
-                              onChanged: (String newValue) {
-                                setState(() {
-                                  categoryIncident = newValue;
-                                });
-                              },
-                              items: <String>['Nearmiss', 'Personal Injury', 'Property Damage', 'Environmental','Security']
-                                  .map<DropdownMenuItem<String>>((String value) {
-                                return DropdownMenuItem<String>(
-                                  value: value,
-                                  child: Text(value),
-                                );
-                              }).toList(),
-                            ),
-                          ),
-                          SizedBox(height: 30.0,),
-                          Padding(
-                            padding: EdgeInsets.only(left:15.0,),
-                            child:   Text("Type of Injury (if any)", style: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(89, 89, 89, 1)
-                            )),
-                          ),
+              body: new GestureDetector(
+                  onTap: () {
+                    FocusScopeNode currentFocus = FocusScope.of(context);
+
+                    if (!currentFocus.hasPrimaryFocus) {
+                      currentFocus.unfocus();
+                    }
+                  },
+                  child: new
+                  Center (
+                      child:    Container(
+                        height: MediaQuery.of(context).size.height,
+                        width: MediaQuery.of(context).size.width ,
+//          color: Color.fromRGBO(246,246,246, 1),
+                        padding: EdgeInsets.all(20.0),
+//        color:Colors.green,
+                        child:Column(
+                          children: [
+                            Expanded(
+                              child: Scrollbar(
+                                  child: SingleChildScrollView(
+                                      child: Form(
+                                        key: _formKey,
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: <Widget>[
 
 
-                          ButtonTheme(
-                            alignedDropdown: true,
-                            child: DropdownButton<String>(
+                                            TextFormField(
 
-                              isExpanded: true,
-                              value: typeInjury,
-                              icon: Icon(Icons.arrow_drop_down),
-                              iconSize: 24,
-                              elevation: 16,
-                              style: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400, color: Color.fromRGBO(113, 113, 113, 1)
-                              ),
-                              underline: Container(
-                                  height: 1,
-                                  color: Color.fromRGBO(113, 113, 113, 1)
-
-                              ),
-                              onChanged: (String newValue) {
-                                setState(() {
-                                  typeInjury = newValue;
-                                });
-                              },
-                              items: <String>['First Aid Case', 'Medical Treatment Case', 'Lost Time Injury', 'Environmental','Security','none']
-                                  .map<DropdownMenuItem<String>>((String value) {
-                                return DropdownMenuItem<String>(
-                                  value: value,
-                                  child: Text(value),
-                                );
-                              }).toList(),
-                            ),
-                          ),
-                          SizedBox(height: 30.0,),
-                          Padding(
-                            padding: EdgeInsets.only(left:15.0,),
-                            child:   Text("Type of Incident", style: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(89, 89, 89, 1)
-                            )),
-                          ),
-
-
-                          ButtonTheme(
-                            alignedDropdown: true,
-                            child: DropdownButton<String>(
-
-                              isExpanded: true,
-                              value: typeIncident,
-                              icon: Icon(Icons.arrow_drop_down),
-                              iconSize: 24,
-                              elevation: 16,
-                              style: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400, color: Color.fromRGBO(113, 113, 113, 1)
-                              ),
-                              underline: Container(
-                                  height: 1,
-                                  color: Color.fromRGBO(113, 113, 113, 1)
-
-                              ),
-                              onChanged: (String newValue) {
-                                setState(() {
-                                  typeIncident = newValue;
-                                });
-                              },
-                              items: <String>['Event Equipment', 'Scaffolding Collapse', 'Road Traffic Accident', 'Falls from Height','Other']
-                                  .map<DropdownMenuItem<String>>((String value) {
-                                return DropdownMenuItem<String>(
-                                  value: value,
-                                  child: Text(value),
-                                );
-                              }).toList(),
-                            ),
-                          ),
-                          SizedBox(height: 30.0,),
-
-                          TextFormField(
-                            decoration: new InputDecoration(
-
+                                              decoration: new InputDecoration(
 //                              border: InputBorder.none,
 //                              focusedBorder: InputBorder.none,
 //                              enabledBorder: InputBorder.none,
 //                              errorBorder: InputBorder.none,
 //                              disabledBorder: InputBorder.none,
-                                contentPadding:
-                                EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
+                                                  contentPadding:
+                                                  EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
 //                    hintText: "Name / Staff ID*",
-                                labelText:"Other",
-                                labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
-                            ),
-//                                validator: (value) {
-//                                  if (value.isEmpty) {
-//                                    return 'Please enter some text';
-//                                  }
-//                                  return null;
-//                                },
-                            controller: otherController,
-                          ),
-                          SizedBox(height: 30.0,),
-                          TextFormField(
-                            decoration: new InputDecoration(
+                                                  labelText:"Location",
+                                                  labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
+                                              ),
 
-//                              border: InputBorder.none,
-//                              focusedBorder: InputBorder.none,
-//                              enabledBorder: InputBorder.none,
-//                              errorBorder: InputBorder.none,
-//                              disabledBorder: InputBorder.none,
-                                contentPadding:
-                                EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
-//                    hintText: "Name / Staff ID*",
-                                labelText:"Details of fatality",
-                                labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
-                            ),
-//                                validator: (value) {
-//                                  if (value.isEmpty) {
-//                                    return 'Please enter some text';
-//                                  }
-//                                  return null;
-//                                },
-                            controller: fatalityController,
-                          ),
-                          SizedBox(height: 30.0,),
-                          TextFormField(
-                            decoration: new InputDecoration(
+                                              validator: (value) {
+                                                if (value.isEmpty) {
+                                                  return 'Please enter some text';
+                                                }
+                                                return null;
+                                              },
+                                              controller: locationController,
 
-//                              border: InputBorder.none,
-//                              focusedBorder: InputBorder.none,
-//                              enabledBorder: InputBorder.none,
-//                              errorBorder: InputBorder.none,
-//                              disabledBorder: InputBorder.none,
-                                contentPadding:
-                                EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
-//                    hintText: "Name / Staff ID*",
-                                labelText:"Describe the incident",
-                                labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
-                            ),
-//                                validator: (value) {
-//                                  if (value.isEmpty) {
-//                                    return 'Please enter some text';
-//                                  }
-//                                  return null;
-//                                },
-                            controller: incidentController,
-                          ),
-                          SizedBox(height: 30.0,),
-                          TextFormField(
-                            decoration: new InputDecoration(
+                                            ),
+                                            SizedBox(height: 30.0,),
 
-//                              border: InputBorder.none,
-//                              focusedBorder: InputBorder.none,
-//                              enabledBorder: InputBorder.none,
-//                              errorBorder: InputBorder.none,
-//                              disabledBorder: InputBorder.none,
-                                contentPadding:
-                                EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
-//                    hintText: "Name / Staff ID*",
-                                labelText:"Immediate Action (taken)",
-                                labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
-                            ),
-//                                validator: (value) {
-//                                  if (value.isEmpty) {
-//                                    return 'Please enter some text';
-//                                  }
-//                                  return null;
-//                                },
-                            controller: immediateController,
-                          ),
-                          SizedBox(height: 20.0,),
+                                            Row(
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              crossAxisAlignment: CrossAxisAlignment.center,
+                                              children: [
+                                                new Flexible(
+                                                    child: Container(
+                                                      width: 230.0,
+                                                      child:Center(
+                                                        child: Text(
+                                                          "Date",
 
-                          new  Container(
-                            margin: EdgeInsets.only(left:8.0,),
-
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-
-                              children: <Widget>[
-                                Container(
-                                  child: file == null
-                                      ? new Text("Add attachment",style: TextStyle(fontSize: 20.0,color: DarkBlue,),)
-                                      : new Text("Attachment added",style: TextStyle(fontSize: 20.0,color: Colors.green,)),
-                                ),
-                                Container(
-
-                                    child:  Row(
-
-                                      children: <Widget>[
-                                        RaisedButton(
-                                          color: (imagePressed) ? Colors.red
-                                              : DarkBlue,
-                                          child: Icon(Icons.camera_alt, color: Colors.white,),
-                                          onPressed: getImageCamera,
-                                        ),
-                                        SizedBox(width: 10.0,),
-                                        Padding(
-
-                                            padding: const EdgeInsets.symmetric(vertical: 16.0),
-                                            child: Align(
-                                                alignment: Alignment.topLeft,
-                                                child:SizedBox(
-                                                  width: 120,
-                                                  child: ElevatedButton(
-                                                      style: ElevatedButton.styleFrom(
-                                                        primary: (imagePressed) ? Colors.red
-                                                            : DarkBlue,
-                                                        onPrimary: Color.fromRGBO(32, 87, 163, 1),
-                                                      ),
-
-//                                                       ),
-                                                      child: Container(
-                                                        child: Row(
-                                                          children: <Widget>[
-                                                            Icon(Icons.image,color: Colors.white,),
-                                                            SizedBox(width: 10.0,),
-                                                            Text('Gallery', style: TextStyle(color: Colors.white),),
-                                                          ],
+                                                          textAlign: TextAlign.center,
+                                                          style:  TextStyle(fontSize: 20.0,fontWeight:FontWeight.w500,color: Color.fromRGBO(45, 87, 163, 1),),
                                                         ),
                                                       ),
+                                                    )
 
-                                                      onPressed: (){
-                                                        getImageGallery();
-                                                        //Actions
-                                                      }
+                                                ),
+                                                SizedBox(width: 20.0,),
+                                                new Flexible(
+                                                    child: Container(
+                                                      width: 230.0,
+                                                      child:Center(
+                                                        child: Text(
+                                                          "Time",
+                                                          textAlign: TextAlign.center,
+                                                          style:  TextStyle(fontSize: 20.0,fontWeight:FontWeight.w500,color: Color.fromRGBO(45, 87, 163, 1),),
+
+                                                        ),
+                                                      ),
+                                                    )
+
+                                                ),
+                                                SizedBox(width: 20.0,),
+                                              ],
+                                            ),
+                                            Row(
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              crossAxisAlignment: CrossAxisAlignment.center,
+                                              children: [
+                                                new Flexible(
+                                                    child: Container(
+                                                      width: 230.0,
+                                                      child:InkWell(
+                                                        onTap: () async {
+                                                          var date =  await showDatePicker(
+                                                              context: context,
+                                                              initialDate:DateTime.now(),
+                                                              firstDate:DateTime(2021),
+                                                              lastDate: DateTime(2100)
+                                                          );
+                                                          dateController.text = date.toString().substring(0,10);
+                                                        },
+                                                        child: Container(
+                                                          margin: EdgeInsets.only(top: 10),
+//                                  width: _width / 1.7,
+//                                  height: _height / 9,
+                                                          alignment: Alignment.center,
+                                                          decoration: BoxDecoration(color: Colors.grey[200]),
+                                                          child: TextFormField(
+                                                            style: TextStyle(fontSize: 25),
+                                                            textAlign: TextAlign.center,
+                                                            onSaved: (String val) {
+                                                              _setTime = val;
+                                                            },
+                                                            enabled: false,
+
+                                                            keyboardType: TextInputType.text,
+                                                            controller: dateController,
+                                                            decoration: InputDecoration(
+                                                                disabledBorder:
+                                                                UnderlineInputBorder(borderSide: BorderSide.none),
+                                                                // labelText: 'Time',
+                                                                contentPadding: EdgeInsets.all(5)),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    )
+
+                                                ),
+                                                SizedBox(width: 20.0,),
+                                                new Flexible(
+                                                    child: Container(
+                                                      width: 230.0,
+                                                      child: InkWell(
+                                                        onTap: () {
+                                                          _selectTime(context);
+                                                        },
+                                                        child: Container(
+                                                          margin: EdgeInsets.only(top: 10),
+//                                  width: _width / 1.7,
+//                                  height: _height / 9,
+                                                          alignment: Alignment.center,
+                                                          decoration: BoxDecoration(color: Colors.grey[200]),
+                                                          child: TextFormField(
+                                                            style: TextStyle(fontSize: 25),
+                                                            textAlign: TextAlign.center,
+                                                            onSaved: (String val) {
+                                                              _setTime = val;
+                                                            },
+                                                            enabled: false,
+
+                                                            keyboardType: TextInputType.text,
+                                                            controller: timeController,
+                                                            decoration: InputDecoration(
+                                                                disabledBorder:
+                                                                UnderlineInputBorder(borderSide: BorderSide.none),
+                                                                // labelText: 'Time',
+                                                                contentPadding: EdgeInsets.all(5)),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    )
+
+                                                ),
+                                                SizedBox(width: 20.0,),
+                                              ],
+                                            ),
+                                            SizedBox(height: 30.0,),
+                                            Padding(
+                                              padding: EdgeInsets.only(left:15.0,),
+                                              child:   Text("Category of Incident", style: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(89, 89, 89, 1)
+                                              )),
+                                            ),
+
+
+                                            ButtonTheme(
+                                              alignedDropdown: true,
+                                              child: DropdownButton<String>(
+
+                                                isExpanded: true,
+                                                value: categoryIncident,
+                                                icon: Icon(Icons.arrow_drop_down),
+                                                iconSize: 24,
+                                                elevation: 16,
+                                                style: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400, color: Color.fromRGBO(113, 113, 113, 1)
+                                                ),
+                                                underline: Container(
+                                                    height: 1,
+                                                    color: Color.fromRGBO(113, 113, 113, 1)
+
+                                                ),
+                                                onChanged: (String newValue) {
+                                                  setState(() {
+                                                    categoryIncident = newValue;
+                                                  });
+                                                },
+                                                items: <String>['Nearmiss', 'Personal Injury', 'Property Damage', 'Environmental','Security']
+                                                    .map<DropdownMenuItem<String>>((String value) {
+                                                  return DropdownMenuItem<String>(
+                                                    value: value,
+                                                    child: Text(value),
+                                                  );
+                                                }).toList(),
+                                              ),
+                                            ),
+                                            SizedBox(height: 30.0,),
+                                            Padding(
+                                              padding: EdgeInsets.only(left:15.0,),
+                                              child:   Text("Type of Injury (if any)", style: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(89, 89, 89, 1)
+                                              )),
+                                            ),
+
+
+                                            ButtonTheme(
+                                              alignedDropdown: true,
+                                              child: DropdownButton<String>(
+
+                                                isExpanded: true,
+                                                value: typeInjury,
+                                                icon: Icon(Icons.arrow_drop_down),
+                                                iconSize: 24,
+                                                elevation: 16,
+                                                style: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400, color: Color.fromRGBO(113, 113, 113, 1)
+                                                ),
+                                                underline: Container(
+                                                    height: 1,
+                                                    color: Color.fromRGBO(113, 113, 113, 1)
+
+                                                ),
+                                                onChanged: (String newValue) {
+                                                  setState(() {
+                                                    typeInjury = newValue;
+                                                  });
+                                                },
+                                                items: <String>['First Aid Case', 'Medical Treatment Case', 'Lost Time Injury', 'Environmental','Security','none']
+                                                    .map<DropdownMenuItem<String>>((String value) {
+                                                  return DropdownMenuItem<String>(
+                                                    value: value,
+                                                    child: Text(value),
+                                                  );
+                                                }).toList(),
+                                              ),
+                                            ),
+                                            SizedBox(height: 30.0,),
+                                            Padding(
+                                              padding: EdgeInsets.only(left:15.0,),
+                                              child:   Text("Type of Incident", style: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(89, 89, 89, 1)
+                                              )),
+                                            ),
+
+
+                                            ButtonTheme(
+                                              alignedDropdown: true,
+                                              child: DropdownButton<String>(
+
+                                                isExpanded: true,
+                                                value: typeIncident,
+                                                icon: Icon(Icons.arrow_drop_down),
+                                                iconSize: 24,
+                                                elevation: 16,
+                                                style: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400, color: Color.fromRGBO(113, 113, 113, 1)
+                                                ),
+                                                underline: Container(
+                                                    height: 1,
+                                                    color: Color.fromRGBO(113, 113, 113, 1)
+
+                                                ),
+                                                onChanged: (String newValue) {
+                                                  setState(() {
+                                                    typeIncident = newValue;
+                                                  });
+                                                },
+                                                items: <String>['Event Equipment', 'Scaffolding Collapse', 'Road Traffic Accident', 'Falls from Height','Other']
+                                                    .map<DropdownMenuItem<String>>((String value) {
+                                                  return DropdownMenuItem<String>(
+                                                    value: value,
+                                                    child: Text(value),
+                                                  );
+                                                }).toList(),
+                                              ),
+                                            ),
+                                            SizedBox(height: 30.0,),
+
+                                            TextFormField(
+                                              decoration: new InputDecoration(
+
+//                              border: InputBorder.none,
+//                              focusedBorder: InputBorder.none,
+//                              enabledBorder: InputBorder.none,
+//                              errorBorder: InputBorder.none,
+//                              disabledBorder: InputBorder.none,
+                                                  contentPadding:
+                                                  EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
+//                    hintText: "Name / Staff ID*",
+                                                  labelText:"Other",
+                                                  labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
+                                              ),
+//                                validator: (value) {
+//                                  if (value.isEmpty) {
+//                                    return 'Please enter some text';
+//                                  }
+//                                  return null;
+//                                },
+                                              controller: otherController,
+                                            ),
+                                            SizedBox(height: 30.0,),
+                                            TextFormField(
+                                              decoration: new InputDecoration(
+
+//                              border: InputBorder.none,
+//                              focusedBorder: InputBorder.none,
+//                              enabledBorder: InputBorder.none,
+//                              errorBorder: InputBorder.none,
+//                              disabledBorder: InputBorder.none,
+                                                  contentPadding:
+                                                  EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
+//                    hintText: "Name / Staff ID*",
+                                                  labelText:"Details of fatality",
+                                                  labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
+                                              ),
+//                                validator: (value) {
+//                                  if (value.isEmpty) {
+//                                    return 'Please enter some text';
+//                                  }
+//                                  return null;
+//                                },
+                                              controller: fatalityController,
+                                            ),
+                                            SizedBox(height: 30.0,),
+                                            TextFormField(
+                                              decoration: new InputDecoration(
+
+//                              border: InputBorder.none,
+//                              focusedBorder: InputBorder.none,
+//                              enabledBorder: InputBorder.none,
+//                              errorBorder: InputBorder.none,
+//                              disabledBorder: InputBorder.none,
+                                                  contentPadding:
+                                                  EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
+//                    hintText: "Name / Staff ID*",
+                                                  labelText:"Describe the incident",
+                                                  labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
+                                              ),
+//                                validator: (value) {
+//                                  if (value.isEmpty) {
+//                                    return 'Please enter some text';
+//                                  }
+//                                  return null;
+//                                },
+                                              controller: incidentController,
+                                            ),
+                                            SizedBox(height: 30.0,),
+                                            TextFormField(
+                                              decoration: new InputDecoration(
+
+//                              border: InputBorder.none,
+//                              focusedBorder: InputBorder.none,
+//                              enabledBorder: InputBorder.none,
+//                              errorBorder: InputBorder.none,
+//                              disabledBorder: InputBorder.none,
+                                                  contentPadding:
+                                                  EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
+//                    hintText: "Name / Staff ID*",
+                                                  labelText:"Immediate Action (taken)",
+                                                  labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
+                                              ),
+//                                validator: (value) {
+//                                  if (value.isEmpty) {
+//                                    return 'Please enter some text';
+//                                  }
+//                                  return null;
+//                                },
+                                              controller: immediateController,
+                                            ),
+                                            SizedBox(height: 20.0,),
+
+                                            new  Container(
+                                              margin: EdgeInsets.only(left:8.0,),
+
+                                              child: Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+
+                                                children: <Widget>[
+                                                  Container(
+                                                    child: file == null
+                                                        ? new Text("Add attachment",style: TextStyle(fontSize: 20.0,color: DarkBlue,),)
+                                                        : new Text("Attachment added",style: TextStyle(fontSize: 20.0,color: Colors.green,)),
                                                   ),
-                                                )
-                                            )
+                                                  Container(
 
-                                        ),
+                                                      child:  Row(
 
-                                      ],
-                                    )
-                                ),
-                                SizedBox(height: 15.0,),
+                                                        children: <Widget>[
+                                                          RaisedButton(
+
+                                                              color: (imagePressed) ? Colors.red
+                                                                  : DarkBlue,
+                                                              child: Icon(Icons.camera_alt, color: Colors.white,),
+                                                              onPressed:(){
+                                                                FocusScope.of(context).requestFocus(FocusNode());
+                                                                getImageCamera();
+                                                              }
+
+
+                                                          ),
+                                                          SizedBox(width: 10.0,),
+                                                          Padding(
+
+                                                              padding: const EdgeInsets.symmetric(vertical: 16.0),
+                                                              child: Align(
+                                                                  alignment: Alignment.topLeft,
+                                                                  child:SizedBox(
+                                                                    width: 120,
+                                                                    child: ElevatedButton(
+
+                                                                        style: ElevatedButton.styleFrom(
+                                                                          primary: (imagePressed) ? Colors.red
+                                                                              : DarkBlue,
+                                                                          onPrimary: Color.fromRGBO(32, 87, 163, 1),
+                                                                        ),
+
+//                                                       ),
+                                                                        child: Container(
+                                                                          child: Row(
+                                                                            children: <Widget>[
+                                                                              Icon(Icons.image,color: Colors.white,),
+                                                                              SizedBox(width: 10.0,),
+                                                                              Text('Gallery', style: TextStyle(color: Colors.white),),
+                                                                            ],
+                                                                          ),
+                                                                        ),
+
+                                                                        onPressed: (){
+                                                                          FocusScope.of(context).requestFocus(FocusNode());
+                                                                          getImageGallery();
+                                                                          //Actions
+                                                                        }
+                                                                    ),
+                                                                  )
+                                                              )
+
+                                                          ),
+
+                                                        ],
+                                                      )
+                                                  ),
+                                                  SizedBox(height: 15.0,),
 //                                              Container(
 //
 //                                                  child:  Row(
@@ -670,71 +701,109 @@ class _AccidentIncidentReport extends State<AccidentIncidentReport> {
 //                                                  )
 //                                              ),
 
-                              ],
+                                                ],
+                                              ),
+                                            ),
+
+
+
+
+                                          ],
+                                        ),
+                                      )
+                                  )
+                              ),
                             ),
-                          ),
-
-
-
-
-                        ],
-                      ),
-                      )
-                    )
-                        ),
-                      ),
-                      Align(
-                        child: SizedBox(
+                            Align(
+                              child: SizedBox(
 //                              width: 600,
-                          child: ElevatedButton(
+                                child: ElevatedButton(
 
-                              style: ElevatedButton.styleFrom(
-                                primary: Color.fromRGBO(45, 87, 163, 1),
+                                    style: ElevatedButton.styleFrom(
+                                      primary: Color.fromRGBO(45, 87, 163, 1),
 //                            onPrimary: Color.fromRGBO(32, 87, 163, 1),
 
 
-                              ),
-                              onPressed: () {
+                                    ),
+                                    onPressed: () {
 //                                   Validate returns true if the form is valid, or false
 //                                   otherwise.
-                                if (_formKey.currentState.validate() && file != null ) {
-                                  showLoaderDialog(context);
-                                  submitForm();
+                                      if (_formKey.currentState.validate() && file != null ) {
+                                        showLoaderDialog(context);
+                                        _Submit();
 
 
-                                }
-                                else if ( file == null ){
+                                      }
+                                      else if ( file == null ){
 
-                                  setState(()
-                                  {
-                                    imagePressed = true;
-                                  });
-                                }
-                              },
-                              child: Container(
+                                        setState(()
+                                        {
+                                          imagePressed = true;
+                                        });
+                                      }
+                                    },
+                                    child: Container(
 //                                    height: MediaQuery.of(context).size.height,
-                                width: MediaQuery.of(context).size.width ,
+                                      width: MediaQuery.of(context).size.width ,
 //                                    width: 600.0,
 
-                                child:Text('Submit',textAlign: TextAlign.center,style: TextStyle(fontSize: 20.0)
+                                      child:Text('Submit',textAlign: TextAlign.center,style: TextStyle(fontSize: 20.0)
+                                      ),
+                                    )
                                 ),
-                              )
-                          ),
+                              ),
+                            )
+                          ],
                         ),
+
+
+
                       )
-                    ],
-                  ),
-
-
-
-                )
+                  )
+              ),
             )
-
         )
-                    )
-                  );
+    );
   }
-  Future<void> submitForm() async {
+
+  Future <void> AddToSqllite() async {
+    _onLoading();
+//    p_id = ModalRoute.of(context).settings.arguments;
+
+    AccidentModel accidentModel = AccidentModel( id: null, projectId: p_id, userId: u_id, location: locationController.text ,reportedDate: dateController.text ,
+      reportedTime: timeController.text, categoryIncident:categoryIncident,typeInjury:typeInjury,typeIncident:typeIncident,other:otherController.text,
+      fatality: fatalityController.text,describeIncident:incidentController.text,immediateAction:immediateController.text ,attachment: imgString,);
+    await AccidentIncidentController().addData(accidentModel).then((value){
+      if (value>0) {
+        print("Success");
+        userList();
+        print(list.length);
+      }else{
+        print("faild");
+      }
+
+    });
+  }
+
+  Future<void> _Submit() async {
+    final FormState form = _formKey.currentState;
+    form.save();
+    try {
+      final result = await InternetAddress.lookup('example.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        print('connected');
+        _submitForm();
+      }
+    } on SocketException catch (_) {
+      print('not connected');
+
+      AddToSqllite();
+    }
+
+  }
+
+
+  Future<void> _submitForm() async {
     final FormState form = _formKey.currentState;
 
 //    if (form.validate()) {
@@ -742,9 +811,7 @@ class _AccidentIncidentReport extends State<AccidentIncidentReport> {
 //      _formResult.supporterType = a;
     SharedPreferences userData = await SharedPreferences.getInstance();
 //    //Return int
-//    int Value = prefs.getInt('jobId');
-    int u_id = userData.getInt('user_id');
-    int p_id = userData.getInt('project_id');
+
     AddAccident.userId = u_id;
     AddAccident.projectId = p_id;
     AddAccident.location = locationController.text;
@@ -842,7 +909,7 @@ class _AccidentIncidentReport extends State<AccidentIncidentReport> {
                           onPressed: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (BuildContext context) =>  AccidentIncidentReport (),),
+                              MaterialPageRoute(builder: (BuildContext context) =>  AccidentIncidentReport (),settings: RouteSettings( arguments: p_id)),
                             );
 
                           },
@@ -904,12 +971,18 @@ class _AccidentIncidentReport extends State<AccidentIncidentReport> {
 
   showLoaderDialog(BuildContext context){
     AlertDialog alert=AlertDialog(
-      content: new Row(
+      content: new Row
+        (
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircularProgressIndicator(),
+          CircularProgressIndicator(
+              valueColor: new AlwaysStoppedAnimation<Color>(DarkBlue)
+          ),
           Container(margin: EdgeInsets.only(left: 15.0),child:Text("please wait ..." )),
         ],),
     );
+
     showDialog(barrierDismissible: false,
       context:context,
       builder:(BuildContext context){
@@ -946,13 +1019,12 @@ class _AccidentIncidentReport extends State<AccidentIncidentReport> {
     final pickedFile = await picker.getImage(source: ImageSource.gallery);
     File imageFile = new File(pickedFile.path);
     String fileExt = imageFile.path.split('.').last;
-//    String basename = basename(imageFile.path);
     List<int> videoBytes = imageFile.readAsBytesSync();
     file = base64.encode(videoBytes);
     String fi = fileExt +","+ file ;
-
     setState(()  {
       imagePressed = false;
+      imgString = imageFile.path;
       AddAccident.attachment = fi;
 
     });
@@ -969,6 +1041,7 @@ class _AccidentIncidentReport extends State<AccidentIncidentReport> {
 
     setState(()  {
       imagePressed = false;
+      imgString = imageFile.path;
       AddAccident.attachment = fi;
 
     });

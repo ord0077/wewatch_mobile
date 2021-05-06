@@ -1,13 +1,17 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wewatchapp/CustomAppBar.dart';
 import 'dart:io';
 import 'package:http/http.dart' as http;
+import 'file:///C:/Users/user/Desktop/wewatch_app/lib/DbControllers/controller.dart';
 import 'dart:io' as Io;
 
 import 'package:wewatchapp/data/models/observationModel.dart';
@@ -36,8 +40,12 @@ class _ObservationForm extends State<ObservationForm> {
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
-  String file;
-  String _character ;
+  String file ;
+  Uint8List imgfile;
+  Uint8List imgUint8;
+  File imgfil;
+  String imgString;
+  String _character = "" ;
   final observertionController = TextEditingController();
   final locationController = TextEditingController();
   final req_actionController = TextEditingController();
@@ -45,8 +53,8 @@ class _ObservationForm extends State<ObservationForm> {
   final picker = ImagePicker();
   bool  imagePressed = false;
   String userType = ""?? "";
-
-
+  int u_id ;
+  int p_id;
 
 
 
@@ -54,17 +62,60 @@ class _ObservationForm extends State<ObservationForm> {
     SharedPreferences userData = await SharedPreferences.getInstance();
     setState(() {
       userType = (userData.getString('user_type') ?? '');
+      u_id = userData.getInt('user_id');
+      p_id = ModalRoute.of(context).settings.arguments;
+
+//      p_id = userData.getInt('project_id');
     });
   }
 
+//  Future  IsInternet() async{
+//    await SyncronizationData.isInternet().then((connection){
+//      if(connection) {
+//        print("internet connection available ");
+//      } else {
+//        print("no internet connection available");
+//        Fluttertoast.showToast(
+//            msg: "No internet connection available",
+//            toastLength: Toast.LENGTH_SHORT,
+//            gravity: ToastGravity.BOTTOM,
+//            timeInSecForIosWeb: 1,
+//            backgroundColor: Colors.black54,
+//            textColor: Colors.white,
+//            fontSize: 16.0
+//        );
+////        Scaffold.of(context).showSnackBar(SnackBar(
+////          content: Text('No Internet'),
+////          duration: Duration(seconds: 3),
+////        ));
+//      }
+//    });
+//  }
+
+  List list;
+  bool loading = true;
+
+  Future userList()async{
+    list = await Controller().fetchData();
+    setState(() {loading=false;});
+    //print(list);
+  }
+
+//  Future syncToMysql()async{
+//    await SyncronizationData().fetchAllInfo().then((userList)async{
+//      EasyLoading.show(status: 'Dont close app. we are sync...');
+//      await SyncronizationData().saveToMysqlWith(userList);
+//      EasyLoading.showSuccess('Successfully save to mysql');
+//    });
+//  }
 
 
   @override
   void initState() {
     _User();
     locationController.text ="Location";
-
-      super.initState();
+    userList();
+    super.initState();
   }
 
   @override
@@ -81,245 +132,257 @@ class _ObservationForm extends State<ObservationForm> {
 
     return WillPopScope (
         onWillPop: () {
-      return NavigateToDashboard ();
-    },
-    child: SafeArea(
-        child: Scaffold(
-        key: scaffoldKey,
-        drawer: Theme(
-        data: Theme.of(context).copyWith(
-        canvasColor: Color.fromRGBO(45, 87, 163, 1) //This will change the drawer background to blue.
-      //other styles
-    ),
-    child: NavDrawer(),
-    ),
-    appBar: PreferredSize(
-    preferredSize: const Size.fromHeight(150.0),
-    child:Column(
-    children: [
-    Container(
-    padding: EdgeInsets.only(top: 20.0,bottom: 20.0),
-    // color: Theme.of(context).primaryColorLight,
-    color: lightBackgroundColor,
-    child:   Stack(
-    children: <Widget>[
-    new Center(
-    child: new Column(
-    children: <Widget>[
-    Container(
+          return NavigateToDashboard ();
+        },
+        child: SafeArea(
+            child: Scaffold(
+                key: scaffoldKey,
+                drawer: Theme(
+                  data: Theme.of(context).copyWith(
+                      canvasColor: Color.fromRGBO(45, 87, 163, 1) //This will change the drawer background to blue.
+                    //other styles
+                  ),
+                  child: NavDrawer(),
+                ),
+                appBar: PreferredSize(
+                    preferredSize: const Size.fromHeight(150.0),
+                    child:Column(
+                      children: [
+                        Container(
+                          padding: EdgeInsets.only(top: 20.0,bottom: 20.0),
+                          // color: Theme.of(context).primaryColorLight,
+                          color: lightBackgroundColor,
+                          child:   Stack(
+                            children: <Widget>[
+                              new Center(
+                                  child: new Column(
+                                    children: <Widget>[
+                                      Container(
 //                        padding: EdgeInsets.only(top: 16.0),
-    width: 200,
-    child:Image(image: AssetImage('assets/images/wewatch_logo.png',)),
+                                        width: 200,
+                                        child:Image(image: AssetImage('assets/images/wewatch_logo.png',)),
 
-    )
-    ],
-    )),
-    Positioned(
-    left: 10,
+                                      )
+                                    ],
+                                  )),
+                              Positioned(
+                                left: 10,
 //                top: 16,
-    child:  GestureDetector(
+                                child:  GestureDetector(
 
-    onTap: (){
-    scaffoldKey.currentState.openDrawer();
-    },
-
-
-    child: Image.asset(
-    'assets/images/drawer_icon.png',
-    height: 40,
-    width: 40,
-    fit: BoxFit.fitWidth,
-    )
-    ),
-    ),
+                                    onTap: (){
+                                      scaffoldKey.currentState.openDrawer();
+                                    },
 
 
-    ],
-    ),
-    ),
-    Container(
-    width: MediaQuery.of(context).size.width ,
-    padding: const EdgeInsets.only(left: 20.0,top: 20.0,right: 20.0,bottom: 15.0,),
-//                  color: Colors.black54,
-    color: Color.fromRGBO(45, 87, 163, 1),
-
-
-
-
-    child: Align(
-    alignment: Alignment.center,
-    child: Container(
-    child: FittedBox(
-    fit: BoxFit.scaleDown,
-    child: Text('Observation Form',
-    style: TextStyle( fontSize: 25,fontWeight:FontWeight.bold,color: Colors.white),),
-    )
-
-    )
-
-
-    )
-    ),
-    ],
-    )
-
-    ),
-
-        body:
-        Center (
-                child:    Container(
-                  height: MediaQuery.of(context).size.height,
-                  width: MediaQuery.of(context).size.width ,
-//          color: Color.fromRGBO(246,246,246, 1),
-                  padding: EdgeInsets.all(20.0),
-//        color:Colors.green,
-                  child:Column(
-                    children: [
-                      Expanded(
-                  child: Scrollbar(
-                  child: SingleChildScrollView(
-                    child: Form(
-                    key: _formKey,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          SizedBox(height: 40.0,),
-
-
-                          TextFormField(
-                            decoration: new InputDecoration(
-
-//                              border: InputBorder.none,
-//                              focusedBorder: InputBorder.none,
-//                              enabledBorder: InputBorder.none,
-//                              errorBorder: InputBorder.none,
-//                              disabledBorder: InputBorder.none,
-                                contentPadding:
-                                EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
-//                    hintText: "Name / Staff ID*",
-                                labelText:"Observations's Description",
-                                labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
-                            ),
-//                                validator: (value) {
-//                                  if (value.isEmpty) {
-//                                    return 'Please enter some text';
-//                                  }
-//                                  return null;
-//                                },
-                            controller: observertionController,
-                          ),
-                          SizedBox(height: 30.0,),
-                          TextFormField(
-
-                            readOnly: true,
-                            decoration: new InputDecoration(
-
-//                              border: InputBorder.none,
-//                              focusedBorder: InputBorder.none,
-//                              enabledBorder: InputBorder.none,
-//                              errorBorder: InputBorder.none,
-//                              disabledBorder: InputBorder.none,
-                                contentPadding:
-                                EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
-//                    hintText: "Name / Staff ID*",
-                                labelText:"Location to fetched from project",
-
-                                labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
-                            ),
-//                                validator: (value) {
-//                                  if (value.isEmpty) {
-//                                    return 'Please enter some text';
-//                                  }
-//                                  return null;
-//                                },
-                            controller: locationController,
-                          ),
-                          SizedBox(height: 30.0,), TextFormField(
-                            decoration: new InputDecoration(
-
-//                              border: InputBorder.none,
-//                              focusedBorder: InputBorder.none,
-//                              enabledBorder: InputBorder.none,
-//                              errorBorder: InputBorder.none,
-//                              disabledBorder: InputBorder.none,
-                                contentPadding:
-                                EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
-//                    hintText: "Name / Staff ID*",
-                                labelText:"Required Action",
-                                labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
-                            ),
-                            validator: (value) {
-                              if (value.isEmpty) {
-                                return 'Please enter some text';
-                              }
-                              return null;
-                            },
-                            controller: req_actionController,
-                          ),
-                          SizedBox(height: 40.0,),
-                          new  Container(
-                            margin: EdgeInsets.only(left:8.0,),
-
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-
-                              children: <Widget>[
-                                Container(
-                                  child: file == null
-                                      ? new Text("Add attachment",style: TextStyle(fontSize: 20.0,color: DarkBlue,),)
-                                      : new Text("Attachment added",style: TextStyle(fontSize: 20.0,color: Colors.green,)),
-                                ),
-                                Container(
-
-                                    child:  Row(
-
-                                      children: <Widget>[
-                                        RaisedButton(
-                                          color: (imagePressed) ? Colors.red
-                                              : DarkBlue,
-                                          child: Icon(Icons.camera_alt, color: Colors.white,),
-                                          onPressed: getImageCamera,
-                                        ),
-                                        SizedBox(width: 10.0,),
-                                        Padding(
-
-                                            padding: const EdgeInsets.symmetric(vertical: 16.0),
-                                            child: Align(
-                                                alignment: Alignment.topLeft,
-                                                child:SizedBox(
-                                                  width: 120,
-                                                  child: ElevatedButton(
-                                                      style: ElevatedButton.styleFrom(
-                                                        primary: (imagePressed) ? Colors.red
-                                                            : DarkBlue,
-                                                        onPrimary: Color.fromRGBO(32, 87, 163, 1),
-                                                      ),
-
-//                                                       ),
-                                                      child: Container(
-                                                        child: Row(
-                                                          children: <Widget>[
-                                                            Icon(Icons.image,color: Colors.white,),
-                                                            SizedBox(width: 10.0,),
-                                                            Text('Gallery', style: TextStyle(color: Colors.white),),
-                                                          ],
-                                                        ),
-                                                      ),
-
-                                                      onPressed: (){
-                                                        getImageGallery();
-                                                        //Actions
-                                                      }
-                                                  ),
-                                                )
-                                            )
-
-                                        ),
-
-                                      ],
+                                    child: Image.asset(
+                                      'assets/images/drawer_icon.png',
+                                      height: 40,
+                                      width: 40,
+                                      fit: BoxFit.fitWidth,
                                     )
                                 ),
-                                SizedBox(height: 15.0,),
+                              ),
+
+
+                            ],
+                          ),
+                        ),
+                        Container(
+                            width: MediaQuery.of(context).size.width ,
+                            padding: const EdgeInsets.only(left: 20.0,top: 20.0,right: 20.0,bottom: 15.0,),
+//                  color: Colors.black54,
+                            color: Color.fromRGBO(45, 87, 163, 1),
+
+
+
+
+                            child: Align(
+                                alignment: Alignment.center,
+                                child: Container(
+                                    child: FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      child: Text('Observation Form',
+                                        style: TextStyle( fontSize: 25,fontWeight:FontWeight.bold,color: Colors.white),),
+                                    )
+
+                                )
+
+
+                            )
+                        ),
+                      ],
+                    )
+
+                ),
+
+                body: new GestureDetector(
+                    onTap: () {
+                      FocusScopeNode currentFocus = FocusScope.of(context);
+
+                      if (!currentFocus.hasPrimaryFocus) {
+                        currentFocus.unfocus();
+                      }
+                    },
+                    child: new
+                    Center (
+                        child:    Container(
+                          height: MediaQuery.of(context).size.height,
+                          width: MediaQuery.of(context).size.width ,
+//          color: Color.fromRGBO(246,246,246, 1),
+                          padding: EdgeInsets.all(20.0),
+//        color:Colors.green,
+                          child:Column(
+                            children: [
+                              Expanded(
+                                child: Scrollbar(
+                                    child: SingleChildScrollView(
+                                        child: Form(
+                                          key: _formKey,
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: <Widget>[
+                                              SizedBox(height: 40.0,),
+
+
+                                              TextFormField(
+                                                decoration: new InputDecoration(
+
+//                              border: InputBorder.none,
+//                              focusedBorder: InputBorder.none,
+//                              enabledBorder: InputBorder.none,
+//                              errorBorder: InputBorder.none,
+//                              disabledBorder: InputBorder.none,
+                                                    contentPadding:
+                                                    EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
+//                    hintText: "Name / Staff ID*",
+                                                    labelText:"Observations's Description",
+                                                    labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
+                                                ),
+//                                validator: (value) {
+//                                  if (value.isEmpty) {
+//                                    return 'Please enter some text';
+//                                  }
+//                                  return null;
+//                                },
+                                                controller: observertionController,
+                                              ),
+                                              SizedBox(height: 30.0,),
+                                              TextFormField(
+
+                                                readOnly: true,
+                                                decoration: new InputDecoration(
+
+//                              border: InputBorder.none,
+//                              focusedBorder: InputBorder.none,
+//                              enabledBorder: InputBorder.none,
+//                              errorBorder: InputBorder.none,
+//                              disabledBorder: InputBorder.none,
+                                                    contentPadding:
+                                                    EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
+//                    hintText: "Name / Staff ID*",
+                                                    labelText:"Location to fetched from project",
+
+                                                    labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
+                                                ),
+//                                validator: (value) {
+//                                  if (value.isEmpty) {
+//                                    return 'Please enter some text';
+//                                  }
+//                                  return null;
+//                                },
+                                                controller: locationController,
+                                              ),
+                                              SizedBox(height: 30.0,), TextFormField(
+                                                decoration: new InputDecoration(
+
+//                              border: InputBorder.none,
+//                              focusedBorder: InputBorder.none,
+//                              enabledBorder: InputBorder.none,
+//                              errorBorder: InputBorder.none,
+//                              disabledBorder: InputBorder.none,
+                                                    contentPadding:
+                                                    EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
+//                    hintText: "Name / Staff ID*",
+                                                    labelText:"Required Action",
+                                                    labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
+                                                ),
+                                                validator: (value) {
+                                                  if (value.isEmpty) {
+                                                    return 'Please enter some text';
+                                                  }
+                                                  return null;
+                                                },
+                                                controller: req_actionController,
+                                              ),
+                                              SizedBox(height: 40.0,),
+                                              new  Container(
+                                                margin: EdgeInsets.only(left:8.0,),
+
+                                                child: Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+
+                                                  children: <Widget>[
+                                                    Container(
+                                                      child: file == null
+                                                          ? new Text("Add attachment",style: TextStyle(fontSize: 20.0,color: DarkBlue,),)
+                                                          : new Text("Attachment added",style: TextStyle(fontSize: 20.0,color: Colors.green,)),
+                                                    ),
+                                                    Container(
+
+                                                        child:  Row(
+
+                                                          children: <Widget>[
+                                                            RaisedButton(
+                                                                color: (imagePressed) ? Colors.red
+                                                                    : DarkBlue,
+                                                                child: Icon(Icons.camera_alt, color: Colors.white,),
+                                                                onPressed:(){
+                                                                  FocusScope.of(context).requestFocus(FocusNode());
+                                                                  getImageCamera();
+                                                                }
+                                                            ),
+                                                            SizedBox(width: 10.0,),
+                                                            Padding(
+
+                                                                padding: const EdgeInsets.symmetric(vertical: 16.0),
+                                                                child: Align(
+                                                                    alignment: Alignment.topLeft,
+                                                                    child:SizedBox(
+                                                                      width: 120,
+                                                                      child: ElevatedButton(
+                                                                          style: ElevatedButton.styleFrom(
+                                                                            primary: (imagePressed) ? Colors.red
+                                                                                : DarkBlue,
+                                                                            onPrimary: Color.fromRGBO(32, 87, 163, 1),
+                                                                          ),
+
+//                                                       ),
+                                                                          child: Container(
+                                                                            child: Row(
+                                                                              children: <Widget>[
+                                                                                Icon(Icons.image,color: Colors.white,),
+                                                                                SizedBox(width: 10.0,),
+                                                                                Text('Gallery', style: TextStyle(color: Colors.white),),
+                                                                              ],
+                                                                            ),
+                                                                          ),
+
+                                                                          onPressed: (){
+                                                                            FocusScope.of(context).requestFocus(FocusNode());
+                                                                            getImageGallery();
+                                                                            //Actions
+                                                                          }
+                                                                      ),
+                                                                    )
+                                                                )
+
+                                                            ),
+
+                                                          ],
+                                                        )
+                                                    ),
+                                                    SizedBox(height: 15.0,),
 //                                              Container(
 //
 //                                                  child:  Row(
@@ -348,72 +411,108 @@ class _ObservationForm extends State<ObservationForm> {
 //                                                  )
 //                                              ),
 
-                              ],
-                            ),
-                          ),
+                                                  ],
+                                                ),
+                                              ),
 
 
 
-                        ],
-                      ),
-                      )
-                    )
-                        ),
-                      ),
-                      Align(
-                        child: SizedBox(
+                                            ],
+                                          ),
+                                        )
+                                    )
+                                ),
+                              ),
+                              Align(
+                                child: SizedBox(
 //                              width: 600,
-                          child: ElevatedButton(
+                                  child: ElevatedButton(
 
-                              style: ElevatedButton.styleFrom(
-                                primary: Color.fromRGBO(45, 87, 163, 1),
+                                      style: ElevatedButton.styleFrom(
+                                        primary: Color.fromRGBO(45, 87, 163, 1),
 //                            onPrimary: Color.fromRGBO(32, 87, 163, 1),
 
 
-                              ),
-                              onPressed: () {
+                                      ),
+                                      onPressed: () async {
 //                                   Validate returns true if the form is valid, or false
 //                                   otherwise.
-                                if (_formKey.currentState.validate() && file != null ) {
-                                  showLoaderDialog(context);
-                                  _submitForm();
+                                        if (_formKey.currentState.validate() && file != null ) {
+                                          showLoaderDialog(context);
+                                          _Submit();
+//                                  AddToSqllite();
 
+                                        }
+                                        else if ( file == null ){
 
-                                }
-                                else if ( file == null ){
-
-                                  setState(()
-                                  {
-                                    imagePressed = true;
-                                  });
-                                }
-                              },
-                              child: Container(
+                                          setState(()
+                                          {
+                                            imagePressed = true;
+                                          });
+                                        }
+                                      },
+                                      child: Container(
 //                                    height: MediaQuery.of(context).size.height,
-                                width: MediaQuery.of(context).size.width ,
+                                        width: MediaQuery.of(context).size.width ,
 //                                    width: 600.0,
 
-                                child:Text('Submit',textAlign: TextAlign.center,style: TextStyle(fontSize: 20.0)
+                                        child:Text('Submit',textAlign: TextAlign.center,style: TextStyle(fontSize: 20.0)
+                                        ),
+                                      )
+                                  ),
                                 ),
                               )
+                            ],
                           ),
-                        ),
-                      )
-                    ],
-                  ),
 
 
 
+                        )
+                    )
                 )
             )
-
-        )
         )
 
     );
   }
-  Future<void> _submitForm() async {
+
+  Future <void> AddToSqllite() async {
+    _onLoading();
+    p_id = ModalRoute.of(context).settings.arguments;
+
+    ObservationModel observationModel = ObservationModel( id: null, projectId: p_id, userId: u_id, observationDescription: observertionController.text,location:  locationController.text,action: req_actionController.text,attachments: imgString,);
+    await Controller().addData(observationModel).then((value){
+      if (value>0) {
+        print("Success");
+        userList();
+        print(list.length);
+      }else{
+        print("faild");
+      }
+
+    });
+  }
+
+  Future<void> _Submit() async {
     final FormState form = _formKey.currentState;
+    form.save();
+    try {
+      final result = await InternetAddress.lookup('example.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        print('connected');
+        _submitForm();
+      }
+    } on SocketException catch (_) {
+      print('not connected');
+
+      AddToSqllite();
+    }
+
+  }
+
+
+  Future<void> _submitForm() async {
+
 
 //    if (form.validate()) {
 //      String a= _fbKey.currentState.value.toString();
@@ -421,22 +520,12 @@ class _ObservationForm extends State<ObservationForm> {
     SharedPreferences userData = await SharedPreferences.getInstance();
 //    //Return int
 //    int Value = prefs.getInt('jobId');
-    int u_id = userData.getInt('user_id');
-    int p_id = userData.getInt('project_id');
+
     AddObservation.userId = u_id;
     AddObservation.projectId = p_id;
     AddObservation.observationDescription = observertionController.text;
     AddObservation.location = locationController.text;
     AddObservation.action =req_actionController.text;
-
-
-
-
-//    _AddResult.name = widget.EconomicDetail.name.toString();
-    form.save();
-//    print(_AddResult.toMap());
-
-//    SharedPreferences prefs = await SharedPreferences.getInstance();
 
     String tokenn = userData.getString('token');
 //    String tokenn ='90|ZHVdsajU7doU6LusdhVwd2D0s9zqZAebfnUhInLT';
@@ -512,7 +601,7 @@ class _ObservationForm extends State<ObservationForm> {
                           onPressed: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (BuildContext context) =>  ObservationForm (),),
+                              MaterialPageRoute(builder: (BuildContext context) =>  ObservationForm (),settings: RouteSettings( arguments: p_id)),
                             );
 
                           },
@@ -575,12 +664,18 @@ class _ObservationForm extends State<ObservationForm> {
 
   showLoaderDialog(BuildContext context){
     AlertDialog alert=AlertDialog(
-      content: new Row(
+      content: new Row
+        (
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircularProgressIndicator(),
-          Container(margin: EdgeInsets.only(left: 15.0),child:Text("Loading..." )),
+          CircularProgressIndicator(
+              valueColor: new AlwaysStoppedAnimation<Color>(DarkBlue)
+          ),
+          Container(margin: EdgeInsets.only(left: 15.0),child:Text("please wait ..." )),
         ],),
     );
+
     showDialog(barrierDismissible: false,
       context:context,
       builder:(BuildContext context){
@@ -594,13 +689,12 @@ class _ObservationForm extends State<ObservationForm> {
     final pickedFile = await picker.getImage(source: ImageSource.gallery);
     File imageFile = new File(pickedFile.path);
     String fileExt = imageFile.path.split('.').last;
-//    String basename = basename(imageFile.path);
     List<int> videoBytes = imageFile.readAsBytesSync();
     file = base64.encode(videoBytes);
     String fi = fileExt +","+ file ;
-
     setState(()  {
       imagePressed = false;
+      imgString = imageFile.path;
       AddObservation.attachments = fi;
 
     });
@@ -617,6 +711,7 @@ class _ObservationForm extends State<ObservationForm> {
 
     setState(()  {
       imagePressed = false;
+      imgString = imageFile.path;
       AddObservation.attachments = fi;
 
     });
@@ -626,7 +721,7 @@ class _ObservationForm extends State<ObservationForm> {
   Future NavigateToDashboard () async {
 
     if(userType == "User"){
-       Navigator.pushAndRemoveUntil(
+      Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => Dashboard()),
               (Route<dynamic> route) => false

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wewatchapp/CustomAppBar.dart';
+import 'package:wewatchapp/DbControllers/DailySiteVisitorController.dart';
 import 'dart:io';
 
 import 'package:wewatchapp/consts.dart';
@@ -36,7 +37,7 @@ class _project_site_reg extends State<project_site_reg> {
   final scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
   String visitReason = 'Client';
-  String file;
+  String file ;
   String file2;
   final picker = ImagePicker();
   final picker2 = ImagePicker();
@@ -46,19 +47,29 @@ class _project_site_reg extends State<project_site_reg> {
   bool CarPressed = false;
   bool IDPressed = false;
   String userType = ""?? "";
-
-
-
+  String CarimgString;
+  String IDimgString;
+  int u_id;
+  int p_id;
 
 
   _User() async {
     SharedPreferences userData = await SharedPreferences.getInstance();
     setState(() {
       userType = (userData.getString('user_type') ?? '');
+      u_id = userData.getInt('user_id');
+      p_id = ModalRoute.of(context).settings.arguments;
     });
   }
 
+  List list;
+  bool loading = true;
 
+  Future userList()async{
+    list = await DailySiteVisitorController().fetchData();
+    setState(() {loading=false;});
+    //print(list);
+  }
 
 
 
@@ -67,6 +78,7 @@ class _project_site_reg extends State<project_site_reg> {
   @override
   void initState() {
     _User();
+    userList();
     IDPressed = false;
     CarPressed = false;
     super.initState();
@@ -83,366 +95,413 @@ class _project_site_reg extends State<project_site_reg> {
 
     return WillPopScope (
         onWillPop: () {
-      return  NavigateToDashboard () ;
-    },
-    child:SafeArea(
-        child: Scaffold(
-        key: scaffoldKey,
-        drawer: Theme(
-        data: Theme.of(context).copyWith(
-        canvasColor: Color.fromRGBO(45, 87, 163, 1) //This will change the drawer background to blue.
-      //other styles
-    ),
-    child: NavDrawer(),
-    ),
-    appBar: PreferredSize(
-    preferredSize: const Size.fromHeight(150.0),
-    child:Column(
-    children: [
-    Container(
-    padding: EdgeInsets.only(top: 20.0,bottom: 20.0),
-    // color: Theme.of(context).primaryColorLight,
-    color: lightBackgroundColor,
-    child:   Stack(
-    children: <Widget>[
-    new Center(
-    child: new Column(
-    children: <Widget>[
-    Container(
+          return  NavigateToDashboard () ;
+        },
+        child:SafeArea(
+            child: Scaffold(
+              key: scaffoldKey,
+              drawer: Theme(
+                data: Theme.of(context).copyWith(
+                    canvasColor: Color.fromRGBO(45, 87, 163, 1) //This will change the drawer background to blue.
+                  //other styles
+                ),
+                child: NavDrawer(),
+              ),
+              appBar: PreferredSize(
+                  preferredSize: const Size.fromHeight(150.0),
+                  child:Column(
+                    children: [
+                      Container(
+                        padding: EdgeInsets.only(top: 20.0,bottom: 20.0),
+                        // color: Theme.of(context).primaryColorLight,
+                        color: lightBackgroundColor,
+                        child:   Stack(
+                          children: <Widget>[
+                            new Center(
+                                child: new Column(
+                                  children: <Widget>[
+                                    Container(
 //                        padding: EdgeInsets.only(top: 16.0),
-    width: 200,
-    child:Image(image: AssetImage('assets/images/wewatch_logo.png',)),
+                                      width: 200,
+                                      child:Image(image: AssetImage('assets/images/wewatch_logo.png',)),
 
-    )
-    ],
-    )),
-    Positioned(
-    left: 10,
+                                    )
+                                  ],
+                                )),
+                            Positioned(
+                              left: 10,
 //                top: 16,
-    child:  GestureDetector(
+                              child:  GestureDetector(
 
-    onTap: (){
-    scaffoldKey.currentState.openDrawer();
-    },
-
-
-    child: Image.asset(
-    'assets/images/drawer_icon.png',
-    height: 40,
-    width: 40,
-    fit: BoxFit.fitWidth,
-    )
-    ),
-    ),
+                                  onTap: (){
+                                    scaffoldKey.currentState.openDrawer();
+                                  },
 
 
-    ],
-    ),
-    ),
-    Container(
-    width: MediaQuery.of(context).size.width ,
-    padding: const EdgeInsets.only(left: 20.0,top: 20.0,right: 20.0,bottom: 15.0,),
+                                  child: Image.asset(
+                                    'assets/images/drawer_icon.png',
+                                    height: 40,
+                                    width: 40,
+                                    fit: BoxFit.fitWidth,
+                                  )
+                              ),
+                            ),
+
+
+                          ],
+                        ),
+                      ),
+                      Container(
+                          width: MediaQuery.of(context).size.width ,
+                          padding: const EdgeInsets.only(left: 20.0,top: 20.0,right: 20.0,bottom: 15.0,),
 //                  color: Colors.black54,
-    color: Color.fromRGBO(45, 87, 163, 1),
+                          color: Color.fromRGBO(45, 87, 163, 1),
 
 
 
 
-    child: Align(
-    alignment: Alignment.center,
-    child: Container(
-    child: FittedBox(
-    fit: BoxFit.scaleDown,
-    child: Text('Project Site Visitors Daily Register',
-    style: TextStyle( fontSize: 25,fontWeight:FontWeight.bold,color: Colors.white),),
-    )
+                          child: Align(
+                              alignment: Alignment.center,
+                              child: Container(
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Text('Daily Site Visitor Form',
+                                      style: TextStyle( fontSize: 25,fontWeight:FontWeight.bold,color: Colors.white),),
+                                  )
 
-    )
+                              )
 
 
-    )
-    ),
-    ],
-    )
+                          )
+                      ),
+                    ],
+                  )
 
-    ),
+              ),
 
 //
 //      drawer: ,
 
-        body:
-        Center (
+              body: new GestureDetector(
+                  onTap: () {
+                    FocusScopeNode currentFocus = FocusScope.of(context);
 
-                child:    Container(
-                  height: MediaQuery.of(context).size.height,
-                  width: MediaQuery.of(context).size.width ,
+                    if (!currentFocus.hasPrimaryFocus) {
+                      currentFocus.unfocus();
+                    }
+                  },
+                  child: new
+                  Center (
+
+                      child:    Container(
+                        height: MediaQuery.of(context).size.height,
+                        width: MediaQuery.of(context).size.width ,
 //          color: Color.fromRGBO(246,246,246, 1),
-                  padding: EdgeInsets.all(20.0),
+                        padding: EdgeInsets.all(20.0),
 //        color:Colors.green,
-                  child:Column(
-                    children: [
-                      Expanded(
-                  child: Scrollbar(
-                  child: SingleChildScrollView(
-                    child: Form(
-                    key: _formKey,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          SizedBox(height: 40.0,),
+                        child:Column(
+                          children: [
+                            Expanded(
+                              child: Scrollbar(
+                                  child: SingleChildScrollView(
+                                      child: Form(
+                                        key: _formKey,
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: <Widget>[
 
 
-                          TextFormField(
-                            decoration: new InputDecoration(
 
-//                              border: InputBorder.none,
-//                              focusedBorder: InputBorder.none,
-//                              enabledBorder: InputBorder.none,
-//                              errorBorder: InputBorder.none,
-//                              disabledBorder: InputBorder.none,
-                                contentPadding:
-                                EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
-//                    hintText: "Name / Staff ID*",
-                                labelText:"Company Name",
-                                labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Colors.grey)
-                            ),
-                            validator: (value) {
-                              if (value.isEmpty) {
-                                return 'Please enter some text';
-                              }
-                              return null;
-                            },
-                            controller: companyController,
-                          ),
-                          SizedBox(height: 50.0,),
-
-                          TextFormField(
-                            keyboardType: TextInputType.number,
-                            decoration: new InputDecoration(
+                                            TextFormField(
+                                              decoration: new InputDecoration(
 
 //                              border: InputBorder.none,
 //                              focusedBorder: InputBorder.none,
 //                              enabledBorder: InputBorder.none,
 //                              errorBorder: InputBorder.none,
 //                              disabledBorder: InputBorder.none,
-                                contentPadding:
-                                EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
+                                                  contentPadding:
+                                                  EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
 //                    hintText: "Name / Staff ID*",
-                                labelText:"Driver Contact Number" ,
-                                labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Colors.grey)
+                                                  labelText:"Company Name",
+                                                  labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Colors.grey)
+                                              ),
+                                              validator: (value) {
+                                                if (value.isEmpty) {
+                                                  return 'Please enter some text';
+                                                }
+                                                return null;
+                                              },
+                                              controller: companyController,
+                                            ),
+                                            SizedBox(height: 20.0,),
 
-                            ),
-                            validator: (value) {
-                              if (value.isEmpty) {
-                                return 'Please enter some text';
-                              }
-                              return null;
-                            },
-                            controller: drivercontController,
-                          ),
-                          SizedBox(height: 30.0,),
-                          Padding(
-                            padding: EdgeInsets.only(left:15.0,),
-                            child:   Text("Reason For Visit", style: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(89, 89, 89, 1)
-                            )),
-                          ),
-                          SizedBox(height: 30.0,),
+                                            TextFormField(
+                                              keyboardType: TextInputType.number,
+                                              decoration: new InputDecoration(
 
-                          ButtonTheme(
-                            alignedDropdown: true,
-                            child: DropdownButton<String>(
+//                              border: InputBorder.none,
+//                              focusedBorder: InputBorder.none,
+//                              enabledBorder: InputBorder.none,
+//                              errorBorder: InputBorder.none,
+//                              disabledBorder: InputBorder.none,
+                                                  contentPadding:
+                                                  EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
+//                    hintText: "Name / Staff ID*",
+                                                  labelText:"Driver Contact Number" ,
+                                                  labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Colors.grey)
 
-                              isExpanded: true,
-                              value: visitReason,
-                              icon: Icon(Icons.arrow_drop_down),
-                              iconSize: 24,
-                              elevation: 16,
-                              style: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Colors.grey
-                              ),
-                              underline: Container(
-                                height: 1,
-                                color: Colors.grey,
+                                              ),
+                                              validator: (value) {
+                                                if (value.isEmpty) {
+                                                  return 'Please enter some text';
+                                                }
+                                                return null;
+                                              },
+                                              controller: drivercontController,
+                                            ),
+                                            SizedBox(height: 20.0,),
+                                            Padding(
+                                              padding: EdgeInsets.only(left:15.0,),
+                                              child:   Text("Reason For Visit", style: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w600,color: Color.fromRGBO(89, 89, 89, 1)
+                                              )),
+                                            ),
+                                            SizedBox(height: 10.0,),
 
-                              ),
-                              onChanged: (String newValue) {
-                                setState(() {
-                                  visitReason = newValue;
-                                });
-                              },
-                              items: <String>['Client', 'Supplier', 'Spectator', 'Visitor']
-                                  .map<DropdownMenuItem<String>>((String value) {
-                                return DropdownMenuItem<String>(
-                                  value: value,
-                                  child: Text(value),
-                                );
-                              }).toList(),
-                            ),
-                          ),
+                                            ButtonTheme(
+                                              alignedDropdown: true,
+                                              child: DropdownButton<String>(
 
-                          SizedBox(height: 40.0,),
-                          new Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                isExpanded: true,
+                                                value: visitReason,
+                                                icon: Icon(Icons.arrow_drop_down),
+                                                iconSize: 24,
+                                                elevation: 16,
+                                                style: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Colors.grey
+                                                ),
+                                                underline: Container(
+                                                  height: 1,
+                                                  color: Colors.grey,
 
-                                  children: <Widget>[
-                                    new Container(
-                                      child: file ==null
-                                          ? new Text("")
-                                          : new Text("attachment added"),
-                                    ),
+                                                ),
+                                                onChanged: (String newValue) {
+                                                  setState(() {
+                                                    visitReason = newValue;
+                                                  });
+                                                },
+                                                items: <String>['Client', 'Supplier', 'Spectator', 'Visitor']
+                                                    .map<DropdownMenuItem<String>>((String value) {
+                                                  return DropdownMenuItem<String>(
+                                                    value: value,
+                                                    child: Text(value),
+                                                  );
+                                                }).toList(),
+                                              ),
+                                            ),
 
-                                    new IconButton(
-                                      icon: new Icon(Icons.camera_alt, color:(CarPressed) ? Colors.red
-                                          : DarkBlue),
+                                            SizedBox(height: 20.0,),
+                                            new Container(
+                                              child: file == null
+                                                  ? new Text("")
+                                                  : new Text("Attachment added",style: TextStyle(fontSize: 20.0,color: Colors.green,)),
+                                            ),
+                                            new Row(
+                                                mainAxisAlignment: MainAxisAlignment.start,
+                                                children: [
+                                                  Column(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+
+                                                    children: <Widget>[
+
+
+                                                      new IconButton(
+                                                          icon: new Icon(Icons.camera_alt, color:(CarPressed) ? Colors.red
+                                                              : DarkBlue),
 //                                                highlightColor: Colors.deepOrangeAccent,
 
-                                      iconSize: 50.0,
-                                      onPressed: (){
-                                        getCarImage();
-                                      },
-                                    ),
+                                                          iconSize: 50.0,
+                                                          onPressed:(){
+                                                            FocusScope.of(context).requestFocus(FocusNode());
+                                                            getCarImage();
+                                                          }
+                                                      ),
 //
-                                  ],
-                                ),
-                                SizedBox(width: 20.0,),
-                                Container(
-                                  width: 200,
-                                  padding: EdgeInsets.only(top: 20.0),
-                                  child:  new Text(
-                                    'Take Picture of car including (make model & license plate)',
-                                    style: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Colors.grey,
+                                                    ],
+                                                  ),
+                                                  SizedBox(width: 20.0,),
+                                                  Container(
+                                                    width: MediaQuery.of(context).size.width / 2,
+//                                  padding: EdgeInsets.only(top: 20.0),
+                                                    child:  new Text(
+                                                      'Take Picture of car including (make model & license plate)',
+                                                      style: TextStyle(fontSize: 16.0,fontWeight:FontWeight.w400,color: Colors.grey,
 
-                                    ),
-                                  ),
-                                )
+                                                      ),
+                                                    ),
+                                                  )
 
-                              ]
-                          ),
+                                                ]
+                                            ),
 
-                          SizedBox(height: 40.0,),
-                          new Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                            SizedBox(height: 20.0,),
+                                            new Container(
+                                              child: file2 == null
+                                                  ? new Text("")
+                                                  : new Text("Attachment added",style: TextStyle(fontSize: 20.0,color: Colors.green,)),
+                                            ),
+                                            new Row(
+                                                mainAxisAlignment: MainAxisAlignment.start,
+                                                children: [
 
-                                  children: <Widget>[
-                                    new Container(
-                                      child: file2 ==null
-                                          ? new Text("")
-                                          : new Text("attachment added"),
-                                    ),
+                                                  Column(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: <Widget>[
 
 
-                                    new IconButton(
-                                      icon: new Icon(Icons.camera_alt, color:(IDPressed) ? Colors.red
-                                          : DarkBlue),
+
+                                                      new IconButton(
+                                                        icon: new Icon(Icons.camera_alt, color:(IDPressed) ? Colors.red
+                                                            : DarkBlue),
 //                                                highlightColor: Colors.deepOrangeAccent,
 
-                                      iconSize: 50.0,
-                                      onPressed: (){
-                                        getIdImage();
-                                      },
-                                    ),
+                                                        iconSize: 50.0,
+                                                        onPressed: (){
+                                                          FocusScope.of(context).requestFocus(FocusNode());
+
+                                                          getIdImage();
+                                                        },
+                                                      ),
 //
 
-                                  ],
-                                ),
+                                                    ],
+                                                  ),
 //                              new  Icon(Icons.camera_alt,color: Color.fromRGBO(45, 87, 163, 1), size: 50.0,),
-                                SizedBox(width: 20.0,),
-                                Container(
-                                  width: 200,
-                                  padding: EdgeInsets.only(top: 20.0),
+                                                  SizedBox(width: 20.0,),
+                                                  Container(
+                                                    width: MediaQuery.of(context).size.width / 2,
+//                                  padding: EdgeInsets.only(top: 20.0),
 
-                                  child:  new Text(
-                                    'Take Picture of Identification',
-                                    style: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Colors.grey,
+                                                    child:  new Text(
+                                                      'Take Picture of Identification',
+                                                      style: TextStyle(fontSize: 16.0,fontWeight:FontWeight.w400,color: Colors.grey,
 
-                                    ),
-                                  ),
-                                )
+                                                      ),
+                                                    ),
+                                                  )
 
-                              ]
-                          ),
+                                                ]
+                                            ),
 
 
 
-                        ],
-                      ),
-                      ))
+                                          ],
+                                        ),
+                                      ))
 
-                        ),
-                      ),
-                      Align(
-                        child: SizedBox(
+                              ),
+                            ),
+                            Align(
+                              child: SizedBox(
 //                              width: 600,
-                          child: ElevatedButton(
+                                child: ElevatedButton(
 
-                              style: ElevatedButton.styleFrom(
-                                primary: DarkBlue,
+                                    style: ElevatedButton.styleFrom(
+                                      primary: DarkBlue,
 //                            onPrimary: Color.fromRGBO(32, 87, 163, 1),
 
 
-                              ),
-                              onPressed: () {
+                                    ),
+                                    onPressed: () {
 //                                   Validate returns true if the form is valid, or false
 //                                   otherwise.
-                                if (_formKey.currentState.validate() && file != null && file2 != null) {
+                                      if (_formKey.currentState.validate() && file != null && file2 != null) {
 
-                                  showLoaderDialog(context);
-                                  submitForm();
-                                }
-                                else if (file == null && file2 != null   ){
+                                        showLoaderDialog(context);
+                                        _Submit();
+                                      }
+                                      else if (file == null && file2 != null   ){
 
-                                  setState(()
-                                  {
-                                    CarPressed = true;
-                                  });
-                                }
-                                else if (file2 == null && file != null  ){
+                                        setState(()
+                                        {
+                                          CarPressed = true;
+                                        });
+                                      }
+                                      else if (file2 == null && file != null  ){
 
-                                  setState(()
-                                  {
-                                    IDPressed  = true;
-                                  });
-                                }
-                                else if (file2 == null && file2 == null  ){
+                                        setState(()
+                                        {
+                                          IDPressed  = true;
+                                        });
+                                      }
+                                      else if (file2 == null && file2 == null  ){
 
-                                  setState(()
-                                  {
-                                     CarPressed = true;
-                                    IDPressed  = true;
-                                  });
-                                }
-                              },
-                              child: Container(
+                                        setState(()
+                                        {
+                                          CarPressed = true;
+                                          IDPressed  = true;
+                                        });
+                                      }
+                                    },
+                                    child: Container(
 //                                    height: MediaQuery.of(context).size.height,
-                                width: MediaQuery.of(context).size.width ,
+                                      width: MediaQuery.of(context).size.width ,
 //                                    width: 600.0,
 
-                                child:Text('Submit',textAlign: TextAlign.center,style: TextStyle(fontSize: 20.0)
+                                      child:Text('Submit',textAlign: TextAlign.center,style: TextStyle(fontSize: 20.0)
+                                      ),
+                                    )
                                 ),
-                              )
-                          ),
+                              ),
+                            )
+                          ],
                         ),
+
+
+
                       )
-                    ],
-                  ),
-
-
-
-                )
+                  )
+              ),
             )
-
-        )
         )
 
     );
   }
 
-  Future<void> submitForm() async {
+  Future <void> AddToSqllite() async {
+    _onLoading();
+    p_id = ModalRoute.of(context).settings.arguments;
+
+    ProjectvisitorModel projectvisitorModel = ProjectvisitorModel( id: null, projectId: p_id, userId: u_id, companyName: companyController.text ,driverContact:  drivercontController.text ,visitReason: visitReason,carAttachment: CarimgString,idAttachment: IDimgString);
+    await DailySiteVisitorController().addData(projectvisitorModel).then((value){
+      if (value>0) {
+        print("Success");
+        userList();
+        print(list.length);
+      }else{
+        print("faild");
+      }
+
+    });
+  }
+
+  Future<void> _Submit() async {
+    final FormState form = _formKey.currentState;
+    form.save();
+    try {
+      final result = await InternetAddress.lookup('example.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        print('connected');
+        _submitForm();
+      }
+    } on SocketException catch (_) {
+      print('not connected');
+
+      AddToSqllite();
+    }
+
+  }
+
+  Future<void> _submitForm() async {
     final FormState form = _formKey.currentState;
 
 //    if (form.validate()) {
@@ -451,8 +510,7 @@ class _project_site_reg extends State<project_site_reg> {
     SharedPreferences userData = await SharedPreferences.getInstance();
 //    //Return int
 //    int Value = prefs.getInt('jobId');
-    int u_id = userData.getInt('user_id');
-    int p_id = userData.getInt('project_id');
+
     AddSiteVisitor.userId = u_id;
     AddSiteVisitor.projectId = p_id;
     AddSiteVisitor.companyName =companyController.text;
@@ -541,7 +599,7 @@ class _project_site_reg extends State<project_site_reg> {
                           onPressed: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (BuildContext context) =>  project_site_reg (),),
+                              MaterialPageRoute(builder: (BuildContext context) =>  project_site_reg (  ),settings: RouteSettings( arguments: p_id)),
                             );
 
                           },
@@ -603,12 +661,18 @@ class _project_site_reg extends State<project_site_reg> {
 
   showLoaderDialog(BuildContext context){
     AlertDialog alert=AlertDialog(
-      content: new Row(
+      content: new Row
+        (
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircularProgressIndicator(),
+          CircularProgressIndicator(
+              valueColor: new AlwaysStoppedAnimation<Color>(DarkBlue)
+          ),
           Container(margin: EdgeInsets.only(left: 15.0),child:Text("please wait ..." )),
         ],),
     );
+
     showDialog(barrierDismissible: false,
       context:context,
       builder:(BuildContext context){
@@ -616,6 +680,8 @@ class _project_site_reg extends State<project_site_reg> {
       },
     );
   }
+
+
   Future getCarImage() async{
     final pickedFile = await picker.getImage(source: ImageSource.camera);
     File imageFile = new File(pickedFile.path);
@@ -627,22 +693,24 @@ class _project_site_reg extends State<project_site_reg> {
 
     setState(()  {
       CarPressed = false;
+      CarimgString = imageFile.path;
       AddSiteVisitor.carAttachment = fi;
 
     });
   }
 
   Future getIdImage() async{
-    final pickedFile = await picker.getImage(source: ImageSource.camera);
-    File imageFile = new File(pickedFile.path);
-    String fileExt = imageFile.path.split('.').last;
+    final pickedFile2 = await picker2.getImage(source: ImageSource.camera);
+    File imageFile2 = new File(pickedFile2.path);
+    String fileExt2 = imageFile2.path.split('.').last;
 //    String basename = basename(imageFile.path);
-    List<int> videoBytes = imageFile.readAsBytesSync();
-    file2 = base64.encode(videoBytes);
-    String fi2 = fileExt +","+ file ;
+    List<int> videoBytes2 = imageFile2.readAsBytesSync();
+    file2 = base64.encode(videoBytes2);
+    String fi2 = fileExt2 +","+ file2 ;
 
     setState(()  {
       IDPressed  = false;
+      IDimgString = imageFile2.path;
       AddSiteVisitor.idAttachment = fi2;
 
     });

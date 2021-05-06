@@ -1,8 +1,11 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:expansion_tile_card/expansion_tile_card.dart';
 import 'package:flutter/material.dart';
+import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wewatchapp/Connectivity.dart';
 import 'package:wewatchapp/consts.dart';
 import 'package:wewatchapp/data/login/loginScreen.dart';
 import 'package:wewatchapp/data/models/loginModel.dart';
@@ -19,7 +22,7 @@ import 'package:wewatchapp/data/screens/wewatchManager/wwmanager_dashboard.dart'
 
 
 class NavDrawer extends StatefulWidget {
-  NavDrawer({Key key, this.title}) : super(key: key);
+  NavDrawer({Key key,}) : super(key: key);
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -30,7 +33,7 @@ class NavDrawer extends StatefulWidget {
   // used by the build method of the State. Fields in a Widget subclass are
   // always marked "final".
 
-  final String title;
+//  final String title;
 
   @override
   _NavDrawer createState() => _NavDrawer();
@@ -39,8 +42,10 @@ class NavDrawer extends StatefulWidget {
 class _NavDrawer extends State<NavDrawer> {
 //class NavDrawer extends StatelessWidget {
   bool _isExpanded = false;
-  String userType;
-  String project_name = "" ?? "";
+  String userType = ""?? "";
+  String project_name = "" ?? "" ;
+  Timer timer;
+  MyConnectivity _connectivity = MyConnectivity.instance;
 
   Future<SharedPreferences> sharedPreferences() async => await SharedPreferences.getInstance();
   @override
@@ -49,6 +54,7 @@ class _NavDrawer extends State<NavDrawer> {
     _loadCounter();
   }
 
+
   _loadCounter() async {
     SharedPreferences userData = await SharedPreferences.getInstance();
     setState(() {
@@ -56,6 +62,7 @@ class _NavDrawer extends State<NavDrawer> {
       project_name =(userData.getString('project_name') ?? '');
     });
   }
+
   @override
   Widget build(BuildContext context) {
 
@@ -66,7 +73,7 @@ class _NavDrawer extends State<NavDrawer> {
 
     return Drawer(
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
         children: <Widget>[
 
           FutureBuilder<SharedPreferences>(
@@ -126,25 +133,26 @@ class _NavDrawer extends State<NavDrawer> {
                         ),
                       ],
                     ),
+
                     decoration: BoxDecoration(
-                      color: DarkBlue,
+                      color: AppBlue,
                     ),
+
                   );
+
                 } else {
-                  return DrawerHeader(child: Container(color: DarkBlue),);
+                  return DrawerHeader(child: Container(color: AppBlue),);
                 }
               }
           ),
 
-          Flexible(
-            child: ListView(
-              padding: EdgeInsets.all(0.0),
-              children: <Widget>[
-                NavigatorListItem(
-                  icon: Icons.bubble_chart,
-                  title: "Project: "+ project_name,
 
-                ),
+//          if(userType == 'Security Guard' || userType == 'User')
+//            NavigatorListItem(
+//              icon: Icons.bubble_chart,
+//              title: "Project: "+ project_name ,
+//            ),
+
                 if(userType == 'User')
                 NavigatorListItem(
                   icon: Icons.home,
@@ -170,6 +178,7 @@ class _NavDrawer extends State<NavDrawer> {
                     },
                   ),
                 if(userType == 'Wewatch Manager')
+
                   NavigatorListItem(
                     icon: Icons.home,
                     title: "Home",
@@ -181,92 +190,415 @@ class _NavDrawer extends State<NavDrawer> {
                       );
                     },
                   ),
-                if (userType == "User"|| userType == "Wewatch Manager" )
-                  NavigatorListItem(
-                    icon: Icons.local_mall,
-                    title: 'Accident /  Incident Form',
 
-                    onTap: (){
-                      Navigator.push(
-                          context, MaterialPageRoute(
-                          builder: (context) => AccidentIncidentReport()));
-                    },
-                  ),
+          if(userType == 'Wewatch Manager')
+          FutureBuilder<SharedPreferences>(
+              future: sharedPreferences(),
+              builder: (context, snapshot) {
 
+                if (snapshot.hasData){
+                  Map userMap = jsonDecode(snapshot.data.getString(userKey));
+                  LoginModel userData = LoginModel.fromJson(userMap);
+                  final List<Project> ProjectList = userData.project;
 
-                if (userType == "User" || userType == "Wewatch Manager")
-                  NavigatorListItem(
-                    icon: Icons.local_mall,
-                    title: "Observation Form",
-                    onTap: (){
-                      Navigator.push(
-                          context, MaterialPageRoute(
-                          builder: (context) => ObservationForm()));                   },
-                  ),
+                  return Expanded(child:
+                  ListView.builder(
 
-                if (userType == "User" || userType == "Wewatch Manager" || userType == 'Security Guard')
-                  NavigatorListItem(
-                    icon: Icons.work,
-                    title: "Training Induction Form",
-                    onTap: () {
-                      Navigator.push(
-                          context, MaterialPageRoute(
-                          builder: (context) => training_induction_form()));
-                    }
-                    ),
+                    shrinkWrap: true, //just set this property
+                    padding: const EdgeInsets.all(8.0),
+                    itemCount: ProjectList.length,
+                    itemBuilder: (context, index) {
+//                          return Column(
+////                            children: [
+////                              ListTile(
+////                                title: Text(europeanCountries[index].projectName),
+////                              )
+////                            ],
+////
+////                          );
+                      return   ExpansionTile(
 
-                if (userType == "Security Guard"|| userType == "Wewatch Manager")
-                  NavigatorListItem(
-                    icon: Icons.work,
-                    title: 'Covid 19 Temp Register',
-                    onTap: (){
-                               Navigator.push(
+//                           backgroundColor: Colors.white,
+                        leading: Icon(Icons.bubble_chart,color: Colors.white,) ,
+                        title: Text(ProjectList[index].projectName,style: TextStyle(color: Colors.white,fontSize: 15.0,fontWeight: FontWeight.w600,),),
+                        children: <Widget>[
+
+                          NavigatorListItem(
+                            icon: Icons.filter_frames,
+                            title: 'Accident /  Incident Form',
+
+                            onTap: (){
+                              Navigator.push(
                                   context, MaterialPageRoute(
-                                builder: (context) => covid_19_reg()));       },
-                  ),
+                                  builder: (context) => AccidentIncidentReport(),settings: RouteSettings( arguments: ProjectList[index].projectId)));
+                            },
+                          ),
+                          NavigatorListItem(
+                            icon: Icons.filter_frames,
+                            title: "Observation Form",
+                            onTap: (){
+                              Navigator.push(
+                                  context, MaterialPageRoute(
+                                  builder: (context) => ObservationForm(),settings: RouteSettings( arguments: ProjectList[index].projectId)));                   },
+                          ),
+                          NavigatorListItem(
+                              icon: Icons.filter_frames,
+                              title: "Training Induction Form",
+                              onTap: () {
+                                Navigator.push(
+                                    context, MaterialPageRoute(
+                                    builder: (context) => training_induction_form(),settings: RouteSettings( arguments: ProjectList[index].projectId)));
+                              }
+                          ),
+                          NavigatorListItem(
+                            icon: Icons.filter_frames,
+                            title: 'Covid-19 Register',
+                            onTap: (){
+                              Navigator.push(
+                                  context, MaterialPageRoute(
+                                  builder: (context) => covid_19_reg(),settings: RouteSettings( arguments: ProjectList[index].projectId)));       },
+                          ),
+                          NavigatorListItem(
+                            icon: Icons.filter_frames,
+                            title: 'Daily Site Visitor Form',
+                            onTap: (){
+                              Navigator.push(
+                                  context, MaterialPageRoute(
+                                  builder: (context) => project_site_reg(),settings: RouteSettings( arguments: ProjectList[index].projectId)));                        },
+                          ),
+                          NavigatorListItem(
+                            icon: Icons.filter_frames,
+                            title: 'Daily Security Form',
+                            onTap: (){
+                              Navigator.push(
+                                  context, MaterialPageRoute(
+                                  builder: (context) => DailySecurityReport(),settings: RouteSettings( arguments: ProjectList[index].projectId)));                       },
+                          ),
+                          NavigatorListItem(
+                            icon: Icons.filter_frames,
+                            title: 'Daily HSC Form',
+                            onTap: (){
+                              Navigator.push(
+                                  context, MaterialPageRoute(
+                                  builder: (context) => DailyHscReport(),settings: RouteSettings( arguments: ProjectList[index].projectId)));                   },
+                          ),
 
-                if (userType == "Security Guard" || userType == "Wewatch Manager")
-                  NavigatorListItem(
-                    icon: Icons.work,
-                    title: 'Project Site Visitors Daily Register',
-                    onTap: (){
-                      Navigator.push(
-                          context, MaterialPageRoute(
-                          builder: (context) => project_site_reg()));                        },
-                  ),
-                if (userType == "Wewatch Manager")
-                  NavigatorListItem(
-                    icon: Icons.work,
-                    title: 'Daily Security Form',
-                    onTap: (){
-                      Navigator.push(
-                          context, MaterialPageRoute(
-                          builder: (context) => DailySecurityReport()));                       },
-                  ),
-                if (userType == "Wewatch Manager")
-                  NavigatorListItem(
-                    icon: Icons.work,
-                    title: 'Daily HSC Form',
-                    onTap: (){
-                      Navigator.push(
-                          context, MaterialPageRoute(
-                          builder: (context) => DailyHscReport()));                   },
-                  ),
-                SizedBox(height: 20.0),
-                NavigatorListItem(
-
-                  icon: Icons.power_settings_new,
-                  title: "Log Out",
-
-                  onTap: () {
-                    _exitApp(context);
-                  },
-                ),
+                        ],
+                      );
 
 
-              ],
-            ),
+                    },
+                  )
+                  );
+
+                } else {
+                  return Container(
+                    height: 100.0,
+                    child:ListView(
+                      children: [
+                        ListTile(
+                          title: Text("Empty"),
+                        )
+                      ],
+                    )
+                  );
+
+                }
+              }
           ),
+          if (userType == "User" )
+            FutureBuilder<SharedPreferences>(
+                future: sharedPreferences(),
+                builder: (context, snapshot) {
+
+                  if (snapshot.hasData){
+                    Map userMap = jsonDecode(snapshot.data.getString(userKey));
+                    LoginModel userData = LoginModel.fromJson(userMap);
+                    final List<Project> ProjectList = userData.project;
+
+                    return Expanded(child: ListView.builder(
+                      shrinkWrap: true, //just set this property
+                      padding: const EdgeInsets.all(8.0),
+                      itemCount: ProjectList.length,
+                      itemBuilder: (context, index) {
+//
+                        return   ExpansionTile(
+//                           backgroundColor: Colors.white,
+                          leading: Icon(Icons.bubble_chart,color: Colors.white,) ,
+                          title: Text(ProjectList[index].projectName,style: TextStyle(color: Colors.white,fontSize: 15.0,fontWeight: FontWeight.w600,),),
+                          children: <Widget>[
+
+                            NavigatorListItem(
+                              icon: Icons.filter_frames,
+                              title: 'Accident / Incident Form',
+
+                              onTap: (){
+                                Navigator.push(
+                                    context, MaterialPageRoute(
+                                    builder: (context) => AccidentIncidentReport(),settings: RouteSettings( arguments: ProjectList[index].projectId)));
+                              },
+                            ),
+                            NavigatorListItem(
+                              icon: Icons.filter_frames,
+                              title: "Observation Form",
+                              onTap: (){
+                                Navigator.push(
+                                    context, MaterialPageRoute(
+                                    builder: (context) => ObservationForm(),settings: RouteSettings( arguments: ProjectList[index].projectId)));                   },
+                            ),
+                            NavigatorListItem(
+                                icon: Icons.filter_frames,
+                                title: "Training Induction Form",
+                                onTap: () {
+                                  Navigator.push(
+                                      context, MaterialPageRoute(
+                                      builder: (context) => training_induction_form(),settings: RouteSettings( arguments: ProjectList[index].projectId)));
+                                }
+                            ),
+
+                          ],
+                        );
+
+
+                      },
+                    ));
+
+                  } else {
+                    return Container(
+                        height: 100.0,
+                        child:ListView(
+                          children: [
+                            ListTile(
+                              title: Text("Empty"),
+                            )
+                          ],
+                        )
+                    );
+
+                  }
+                }
+            ),
+          if(userType == 'Security Guard')
+            FutureBuilder<SharedPreferences>(
+                future: sharedPreferences(),
+                builder: (context, snapshot) {
+
+                  if (snapshot.hasData){
+                    Map userMap = jsonDecode(snapshot.data.getString(userKey));
+                    LoginModel userData = LoginModel.fromJson(userMap);
+                    final List<Project> ProjectList = userData.project;
+
+                    return  Expanded(child: ListView.builder(
+                      shrinkWrap: true, //just set this property
+                      padding: const EdgeInsets.all(8.0),
+                      itemCount: ProjectList.length,
+                      itemBuilder: (context, index) {
+//                          return Column(
+////                            children: [
+////                              ListTile(
+////                                title: Text(europeanCountries[index].projectName),
+////                              )
+////                            ],
+////
+////                          );
+                        return   ExpansionTile(
+//                           backgroundColor: Colors.white,
+                          leading: Icon(Icons.bubble_chart,color: Colors.white,) ,
+                          title: Text(ProjectList[index].projectName,style: TextStyle(color: Colors.white,fontSize: 15.0,fontWeight: FontWeight.w600,),),
+                          children: <Widget>[
+                            NavigatorListItem(
+                              icon: Icons.filter_frames,
+                              title: "Observation Form",
+                              onTap: (){
+                                Navigator.push(
+                                    context, MaterialPageRoute(
+                                    builder: (context) => ObservationForm(),settings: RouteSettings( arguments: ProjectList[index].projectId)));                   },
+                            ),
+
+                            NavigatorListItem(
+                              icon: Icons.filter_frames,
+                              title: 'Covid-19 Register',
+                              onTap: (){
+                                Navigator.push(
+                                    context, MaterialPageRoute(
+                                    builder: (context) => covid_19_reg(),settings: RouteSettings( arguments: ProjectList[index].projectId)));       },
+                            ),
+                            NavigatorListItem(
+                              icon: Icons.filter_frames,
+                              title: 'Daily Site Visitor Form',
+                              onTap: (){
+                                Navigator.push(
+                                    context, MaterialPageRoute(
+                                    builder: (context) => project_site_reg(),settings: RouteSettings( arguments: ProjectList[index].projectId)));                        },
+                            ),
+
+
+                          ],
+                        );
+
+
+                      },
+                    ));
+
+                  } else {
+                    return Container(
+                        height: 100.0,
+                        child:ListView(
+                          children: [
+                            ListTile(
+                              title: Text("Empty"),
+                            )
+                          ],
+                        )
+                    );
+
+                  }
+                }
+            ),
+
+
+
+          NavigatorListItem(
+//
+            icon: Icons.logout,
+            title: "Log Out",
+
+            onTap: () {
+              _exitApp(context);
+            },
+          ),
+//          Flexible(
+//            child: ListView(
+//              padding: EdgeInsets.all(0.0),
+//              children: <Widget>[
+//                NavigatorListItem(
+//                  icon: Icons.bubble_chart,
+//                  title: "Project: "+ project_name,
+//
+//                ),
+//                if(userType == 'User')
+//                NavigatorListItem(
+//                  icon: Icons.home,
+//                  title: "Home",
+//                  onTap: (){
+//                    Navigator.pushAndRemoveUntil(
+//                        context,
+//                        MaterialPageRoute(builder: (context) => Dashboard()),
+//                            (Route<dynamic> route) => false
+//                    );
+//                  },
+//                ),
+//                if(userType == 'Security Guard')
+//                  NavigatorListItem(
+//                    icon: Icons.home,
+//                    title: "Home",
+//                    onTap: (){
+//                      Navigator.pushAndRemoveUntil(
+//                          context,
+//                          MaterialPageRoute(builder: (context) => GuardDashboard()),
+//                              (Route<dynamic> route) => false
+//                      );
+//                    },
+//                  ),
+//                if(userType == 'Wewatch Manager')
+//
+//                  NavigatorListItem(
+//                    icon: Icons.home,
+//                    title: "Home",
+//                    onTap: (){
+//                      Navigator.pushAndRemoveUntil(
+//                          context,
+//                          MaterialPageRoute(builder: (context) => wwmanager_Dashboard()),
+//                              (Route<dynamic> route) => false
+//                      );
+//                    },
+//                  ),
+//                if (userType == "User"|| userType == "Wewatch Manager" )
+//                  NavigatorListItem(
+//                    icon: Icons.local_mall,
+//                    title: 'Accident /  Incident Form',
+//
+//                    onTap: (){
+//                      Navigator.push(
+//                          context, MaterialPageRoute(
+//                          builder: (context) => AccidentIncidentReport()));
+//                    },
+//                  ),
+//
+//
+//                if (userType == "User" || userType == "Wewatch Manager")
+//                  NavigatorListItem(
+//                    icon: Icons.local_mall,
+//                    title: "Observation Form",
+//                    onTap: (){
+//                      Navigator.push(
+//                          context, MaterialPageRoute(
+//                          builder: (context) => ObservationForm()));                   },
+//                  ),
+//
+//                if (userType == "User" || userType == "Wewatch Manager" || userType == 'Security Guard')
+//                  NavigatorListItem(
+//                    icon: Icons.work,
+//                    title: "Training Induction Form",
+//                    onTap: () {
+//                      Navigator.push(
+//                          context, MaterialPageRoute(
+//                          builder: (context) => training_induction_form()));
+//                    }
+//                    ),
+//
+//                if (userType == "Security Guard"|| userType == "Wewatch Manager")
+//                  NavigatorListItem(
+//                    icon: Icons.work,
+//                    title: 'Covid 19 Temp Register',
+//                    onTap: (){
+//                               Navigator.push(
+//                                  context, MaterialPageRoute(
+//                                builder: (context) => covid_19_reg()));       },
+//                  ),
+//
+//                if (userType == "Security Guard" || userType == "Wewatch Manager")
+//                  NavigatorListItem(
+//                    icon: Icons.work,
+//                    title: 'Project Site Visitors Daily Register',
+//                    onTap: (){
+//                      Navigator.push(
+//                          context, MaterialPageRoute(
+//                          builder: (context) => project_site_reg()));                        },
+//                  ),
+//                if (userType == "Wewatch Manager")
+//                  NavigatorListItem(
+//                    icon: Icons.work,
+//                    title: 'Daily Security Form',
+//                    onTap: (){
+//                      Navigator.push(
+//                          context, MaterialPageRoute(
+//                          builder: (context) => DailySecurityReport()));                       },
+//                  ),
+//                if (userType == "Wewatch Manager")
+//                  NavigatorListItem(
+//                    icon: Icons.work,
+//                    title: 'Daily HSC Form',
+//                    onTap: (){
+//                      Navigator.push(
+//                          context, MaterialPageRoute(
+//                          builder: (context) => DailyHscReport()));                   },
+//                  ),
+//                SizedBox(height: 20.0),
+//                NavigatorListItem(
+//
+//                  icon: Icons.power_settings_new,
+//                  title: "Log Out",
+//
+//                  onTap: () {
+//                    _exitApp(context);
+//                  },
+//                ),
+//
+//
+//              ],
+//            ),
+//          ),
 
 
         ],
@@ -312,12 +644,12 @@ class _NavDrawer extends State<NavDrawer> {
 //          ),
 //
 //          const Divider(
-//            color: Colors.white,
-//            height: 10,
-//            thickness: 2,
-//            indent: 20,
-//            endIndent: 0,
-//          ),
+////            color: Colors.white,
+////            height: 10,
+////            thickness: 2,
+////            indent: 20,
+////            endIndent: 0,
+////          ),
 //          ListTile(
 //            leading: Icon(Icons.insert_drive_file,color: Colors.white,),
 //            title: Text('Accident /  Incident Report',style: TextStyle(color: Colors.white,fontSize: 14.0),),
@@ -416,9 +748,12 @@ class _NavDrawer extends State<NavDrawer> {
           FlatButton(
             onPressed: () async {
 //              SystemChannels.platform.invokeMethod('SystemNavigator.pop');
-
+//            _connectivity.PauseStream();
               SharedPreferences prefs = await SharedPreferences.getInstance();
+              SharedPreferences userData = await SharedPreferences.getInstance();
               await prefs.remove(userKey);
+              await userData.remove(userKey);
+
               await Future.delayed(Duration(seconds: 1));
 
               Navigator.of(context).pushAndRemoveUntil(

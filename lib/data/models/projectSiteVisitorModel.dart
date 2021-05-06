@@ -10,6 +10,7 @@ String projectvisitorModelToMap(ProjectvisitorModel data) => json.encode(data.to
 
 class ProjectvisitorModel {
   ProjectvisitorModel({
+    this.id,
     this.projectId,
     this.userId,
     this.companyName,
@@ -19,6 +20,7 @@ class ProjectvisitorModel {
     this.idAttachment,
   });
 
+  int id;
   int projectId;
   int userId;
   String companyName;
@@ -28,6 +30,7 @@ class ProjectvisitorModel {
   String idAttachment;
 
   factory ProjectvisitorModel.fromMap(Map<String, dynamic> json) => ProjectvisitorModel(
+    id: json["id"],
     projectId: json["project_id"],
     userId: json["user_id"],
     companyName: json["company_name"],
@@ -38,6 +41,7 @@ class ProjectvisitorModel {
   );
 
   Map<String, dynamic> toMap() => {
+    "id": id,
     "project_id": projectId,
     "user_id": userId,
     "company_name": companyName,

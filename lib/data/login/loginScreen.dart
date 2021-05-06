@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'dart:convert';
@@ -19,8 +21,15 @@ class _LoginScreenState extends State<LoginScreen> {
   final passwordController = TextEditingController();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   bool _isSelected = false;
-
+  Timer timer;
   bool loginIsTapped = false;
+
+
+//  @override
+//  void initState() {
+//    if (timer != null) timer.cancel();
+//    super.initState();
+//  }
 
   @override
   void dispose() {
@@ -341,14 +350,14 @@ class _LoginScreenState extends State<LoginScreen> {
                               // Logo image of login screen
                               Container(
                                 width: 400,
-                                height: 200,
+                                height: 180,
                                 child: Image.asset(
                                     "assets/images/wewatch_logo.png"
                                 ),
                               ),
 
 
-                              SizedBox(height: 60.0,),
+                              SizedBox(height: 5.0,),
                               Align(
                                 alignment: Alignment.centerLeft,
                                 child: Text('Proceed with your',style: TextStyle(fontSize: 20.0,fontWeight: FontWeight.w400) ),
@@ -591,9 +600,9 @@ class InputBox extends StatelessWidget {
 
           Flexible(
             child: TextField(
-              enableInteractiveSelection: false,
-              autofocus: false,
-              autocorrect: false,
+//              enableInteractiveSelection: false,
+//              autofocus: false,
+//              autocorrect: false,
               obscureText: isPassword,
               controller: textController,
               decoration: InputDecoration(

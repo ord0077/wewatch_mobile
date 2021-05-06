@@ -1,6 +1,10 @@
+
 import 'dart:convert';
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_statusbarcolor/flutter_statusbarcolor.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wewatchapp/consts.dart';
 import 'package:wewatchapp/data/login/loginScreen.dart';
@@ -15,7 +19,12 @@ import 'data/screens/wewatchManager/wwmanager_dashboard.dart';
 
 Future<void> main() async {
 
-  WidgetsFlutterBinding.ensureInitialized();
+//  WidgetsFlutterBinding.ensureInitialized();
+  FlutterError.onError = (FlutterErrorDetails details) {
+    FlutterError.dumpErrorToConsole(details);
+    if (kReleaseMode)
+      exit(1);
+  };
   runApp(new MyApp());
 }
 
@@ -28,18 +37,20 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    FlutterStatusbarcolor.setStatusBarColor(Colors.white);
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
 
 //    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      return new FutureBuilder<SharedPreferences> (
+      return new FutureBuilder<SharedPreferences>  (
           future: sharedPreferences(),
           builder: (context, snapshot) {
-            if (snapshot.hasData) {
+            if (  snapshot.hasData && snapshot !=null) {
 
               isLogged = snapshot.data.containsKey(userKey);
+              print(userKey);
 
               if (isLogged ) {
                 Map userMap = jsonDecode(snapshot.data.getString(userKey));
@@ -125,32 +136,34 @@ class MyApp extends StatelessWidget {
 
             }
             else {
-              return MaterialApp(
-                debugShowCheckedModeBanner: false,
-                theme: ThemeData(
-                  primaryColorLight: Colors.black,
-                  accentColor: Color(0xFFF9F8F4),
-                  buttonColor: Color(0xFF333333),
-                  backgroundColor: Color(0xFFF9F8F4),
-                ),
+              return Container(height: 0,width: 0,);
 
-                builder: (_, __) {
-                  return Scaffold(
-                    body: Container(
-                      color: Color(0xFFCCCCCC),
-                      child: Center(
-                        child: Text(
-                          'WELCOME BACK',
-                          style: TextStyle(
-                            fontSize: 32.0,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              );
+//                MaterialApp(
+//                debugShowCheckedModeBanner: false,
+//                theme: ThemeData(
+//                  primaryColorLight: Colors.black,
+//                  accentColor: Color(0xFFF9F8F4),
+//                  buttonColor: Color(0xFF333333),
+//                  backgroundColor: Color(0xFFF9F8F4),
+//                ),
+//
+//                builder: (_, __) {
+//                  return Scaffold(
+//                    body: Container(
+//                      color: Color(0xFFCCCCCC),
+//                      child: Center(
+//                        child: Text(
+//                          'WELCOME BACK',
+//                          style: TextStyle(
+//                            fontSize: 32.0,
+//                            color: Colors.black,
+//                          ),
+//                        ),
+//                      ),
+//                    ),
+//                  );
+//                },
+//              );
             }
           }
       );

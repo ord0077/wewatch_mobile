@@ -4,7 +4,7 @@
     <item android:drawable="@android:color/white" />
 
     <!--    <item android:drawable="@color/splash_color"/>-->
-<!--    <item>-->
-<!--        <bitmap android:gravity="center" android:src="@drawable/splash"/>-->
-<!--    </item>-->
+    <item>
+        <bitmap android:gravity="center" android:src="@drawable/splash"/>
+    </item>
 </layer-list>

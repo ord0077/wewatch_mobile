@@ -6,6 +6,7 @@ import 'package:flutter/rendering.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wewatchapp/CustomAppBar.dart';
+import 'package:wewatchapp/DbControllers/TrainingInductionController.dart';
 import 'package:wewatchapp/data/models/trainingInductionModel.dart';
 import 'dart:io';
 import 'package:http/http.dart' as http;
@@ -36,14 +37,16 @@ class _training_induction_form extends State<training_induction_form> {
   final scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
   String file;
-  String _character ;
+  String _character= 'safety Induction' ;
   final picker = ImagePicker();
   final AddTraining = TrainingInducModel();
   final trainingController = TextEditingController();
   final attendeesController = TextEditingController();
   bool  imagePressed = false;
   String userType = ""?? "";
-
+  int p_id;
+  int u_id;
+  String imgString;
 
 
 
@@ -52,6 +55,8 @@ class _training_induction_form extends State<training_induction_form> {
     SharedPreferences userData = await SharedPreferences.getInstance();
     setState(() {
       userType = (userData.getString('user_type') ?? '');
+      u_id = userData.getInt('user_id');
+      p_id = ModalRoute.of(context).settings.arguments;
     });
   }
 
@@ -80,340 +85,351 @@ class _training_induction_form extends State<training_induction_form> {
 
     return WillPopScope (
         onWillPop: ()  {
-      return NavigateToDashboard () ;
-    },
-    child:  SafeArea(
-        child: Scaffold(
-        key: scaffoldKey,
-        drawer: Theme(
-        data: Theme.of(context).copyWith(
-        canvasColor: Color.fromRGBO(45, 87, 163, 1) //This will change the drawer background to blue.
-      //other styles
-    ),
-    child: NavDrawer(),
-    ),
-    appBar: PreferredSize(
-    preferredSize: const Size.fromHeight(150.0),
-    child:Column(
-    children: [
-    Container(
-    padding: EdgeInsets.only(top: 20.0,bottom: 20.0),
-    // color: Theme.of(context).primaryColorLight,
-    color: lightBackgroundColor,
-    child:   Stack(
-    children: <Widget>[
-    new Center(
-    child: new Column(
-    children: <Widget>[
-    Container(
-//                        padding: EdgeInsets.only(top: 16.0),
-    width: 200,
-    child:Image(image: AssetImage('assets/images/wewatch_logo.png',)),
-
-    )
-    ],
-    )),
-    Positioned(
-    left: 10,
-//                top: 16,
-    child:  GestureDetector(
-
-    onTap: (){
-    scaffoldKey.currentState.openDrawer();
-    },
-
-
-    child: Image.asset(
-    'assets/images/drawer_icon.png',
-    height: 40,
-    width: 40,
-    fit: BoxFit.fitWidth,
-    )
-    ),
-    ),
-
-
-    ],
-    ),
-    ),
-    Container(
-    width: MediaQuery.of(context).size.width ,
-    padding: const EdgeInsets.only(left: 20.0,top: 20.0,right: 20.0,bottom: 15.0,),
-//                  color: Colors.black54,
-    color: Color.fromRGBO(45, 87, 163, 1),
-
-
-
-
-    child: Align(
-    alignment: Alignment.center,
-    child: Container(
-    child: FittedBox(
-    fit: BoxFit.scaleDown,
-    child: Text('Training Induction Report',
-    style: TextStyle( fontSize: 25,fontWeight:FontWeight.bold,color: Colors.white),),
-    )
-
-    )
-
-
-    )
-    ),
-    ],
-    )
-
-    ),
-        body:
-        Center (
-                child:    Container(
-                  height: MediaQuery.of(context).size.height,
-                  width: MediaQuery.of(context).size.width ,
-//          color: Color.fromRGBO(246,246,246, 1),
-                  padding: EdgeInsets.all(20.0),
-//        color:Colors.green,
+          return NavigateToDashboard () ;
+        },
+        child:  SafeArea(
+            child: Scaffold(
+              key: scaffoldKey,
+              drawer: Theme(
+                data: Theme.of(context).copyWith(
+                    canvasColor: Color.fromRGBO(45, 87, 163, 1) //This will change the drawer background to blue.
+                  //other styles
+                ),
+                child: NavDrawer(),
+              ),
+              appBar: PreferredSize(
+                  preferredSize: const Size.fromHeight(150.0),
                   child:Column(
                     children: [
-                      Expanded(
-                  child: Scrollbar(
-                  child: SingleChildScrollView(
-                    child: Form(
-                    key: _formKey,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
+                      Container(
+                        padding: EdgeInsets.only(top: 20.0,bottom: 20.0),
+                        // color: Theme.of(context).primaryColorLight,
+                        color: lightBackgroundColor,
+                        child:   Stack(
+                          children: <Widget>[
+                            new Center(
+                                child: new Column(
+                                  children: <Widget>[
+                                    Container(
+//                        padding: EdgeInsets.only(top: 16.0),
+                                      width: 200,
+                                      child:Image(image: AssetImage('assets/images/wewatch_logo.png',)),
+
+                                    )
+                                  ],
+                                )),
+                            Positioned(
+                              left: 10,
+//                top: 16,
+                              child:  GestureDetector(
+
+                                  onTap: (){
+                                    scaffoldKey.currentState.openDrawer();
+                                  },
 
 
-                          Container(
-                            padding: new EdgeInsets.only(left: 20.0,),
-                            alignment: Alignment.topLeft,
-                            child: Text(
-                              'Session Type',
-                              style: new TextStyle(
-                                  fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1)
+                                  child: Image.asset(
+                                    'assets/images/drawer_icon.png',
+                                    height: 40,
+                                    width: 40,
+                                    fit: BoxFit.fitWidth,
+                                  )
                               ),
                             ),
-                          ),
 
-                          new Column(
+
+                          ],
+                        ),
+                      ),
+                      Container(
+                          width: MediaQuery.of(context).size.width ,
+                          padding: const EdgeInsets.only(left: 20.0,top: 20.0,right: 20.0,bottom: 15.0,),
+//                  color: Colors.black54,
+                          color: Color.fromRGBO(45, 87, 163, 1),
+
+
+
+
+                          child: Align(
+                              alignment: Alignment.center,
+                              child: Container(
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Text('Training Induction Form',
+                                      style: TextStyle( fontSize: 25,fontWeight:FontWeight.bold,color: Colors.white),),
+                                  )
+
+                              )
+
+
+                          )
+                      ),
+                    ],
+                  )
+
+              ),
+              body: new GestureDetector(
+                  onTap: () {
+                    FocusScopeNode currentFocus = FocusScope.of(context);
+
+                    if (!currentFocus.hasPrimaryFocus) {
+                      currentFocus.unfocus();
+                    }
+                  },
+                  child: new
+                  Center (
+                      child:    Container(
+                        height: MediaQuery.of(context).size.height,
+                        width: MediaQuery.of(context).size.width ,
+//          color: Color.fromRGBO(246,246,246, 1),
+                        padding: EdgeInsets.all(20.0),
+//        color:Colors.green,
+                        child:Column(
+                          children: [
+                            Expanded(
+                              child: Scrollbar(
+                                  child: SingleChildScrollView(
+                                      child: Form(
+                                        key: _formKey,
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: <Widget>[
+
+
+                                            Container(
+                                              padding: new EdgeInsets.only(left: 20.0,),
+                                              alignment: Alignment.topLeft,
+                                              child: Text(
+                                                'Session Type',
+                                                style: new TextStyle(
+                                                    fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1)
+                                                ),
+                                              ),
+                                            ),
+
+                                            new Column(
 //                                     mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              new Row(
-                                children: [
-                                  new Radio(
-                                    value: 'safety Induction',
-                                    groupValue: _character,
-                                    activeColor: Colors.blue,
+                                              children: <Widget>[
+                                                new Row(
+                                                  children: [
+                                                    new Radio(
+                                                      value: 'safety Induction',
+                                                      groupValue: _character,
+                                                      activeColor: Colors.blue,
 
-                                    onChanged:  ( value) {
-                                      setState(() {
-                                        _character = value;
-                                        AddTraining.sessionType = _character;
+                                                      onChanged:  ( value) {
+                                                        setState(() {
+                                                          _character = value;
+//                                        AddTraining.sessionType = _character;
 //                                  print(_character);
-                                      });
-                                    },
-                                  ),
-                                  new Text(
-                                    'Safety Induction',
-                                    style: new TextStyle(fontSize: 16.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1)),
-                                  ),
-                                ],
-                              ),
+                                                        });
+                                                      },
+                                                    ),
+                                                    new Text(
+                                                      'Safety Induction',
+                                                      style: new TextStyle(fontSize: 16.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1)),
+                                                    ),
+                                                  ],
+                                                ),
 
-                              new Row(
-                                children: [
-                                  new Radio(
-                                    value: 'Training',
-                                    groupValue: _character,
-                                    activeColor: Colors.blue,
+                                                new Row(
+                                                  children: [
+                                                    new Radio(
+                                                      value: 'Training',
+                                                      groupValue: _character,
+                                                      activeColor: Colors.blue,
 
-                                    onChanged:  ( value) {
-                                      setState(() {
-                                        _character = value;
-                                        AddTraining.sessionType = _character;
-                                        //                                  print(_character);
-                                      });
-                                    },
-                                  ),
-                                  new Text(
-                                    'Training',
-                                    style: new TextStyle(fontSize: 16.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1)),
-                                  ),
-                                ],
-                              ),
-                              new Row(
-                                children: [
-                                  new Radio(
-                                    value: 'Toolbox Talk',
-                                    groupValue: _character,
-                                    activeColor: Colors.blue,
+                                                      onChanged:  ( value) {
+                                                        setState(() {
+                                                          _character = value;
+//                                        AddTraining.sessionType = _character;
+                                                          //                                  print(_character);
+                                                        });
+                                                      },
+                                                    ),
+                                                    new Text(
+                                                      'Training',
+                                                      style: new TextStyle(fontSize: 16.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1)),
+                                                    ),
+                                                  ],
+                                                ),
+                                                new Row(
+                                                  children: [
+                                                    new Radio(
+                                                      value: 'Toolbox Talk',
+                                                      groupValue: _character,
+                                                      activeColor: Colors.blue,
 
-                                    onChanged:  ( value) {
-                                      setState(() {
-                                        _character = value;
-                                        AddTraining.sessionType = _character;
-                                        //                                  print(_character);
-                                      });
-                                    },
-                                  ),
-                                  new Text(
-                                    'Toolbox Talk',
-                                    style: new TextStyle(fontSize: 16.0,fontWeight:FontWeight.w400,color:Color.fromRGBO(113, 113, 113, 1)),
-                                  ),
-                                ],
-                              ),
-                              new Row(
-                                children: [
-                                  new Radio(
-                                    value: 'Security Briefing',
-                                    groupValue: _character,
-                                    activeColor: Colors.blue,
+                                                      onChanged:  ( value) {
+                                                        setState(() {
+                                                          _character = value;
+//                                        AddTraining.sessionType = _character;
+                                                          //                                  print(_character);
+                                                        });
+                                                      },
+                                                    ),
+                                                    new Text(
+                                                      'Toolbox Talk',
+                                                      style: new TextStyle(fontSize: 16.0,fontWeight:FontWeight.w400,color:Color.fromRGBO(113, 113, 113, 1)),
+                                                    ),
+                                                  ],
+                                                ),
+                                                new Row(
+                                                  children: [
+                                                    new Radio(
+                                                      value: 'Security Briefing',
+                                                      groupValue: _character,
+                                                      activeColor: Colors.blue,
 
-                                    onChanged:  ( value) {
-                                      setState(() {
-                                        _character = value;
-                                        AddTraining.sessionType = _character;
-                                        //                                  print(_character);
-                                      });
-                                    },
-                                  ),
-                                  new Text(
-                                    'Security Briefing',
-                                    style: TextStyle(fontSize: 16.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1)),
-                                  ),
-                                ],
-                              ),
+                                                      onChanged:  ( value) {
+                                                        setState(() {
+                                                          _character = value;
+//                                        AddTraining.sessionType = _character;
+                                                          //                                  print(_character);
+                                                        });
+                                                      },
+                                                    ),
+                                                    new Text(
+                                                      'Security Briefing',
+                                                      style: TextStyle(fontSize: 16.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1)),
+                                                    ),
+                                                  ],
+                                                ),
 
 
 
-                            ],
-                          ),
+                                              ],
+                                            ),
 
-                          SizedBox(height: 15.0,),
+                                            SizedBox(height: 15.0,),
 
-                          TextFormField(
-                            decoration: new InputDecoration(
-
-//                              border: InputBorder.none,
-//                              focusedBorder: InputBorder.none,
-//                              enabledBorder: InputBorder.none,
-//                              errorBorder: InputBorder.none,
-//                              disabledBorder: InputBorder.none,
-                                contentPadding:
-                                EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
-//                    hintText: "Name / Staff ID*",
-                                labelText:"Training / Toolbox Talk Subject",
-                                labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
-                            ),
-                            validator: (value) {
-                              if (value.isEmpty) {
-                                return 'Please enter some text';
-                              }
-                              return null;
-                            },
-                            controller: trainingController,
-                            onChanged: (value){
-                              setState(() {
-                                AddTraining.subject= trainingController.text;
-
-                              });
-                            },
-                          ),
-                          SizedBox(height: 30.0,),
-
-                          TextFormField(
-                            keyboardType: TextInputType.number,
-                            decoration: new InputDecoration(
+                                            TextFormField(
+                                              decoration: new InputDecoration(
 
 //                              border: InputBorder.none,
 //                              focusedBorder: InputBorder.none,
 //                              enabledBorder: InputBorder.none,
 //                              errorBorder: InputBorder.none,
 //                              disabledBorder: InputBorder.none,
-                                contentPadding:
-                                EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
+                                                  contentPadding:
+                                                  EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
 //                    hintText: "Name / Staff ID*",
-                                labelText:"Number of attendees" ,
-                                labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
+                                                  labelText:"Training / Toolbox Talk Subject",
+                                                  labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
+                                              ),
+                                              validator: (value) {
+                                                if (value.isEmpty) {
+                                                  return 'Please enter some text';
+                                                }
+                                                return null;
+                                              },
+                                              controller: trainingController,
+                                              onChanged: (value){
+                                                setState(() {
+                                                  AddTraining.subject = trainingController.text;
 
-                            ),
-                            validator: (value) {
-                              if (value.isEmpty) {
-                                return 'Please enter some text';
-                              }
-                              return null;
-                            },
-                            controller: attendeesController,
-                            onChanged: (value){
-                              setState(() {
-                                AddTraining.noAttendees = int.parse(attendeesController.text);
+                                                });
+                                              },
+                                            ),
+                                            SizedBox(height: 30.0,),
 
-                              });
-                            },
-                          ),
-                          SizedBox(height: 20.0,),
-                          new  Container(
-                            margin: EdgeInsets.only(left:8.0,),
+                                            TextFormField(
+                                              keyboardType: TextInputType.number,
+                                              decoration: new InputDecoration(
 
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+//                              border: InputBorder.none,
+//                              focusedBorder: InputBorder.none,
+//                              enabledBorder: InputBorder.none,
+//                              errorBorder: InputBorder.none,
+//                              disabledBorder: InputBorder.none,
+                                                  contentPadding:
+                                                  EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
+//                    hintText: "Name / Staff ID*",
+                                                  labelText:"Number of attendees" ,
+                                                  labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
 
-                              children: <Widget>[
-                                Container(
-                                  child: file == null
-                                      ? new Text("Add attachment",style: TextStyle(fontSize: 20.0,color: DarkBlue,),)
-                                      : new Text("Attachment added",style: TextStyle(fontSize: 20.0,color: Colors.green,)),
-                                ),
-                                Container(
+                                              ),
+                                              validator: (value) {
+                                                if (value.isEmpty) {
+                                                  return 'Please enter some text';
+                                                }
+                                                return null;
+                                              },
+                                              controller: attendeesController,
+                                              onChanged: (value){
+                                                setState(() {
+                                                  AddTraining.noAttendees = int.parse(attendeesController.text);
 
-                                    child:  Row(
+                                                });
+                                              },
+                                            ),
+                                            SizedBox(height: 20.0,),
+                                            new  Container(
+                                              margin: EdgeInsets.only(left:8.0,),
 
-                                      children: <Widget>[
-                                        RaisedButton(
-                                          color: (imagePressed) ? Colors.red
-                                              : DarkBlue,
-                                          child: Icon(Icons.camera_alt, color: Colors.white,),
-                                          onPressed: getImageCamera,
-                                        ),
-                                        SizedBox(width: 10.0,),
-                                        Padding(
+                                              child: Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
 
-                                            padding: const EdgeInsets.symmetric(vertical: 16.0),
-                                            child: Align(
-                                                alignment: Alignment.topLeft,
-                                                child:SizedBox(
-                                                  width: 120,
-                                                  child: ElevatedButton(
-                                                      style: ElevatedButton.styleFrom(
-                                                        primary: (imagePressed) ? Colors.red
-                                                            : DarkBlue,
-                                                        onPrimary: Color.fromRGBO(32, 87, 163, 1),
-                                                      ),
+                                                children: <Widget>[
+                                                  Container(
+                                                    child: file == null
+                                                        ? new Text("Add attachment",style: TextStyle(fontSize: 20.0,color: DarkBlue,),)
+                                                        : new Text("Attachment added",style: TextStyle(fontSize: 20.0,color: Colors.green,)),
+                                                  ),
+                                                  Container(
+
+                                                      child:  Row(
+
+                                                        children: <Widget>[
+                                                          RaisedButton(
+                                                              color: (imagePressed) ? Colors.red
+                                                                  : DarkBlue,
+                                                              child: Icon(Icons.camera_alt, color: Colors.white,),
+                                                              onPressed:(){
+                                                                FocusScope.of(context).requestFocus(FocusNode());
+                                                                getImageCamera();
+                                                              }
+                                                          ),
+                                                          SizedBox(width: 10.0,),
+                                                          Padding(
+
+                                                              padding: const EdgeInsets.symmetric(vertical: 16.0),
+                                                              child: Align(
+                                                                  alignment: Alignment.topLeft,
+                                                                  child:SizedBox(
+                                                                    width: 120,
+                                                                    child: ElevatedButton(
+                                                                        style: ElevatedButton.styleFrom(
+                                                                          primary: (imagePressed) ? Colors.red
+                                                                              : DarkBlue,
+                                                                          onPrimary: Color.fromRGBO(32, 87, 163, 1),
+                                                                        ),
 
 //                                                       ),
-                                                      child: Container(
-                                                        child: Row(
-                                                          children: <Widget>[
-                                                            Icon(Icons.image,color: Colors.white,),
-                                                            SizedBox(width: 10.0,),
-                                                            Text('Gallery', style: TextStyle(color: Colors.white),),
-                                                          ],
-                                                        ),
-                                                      ),
+                                                                        child: Container(
+                                                                          child: Row(
+                                                                            children: <Widget>[
+                                                                              Icon(Icons.image,color: Colors.white,),
+                                                                              SizedBox(width: 10.0,),
+                                                                              Text('Gallery', style: TextStyle(color: Colors.white),),
+                                                                            ],
+                                                                          ),
+                                                                        ),
 
-                                                      onPressed: (){
-                                                        getImageGallery();
-                                                        //Actions
-                                                      }
+                                                                        onPressed:(){
+                                                                          FocusScope.of(context).requestFocus(FocusNode());
+                                                                          getImageCamera();
+                                                                        }
+                                                                    ),
+                                                                  )
+                                                              )
+
+                                                          ),
+
+                                                        ],
+                                                      )
                                                   ),
-                                                )
-                                            )
-
-                                        ),
-
-                                      ],
-                                    )
-                                ),
-                                SizedBox(height: 15.0,),
+                                                  SizedBox(height: 15.0,),
 //                                              Container(
 //
 //                                                  child:  Row(
@@ -442,69 +458,103 @@ class _training_induction_form extends State<training_induction_form> {
 //                                                  )
 //                                              ),
 
-                              ],
+                                                ],
+                                              ),
+                                            ),
+
+
+
+                                          ],
+                                        ),
+                                      )
+                                  )
+                              ),
                             ),
-                          ),
-
-
-
-                        ],
-                      ),
-                      )
-                    )
-                        ),
-                      ),
-                      Align(
-                        child: SizedBox(
+                            Align(
+                              child: SizedBox(
 //                              width: 600,
-                          child: ElevatedButton(
+                                child: ElevatedButton(
 
-                              style: ElevatedButton.styleFrom(
-                                primary: Color.fromRGBO(45, 87, 163, 1),
+                                    style: ElevatedButton.styleFrom(
+                                      primary: Color.fromRGBO(45, 87, 163, 1),
 //                            onPrimary: Color.fromRGBO(32, 87, 163, 1),
 
 
-                              ),
-                              onPressed: () {
+                                    ),
+                                    onPressed: () {
 //                                   Validate returns true if the form is valid, or false
 //                                   otherwise.
-                                if (_formKey.currentState.validate() && file != null ) {
-                                  showLoaderDialog(context);
-                                  _submitForm();
+                                      if (_formKey.currentState.validate() && file != null ) {
+                                        showLoaderDialog(context);
+                                        _Submit();
 
 
-                                }
-                                else if ( file == null ){
+                                      }
+                                      else if ( file == null ){
 
-                                  setState(()
-                                  {
-                                    imagePressed = true;
-                                  });
-                                }
-                              },
-                              child: Container(
+                                        setState(()
+                                        {
+                                          imagePressed = true;
+                                        });
+                                      }
+                                    },
+                                    child: Container(
 //                                    height: MediaQuery.of(context).size.height,
-                                width: MediaQuery.of(context).size.width ,
+                                      width: MediaQuery.of(context).size.width ,
 //                                    width: 600.0,
 
-                                child:Text('Submit',textAlign: TextAlign.center,style: TextStyle(fontSize: 20.0)
+                                      child:Text('Submit',textAlign: TextAlign.center,style: TextStyle(fontSize: 20.0)
+                                      ),
+                                    )
                                 ),
-                              )
-                          ),
+                              ),
+                            )
+                          ],
                         ),
+
+
+
                       )
-                    ],
-                  ),
-
-
-
-                )
+                  )
+              ),
             )
-
-        )
         )
 
-        );
+    );
+  }
+
+  Future <void> AddToSqllite() async {
+    _onLoading();
+//    p_id = ModalRoute.of(context).settings.arguments;
+
+    TrainingInducModel trainingInducModel = TrainingInducModel( id: null, projectId: p_id, userId: u_id, sessionType: _character,subject: AddTraining.subject,noAttendees: AddTraining.noAttendees,attachments: imgString,);
+    await TrainingInductionController().addData(trainingInducModel).then((value){
+      if (value>0) {
+        print("Success");
+//        userList();
+//        print(list.length);
+      }else{
+        print("faild");
+      }
+
+    });
+  }
+
+  Future<void> _Submit() async {
+    final FormState form = _formKey.currentState;
+    form.save();
+    try {
+      final result = await InternetAddress.lookup('example.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        print('connected');
+        _submitForm();
+      }
+    } on SocketException catch (_) {
+      print('not connected');
+
+      AddToSqllite();
+    }
+
   }
 
   Future<void> _submitForm() async {
@@ -516,14 +566,11 @@ class _training_induction_form extends State<training_induction_form> {
     SharedPreferences userData = await SharedPreferences.getInstance();
 //    //Return int
 //    int Value = prefs.getInt('jobId');
-    int u_id = userData.getInt('user_id');
-    int p_id = userData.getInt('project_id');
+//    int u_id = userData.getInt('user_id');
+//    int p_id = userData.getInt('project_id');
     AddTraining.userId = u_id;
     AddTraining.projectId = p_id;
-
-
-
-
+    AddTraining.sessionType = _character;
 
 //    _AddResult.name = widget.EconomicDetail.name.toString();
     form.save();
@@ -606,7 +653,7 @@ class _training_induction_form extends State<training_induction_form> {
                           onPressed: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (BuildContext context) =>  training_induction_form (),),
+                              MaterialPageRoute(builder: (BuildContext context) =>  training_induction_form (),settings: RouteSettings( arguments: p_id)),
                             );
 
                           },
@@ -668,12 +715,18 @@ class _training_induction_form extends State<training_induction_form> {
 
   showLoaderDialog(BuildContext context){
     AlertDialog alert=AlertDialog(
-      content: new Row(
+      content: new Row
+        (
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircularProgressIndicator(),
+          CircularProgressIndicator(
+              valueColor: new AlwaysStoppedAnimation<Color>(DarkBlue)
+          ),
           Container(margin: EdgeInsets.only(left: 15.0),child:Text("please wait ..." )),
         ],),
     );
+
     showDialog(barrierDismissible: false,
       context:context,
       builder:(BuildContext context){
@@ -683,17 +736,17 @@ class _training_induction_form extends State<training_induction_form> {
   }
 
 
+
   Future getImageGallery() async{
     final pickedFile = await picker.getImage(source: ImageSource.gallery);
     File imageFile = new File(pickedFile.path);
     String fileExt = imageFile.path.split('.').last;
-//    String basename = basename(imageFile.path);
     List<int> videoBytes = imageFile.readAsBytesSync();
     file = base64.encode(videoBytes);
     String fi = fileExt +","+ file ;
-
     setState(()  {
       imagePressed = false;
+      imgString = imageFile.path;
       AddTraining.attachments = fi;
 
     });
@@ -710,10 +763,12 @@ class _training_induction_form extends State<training_induction_form> {
 
     setState(()  {
       imagePressed = false;
+      imgString = imageFile.path;
       AddTraining.attachments = fi;
 
     });
   }
+
 
   Future NavigateToDashboard () async {
 

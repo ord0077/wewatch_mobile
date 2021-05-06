@@ -12,6 +12,7 @@ String covidModelToMap(CovidModel data) => json.encode(data.toMap());
 
 class CovidModel {
   CovidModel({
+    this.id,
     this.projectId,
     this.userId,
     this.temperature,
@@ -21,6 +22,7 @@ class CovidModel {
     this.image,
   });
 
+  int id;
   int projectId;
   int userId;
   String temperature;
@@ -30,6 +32,7 @@ class CovidModel {
   String image;
 
   factory CovidModel.fromMap(Map<String, dynamic> json) => CovidModel(
+    id: json["id"],
     projectId: json["project_id"],
     userId: json["user_id"],
     temperature: json["temperature"],
@@ -40,6 +43,7 @@ class CovidModel {
   );
 
   Map<String, dynamic> toMap() => {
+    "id": id,
     "project_id": projectId,
     "user_id": userId,
     "temperature": temperature,

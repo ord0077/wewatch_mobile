@@ -36,31 +36,31 @@ class _DailyHscReport extends State<DailyHscReport> {
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
-  String file;
-  String _incidents;
-  String misses ;
-  String voilaions;
-  String first_aid;
-  String environment;
-  String housekeeping;
-  String barriers;
-  String complince;
-  String stored_properly;
-  String concerns;
-  String mask_complince;
-  String hygiene_place;
-  String distancing_compl;
-  String disinfecting_prot;
+  String file ;
+  String _incidents= "";
+  String misses = "";
+  String voilaions= "";
+  String first_aid= "";
+  String environment= "";
+  String housekeeping= "";
+  String barriers= "";
+  String complince= "";
+  String stored_properly= "";
+  String concerns= "";
+  String mask_complince= "";
+  String hygiene_place= "";
+  String distancing_compl= "";
+  String disinfecting_prot= "";
 
   double _height;
   double _width;
-  String _setTime, _setDate;
-  String _setTime2;
+  String _setTime, _setDate = "";
+  String _setTime2= "";
 
-  String _hour, _minute, _time ;
-  String _hour2, _minute2, _time2;
+  String _hour, _minute, _time  = "";
+  String _hour2, _minute2, _time2 = "";
 
-  String dateTime;
+  String dateTime = "";
 
   DateTime selectedDate = DateTime.now();
   final  dateController = TextEditingController();
@@ -186,8 +186,8 @@ class _DailyHscReport extends State<DailyHscReport> {
        hygiene_place= 'yes';
        distancing_compl= 'yes';
        disinfecting_prot= 'yes';
-      _timeController1.text = DateFormat.jm().format(DateTime.now());
-      _timeController2.text = DateFormat.jm().format(DateTime.now());
+      _timeController1.text = DateFormat('HH:mm').format(DateTime.now());
+      _timeController2.text = DateFormat('HH:mm').format(DateTime.now());
       dateController.text = dateFormat.format(selectedDate) ;
       final picker = ImagePicker();
       _User();
@@ -301,7 +301,7 @@ class _DailyHscReport extends State<DailyHscReport> {
                 child: Container(
                   child: FittedBox(
                     fit: BoxFit.scaleDown,
-                    child: Text('Daily HSC Report',
+                    child: Text('Daily HSC Form',
                       style: TextStyle( fontSize: 25,fontWeight:FontWeight.bold,color: Colors.white),),
                   )
 
@@ -343,13 +343,17 @@ class _DailyHscReport extends State<DailyHscReport> {
                                   SizedBox(height: 10.0,),
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment: CrossAxisAlignment.baseline,
                                     children: [
-                                      new Container(
-                                          child: Text("Date", style: TextStyle(fontSize: 22.0,fontWeight:FontWeight.w600,color: DarkBlue
-                                          ))
+                                      Padding(padding: const EdgeInsets.only(top: 10.0),
+                                      child:  new Container(
 
-                                      ),
+                                            child: Text("Date", style: TextStyle(fontSize: 22.0,fontWeight:FontWeight.w600,color: DarkBlue
+                                            ))
+
+                                        ),
+
+                                        ),
+
                                       SizedBox(width: 10.0,),
 
                                       new Flexible(
@@ -511,16 +515,17 @@ class _DailyHscReport extends State<DailyHscReport> {
                                   ),
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment: CrossAxisAlignment.baseline,
+
                                     children: [
                                       SizedBox(width: 20.0,),
-
-                                      new Text(
+                                      Padding(padding: const EdgeInsets.only(top: 10.0),
+                                        child:
+                                        new Text(
                                         "From",
 
                                         textAlign: TextAlign.center,
                                         style:  TextStyle(fontSize: 20.0,fontWeight:FontWeight.w500,color: Color.fromRGBO(45, 87, 163, 1),),
-                                      ),
+                                      ),),
                                       SizedBox(width: 20.0,),
 
                                       new Flexible(
@@ -558,12 +563,17 @@ class _DailyHscReport extends State<DailyHscReport> {
 
                                       ),
                                       SizedBox(width: 20.0,),
-                                      new Text(
-                                        "To",
+                                      Padding(padding: const EdgeInsets.only(top: 10.0),
+                                        child:Container(
+                                            child:  new Text(
+                                              "To",
 
-                                        textAlign: TextAlign.center,
-                                        style:  TextStyle(fontSize: 20.0,fontWeight:FontWeight.w500,color: Color.fromRGBO(45, 87, 163, 1),),
-                                      ),
+                                              textAlign: TextAlign.center,
+                                              style:  TextStyle(fontSize: 20.0,fontWeight:FontWeight.w500,color: Color.fromRGBO(45, 87, 163, 1),),
+                                            ),
+                                        ),
+
+                                        ),
                                       SizedBox(width: 20.0,),
                                       new Flexible(
                                           child: Container(
@@ -785,10 +795,10 @@ class _DailyHscReport extends State<DailyHscReport> {
                                 children: [
                                   Container(
                                     child:  Padding(
-                                      padding: EdgeInsets.only(left:15.0,),
+                                      padding: EdgeInsets.only(left:5.0,),
                                       child: FittedBox(
                                         fit: BoxFit.scaleDown,
-                                        child:   Text("Compliance Check List", style: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w600,color: Color.fromRGBO(89, 89, 89, 1)
+                                        child:   Text("Compliance Check List", style: TextStyle(fontSize: 18.0,fontWeight:FontWeight.w800,color: DarkBlue
                                         )),
                                       ),
                                     ),
@@ -798,7 +808,7 @@ class _DailyHscReport extends State<DailyHscReport> {
                                   Row(
                                     children: [
                                       Padding(
-                                        padding: EdgeInsets.only(left:15.0,),
+                                        padding: EdgeInsets.only(left:5.0,),
                                         child:   Text("Yes", style: TextStyle(fontSize: 18.0,fontWeight:FontWeight.w600,color: Color.fromRGBO(89, 89, 89, 1)
                                         )),
                                       ),
@@ -824,7 +834,7 @@ class _DailyHscReport extends State<DailyHscReport> {
                                       padding: EdgeInsets.only(left:15.0,),
                                       child:Container(
                                         width: MediaQuery.of(context).size.width / 2,
-                                        child:   Text("Were there any incidents?", style: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(89, 89, 89, 1)
+                                        child:   Text("Were there any incidents?", style: TextStyle(fontSize: 16.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(89, 89, 89, 1)
                                         )),
                                       )
                                   ),
@@ -890,7 +900,7 @@ class _DailyHscReport extends State<DailyHscReport> {
                                       EdgeInsets.only(left: 15, bottom: 10, top: 11, right: 15),
 //                    hintText: "Name / Staff ID*",
                                       labelText:"Remarks",
-                                      labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
+                                      labelStyle: TextStyle(fontSize: 16.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
                                   ),
                                   controller: incidents_remarksController,
                                   onChanged: (value){
@@ -910,7 +920,7 @@ class _DailyHscReport extends State<DailyHscReport> {
                                     padding: EdgeInsets.only(left:15.0,),
                                     child:Container(
                                       width: MediaQuery.of(context).size.width / 2,
-                                      child:   Text("Were there any near misses?", style: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(89, 89, 89, 1)
+                                      child:   Text("Were there any near misses?", style: TextStyle(fontSize: 16.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(89, 89, 89, 1)
                                       )),
                                     ),
                                   ),
@@ -976,7 +986,7 @@ class _DailyHscReport extends State<DailyHscReport> {
                                       EdgeInsets.only(left: 15, bottom: 10, top: 11, right: 15),
 //                    hintText: "Name / Staff ID*",
                                       labelText:"Remarks",
-                                      labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
+                                      labelStyle: TextStyle(fontSize: 16.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
                                   ),
                                   controller: near_misses_remarksController,
                                   onChanged: (value){
@@ -996,7 +1006,7 @@ class _DailyHscReport extends State<DailyHscReport> {
                                     padding: EdgeInsets.only(left:15.0,),
                                     child:Container(
                                       width: MediaQuery.of(context).size.width / 2,
-                                      child:   Text("Any reported safety violations/noncompliance?", style: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(89, 89, 89, 1)
+                                      child:   Text("Any reported safety violations/noncompliance?", style: TextStyle(fontSize: 16.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(89, 89, 89, 1)
                                       )),
                                     ),
                                   ),
@@ -1062,7 +1072,7 @@ class _DailyHscReport extends State<DailyHscReport> {
                                       EdgeInsets.only(left: 15, bottom: 10, top: 11, right: 15),
 //                    hintText: "Name / Staff ID*",
                                       labelText:"Remarks",
-                                      labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
+                                      labelStyle: TextStyle(fontSize: 16.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
                                   ),
                                   controller: violations_noncompliance_remarksController,
                                   onChanged: (value){
@@ -1081,7 +1091,7 @@ class _DailyHscReport extends State<DailyHscReport> {
                                     padding: EdgeInsets.only(left:15.0,),
                                     child:Container(
                                       width: MediaQuery.of(context).size.width / 2,
-                                      child:   Text("Any cases which required first aid?", style: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(89, 89, 89, 1)
+                                      child:   Text("Any cases which required first aid?", style: TextStyle(fontSize: 16.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(89, 89, 89, 1)
                                       )),
                                     ),
                                   ),
@@ -1148,7 +1158,7 @@ class _DailyHscReport extends State<DailyHscReport> {
                                       EdgeInsets.only(left: 15, bottom: 10, top: 11, right: 15),
 //                    hintText: "Name / Staff ID*",
                                       labelText:"Remarks",
-                                      labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
+                                      labelStyle: TextStyle(fontSize: 16.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
                                   ),
                                   controller: first_aid_remarksController,
                                   onChanged: (value){
@@ -1167,7 +1177,7 @@ class _DailyHscReport extends State<DailyHscReport> {
                                     padding: EdgeInsets.only(left:15.0,),
                                     child:Container(
                                       width: MediaQuery.of(context).size.width / 2,
-                                      child:   Text("Any noted environmental incidents? (chemical/oil spill etc.)", style: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(89, 89, 89, 1)
+                                      child:   Text("Any noted environmental incidents? (chemical/oil spill etc.)", style: TextStyle(fontSize: 16.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(89, 89, 89, 1)
                                       )),
                                     ),
                                   ),
@@ -1234,7 +1244,7 @@ class _DailyHscReport extends State<DailyHscReport> {
                                       EdgeInsets.only(left: 15, bottom: 10, top: 11, right: 15),
 //                    hintText: "Name / Staff ID*",
                                       labelText:"Remarks",
-                                      labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
+                                      labelStyle: TextStyle(fontSize: 16.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
                                   ),
                                   controller: environment_incidents_remarksController,
                                   onChanged: (value){
@@ -1253,7 +1263,7 @@ class _DailyHscReport extends State<DailyHscReport> {
                                     padding: EdgeInsets.only(left:15.0,),
                                     child:Container(
                                       width: MediaQuery.of(context).size.width / 2,
-                                      child:   Text("Was the daily housekeeping done? ", style: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(89, 89, 89, 1)
+                                      child:   Text("Was the daily housekeeping done? ", style: TextStyle(fontSize: 16.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(89, 89, 89, 1)
                                       )),
                                     ),
                                   ),
@@ -1319,7 +1329,7 @@ class _DailyHscReport extends State<DailyHscReport> {
                                       EdgeInsets.only(left: 15, bottom: 10, top: 11, right: 15),
 //                    hintText: "Name / Staff ID*",
                                       labelText:"Remarks",
-                                      labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
+                                      labelStyle: TextStyle(fontSize: 16.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
                                   ),
                                   controller: housekeeping_remarksController,
                                   onChanged: (value){
@@ -1338,7 +1348,7 @@ class _DailyHscReport extends State<DailyHscReport> {
                                     padding: EdgeInsets.only(left:15.0,),
                                     child:Container(
                                         width: MediaQuery.of(context).size.width / 2,
-                                        child:   Text("All identified hazards provided by safety signs/barriers?", style: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(89, 89, 89, 1)
+                                        child:   Text("All identified hazards provided by safety signs/barriers?", style: TextStyle(fontSize: 16.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(89, 89, 89, 1)
                                         ))
                                     ),
                                   ),
@@ -1404,7 +1414,7 @@ class _DailyHscReport extends State<DailyHscReport> {
                                       EdgeInsets.only(left: 15, bottom: 10, top: 11, right: 15),
 //                    hintText: "Name / Staff ID*",
                                       labelText:"Remarks",
-                                      labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
+                                      labelStyle: TextStyle(fontSize: 16.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
                                   ),
                                   controller: safety_signs_remarksController,
                                   onChanged: (value){
@@ -1423,7 +1433,7 @@ class _DailyHscReport extends State<DailyHscReport> {
                                     padding: EdgeInsets.only(left:15.0,),
                                     child:Container(
                                       width: MediaQuery.of(context).size.width / 2,
-                                      child:   Text("Work permit compliance?", style: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(89, 89, 89, 1)
+                                      child:   Text("Work permit compliance?", style: TextStyle(fontSize: 16.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(89, 89, 89, 1)
                                       )),
                                     ),
                                   ),
@@ -1489,7 +1499,7 @@ class _DailyHscReport extends State<DailyHscReport> {
                                       EdgeInsets.only(left: 15, bottom: 10, top: 11, right: 15),
 //                    hintText: "Name / Staff ID*",
                                       labelText:"Remarks",
-                                      labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
+                                      labelStyle: TextStyle(fontSize: 16.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
                                   ),
                                   controller: work_permit_remarksController,
                                   onChanged: (value){
@@ -1508,7 +1518,7 @@ class _DailyHscReport extends State<DailyHscReport> {
                                     padding: EdgeInsets.only(left:15.0,),
                                     child:Container(
                                         width: MediaQuery.of(context).size.width / 2,
-                                        child:Text("All oil drums/compressed gas cylinders and hazardous energy stored properly?", style: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(89, 89, 89, 1)
+                                        child:Text("All oil drums/compressed gas cylinders and hazardous energy stored properly?", style: TextStyle(fontSize: 16.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(89, 89, 89, 1)
 
                                         )
                                         )),
@@ -1575,7 +1585,7 @@ class _DailyHscReport extends State<DailyHscReport> {
                                       EdgeInsets.only(left: 15, bottom: 10, top: 11, right: 15),
 //                    hintText: "Name / Staff ID*",
                                       labelText:"Remarks",
-                                      labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
+                                      labelStyle: TextStyle(fontSize: 16.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
                                   ),
                                   controller: drums_cylinders_remarksController,
                                   onChanged: (value){
@@ -1594,7 +1604,7 @@ class _DailyHscReport extends State<DailyHscReport> {
                                     padding: EdgeInsets.only(left:15.0,),
                                     child:Container(
                                         width: MediaQuery.of(context).size.width / 2,
-                                        child:Text("Any major safety concerns?", style: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(89, 89, 89, 1)
+                                        child:Text("Any major safety concerns?", style: TextStyle(fontSize: 16.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(89, 89, 89, 1)
 
                                         )
                                         )),
@@ -1661,7 +1671,7 @@ class _DailyHscReport extends State<DailyHscReport> {
                                       EdgeInsets.only(left: 15, bottom: 10, top: 11, right: 15),
 //                    hintText: "Name / Staff ID*",
                                       labelText:"Remarks",
-                                      labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
+                                      labelStyle: TextStyle(fontSize: 16.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
                                   ),
                                   controller: safety_concerns_remarksController,
                                   onChanged: (value){
@@ -1680,7 +1690,7 @@ class _DailyHscReport extends State<DailyHscReport> {
                                     padding: EdgeInsets.only(left:15.0,),
                                     child:Container(
                                         width: MediaQuery.of(context).size.width / 2,
-                                        child:Text("COVID Prevention – face mask compliance?", style: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(89, 89, 89, 1)
+                                        child:Text("COVID Prevention – face mask compliance?", style: TextStyle(fontSize:16.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(89, 89, 89, 1)
 
                                         )
                                         )),
@@ -1747,7 +1757,7 @@ class _DailyHscReport extends State<DailyHscReport> {
                                       EdgeInsets.only(left: 15, bottom: 10, top: 11, right: 15),
 //                    hintText: "Name / Staff ID*",
                                       labelText:"Remarks",
-                                      labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
+                                      labelStyle: TextStyle(fontSize: 16.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
                                   ),
                                   controller: covid_face_mask_remarksController,
                                   onChanged: (value){
@@ -1766,7 +1776,7 @@ class _DailyHscReport extends State<DailyHscReport> {
                                     padding: EdgeInsets.only(left:15.0,),
                                     child:Container(
                                         width: MediaQuery.of(context).size.width / 2,
-                                        child:Text("COVID Prevention – good hand and respiratory hygiene in place?", style: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(89, 89, 89, 1)
+                                        child:Text("COVID Prevention – good hand and respiratory hygiene in place?", style: TextStyle(fontSize: 16.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(89, 89, 89, 1)
 
                                         )
                                         )),
@@ -1833,7 +1843,7 @@ class _DailyHscReport extends State<DailyHscReport> {
                                       EdgeInsets.only(left: 15, bottom: 10, top: 11, right: 15),
 //                    hintText: "Name / Staff ID*",
                                       labelText:"Remarks",
-                                      labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
+                                      labelStyle: TextStyle(fontSize: 16.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
                                   ),
                                   controller: covid_respiratory_hygiene_remarksController,
                                   onChanged: (value){
@@ -1854,7 +1864,7 @@ class _DailyHscReport extends State<DailyHscReport> {
                                     padding: EdgeInsets.only(left:15.0,),
                                     child:Container(
                                         width: MediaQuery.of(context).size.width / 2,
-                                        child:Text("COVID Prevention – social distancing compliance?", style: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(89, 89, 89, 1)
+                                        child:Text("COVID Prevention – social distancing compliance?", style: TextStyle(fontSize: 16.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(89, 89, 89, 1)
 
                                         )
                                         )),
@@ -1922,7 +1932,7 @@ class _DailyHscReport extends State<DailyHscReport> {
                                       EdgeInsets.only(left: 15, bottom: 10, top: 11, right: 15),
 //                    hintText: "Name / Staff ID*",
                                       labelText:"Remarks",
-                                      labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
+                                      labelStyle: TextStyle(fontSize: 16.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
                                   ),
                                   controller: social_distancing_remarksController,
                                   onChanged: (value){
@@ -1943,7 +1953,7 @@ class _DailyHscReport extends State<DailyHscReport> {
                                     padding: EdgeInsets.only(left:15.0,),
                                     child:Container(
                                         width: MediaQuery.of(context).size.width / 2,
-                                        child:Text("COVID Prevention – cleaning and disinfecting protocols?", style: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(89, 89, 89, 1)
+                                        child:Text("COVID Prevention – cleaning and disinfecting protocols?", style: TextStyle(fontSize: 16.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(89, 89, 89, 1)
 
                                         )
                                         )),
@@ -2010,7 +2020,7 @@ class _DailyHscReport extends State<DailyHscReport> {
                                       EdgeInsets.only(left: 15, bottom: 10, top: 11, right: 15),
 //                    hintText: "Name / Staff ID*",
                                       labelText:"Remarks",
-                                      labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
+                                      labelStyle: TextStyle(fontSize: 16.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
                                   ),
                                   controller: cleaning_disinfecting_remarksController,
                                   onChanged: (value){
@@ -2244,7 +2254,7 @@ class _DailyHscReport extends State<DailyHscReport> {
     int u_id = userData.getInt('user_id');
     int p_id = userData.getInt('project_id');
     AddHsc.userId = u_id;
-    AddHsc.projectId = p_id;
+    AddHsc.projectId = ModalRoute.of(context).settings.arguments;
     AddHsc.date = dateController.text;
     AddHsc.workTimings = _timeController1.text;
 
