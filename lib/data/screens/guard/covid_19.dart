@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wewatchapp/CustomAppBar.dart';
 import 'dart:io';
 import 'package:intl/intl.dart';
+import 'package:wewatchapp/DbControllers/Covid19Controller.dart';
 import 'package:wewatchapp/consts.dart';
 import 'package:wewatchapp/data/models/covid19Model.dart';
 import 'package:wewatchapp/data/screens/dashboard.dart';
@@ -39,19 +40,19 @@ class _covid_19_reg  extends State<covid_19_reg > {
   String file ;
   final picker = ImagePicker();
   bool isPressed = false;
-
+  String imgString;
 
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
   int tempVal = 1;
 
-  TextEditingController nameController = TextEditingController();
-  TextEditingController company_nameController = TextEditingController();
-  TextEditingController remarksController = TextEditingController();
+  final nameController = TextEditingController();
+  final company_nameController = TextEditingController();
+  final remarksController = TextEditingController();
   final AddCovid = CovidModel();
   String userType = ""?? "";
-
-
+  int u_id;
+  int p_id;
 
 
 
@@ -59,9 +60,19 @@ class _covid_19_reg  extends State<covid_19_reg > {
     SharedPreferences userData = await SharedPreferences.getInstance();
     setState(() {
       userType = (userData.getString('user_type') ?? '');
+      u_id = userData.getInt('user_id');
+      p_id = ModalRoute.of(context).settings.arguments;
     });
   }
 
+  List list;
+  bool loading = true;
+
+  Future userList()async{
+    list = await Covid19Controller().fetchData();
+    setState(() {loading=false;});
+    //print(list);
+  }
 
   void _handleRadioValueChange(int value) {
     setState(() {
@@ -83,6 +94,7 @@ class _covid_19_reg  extends State<covid_19_reg > {
 
   @override
   void initState() {
+    userList();
     setState(() {
       _User();
       isPressed = false;
@@ -103,244 +115,258 @@ class _covid_19_reg  extends State<covid_19_reg > {
   Widget build(BuildContext context) {
     return WillPopScope (
         onWillPop: ()  {
-      return NavigateToDashboard();
-    },
-    child:
-      SafeArea(
-        child: Scaffold(
-            key: scaffoldKey,
-            drawer: Theme(
-              data: Theme.of(context).copyWith(
-                  canvasColor: Color.fromRGBO(45, 87, 163, 1) //This will change the drawer background to blue.
-                //other styles
+          return NavigateToDashboard();
+        },
+        child:
+        SafeArea(
+            child: Scaffold(
+              key: scaffoldKey,
+              drawer: Theme(
+                data: Theme.of(context).copyWith(
+                    canvasColor: Color.fromRGBO(45, 87, 163, 1) //This will change the drawer background to blue.
+                  //other styles
+                ),
+                child: NavDrawer(),
               ),
-              child: NavDrawer(),
-            ),
-            appBar: PreferredSize(
-                preferredSize: const Size.fromHeight(150.0),
-                child:Column(
-                  children: [
-                    Container(
-                      padding: EdgeInsets.only(top: 20.0,bottom: 20.0),
-                      // color: Theme.of(context).primaryColorLight,
-                      color: lightBackgroundColor,
-                      child:   Stack(
-                        children: <Widget>[
-                          new Center(
-                              child: new Column(
-                                children: <Widget>[
-                                  Container(
+              appBar: PreferredSize(
+                  preferredSize: const Size.fromHeight(150.0),
+                  child:Column(
+                    children: [
+                      Container(
+                        padding: EdgeInsets.only(top: 20.0,bottom: 20.0),
+                        // color: Theme.of(context).primaryColorLight,
+                        color: lightBackgroundColor,
+                        child:   Stack(
+                          children: <Widget>[
+                            new Center(
+                                child: new Column(
+                                  children: <Widget>[
+                                    Container(
 //                        padding: EdgeInsets.only(top: 16.0),
-                                    width: 200,
-                                    child:Image(image: AssetImage('assets/images/wewatch_logo.png',)),
+                                      width: 200,
+                                      child:Image(image: AssetImage('assets/images/wewatch_logo.png',)),
 
-                                  )
-                                ],
-                              )),
-                          Positioned(
-                            left: 10,
+                                    )
+                                  ],
+                                )),
+                            Positioned(
+                              left: 10,
 //                top: 16,
-                            child:  GestureDetector(
+                              child:  GestureDetector(
 
-                                onTap: (){
-                                  scaffoldKey.currentState.openDrawer();
-                                },
+                                  onTap: (){
+                                    scaffoldKey.currentState.openDrawer();
+                                  },
 
 
-                                child: Image.asset(
-                                  'assets/images/drawer_icon.png',
-                                  height: 40,
-                                  width: 40,
-                                  fit: BoxFit.fitWidth,
-                                )
+                                  child: Image.asset(
+                                    'assets/images/drawer_icon.png',
+                                    height: 40,
+                                    width: 40,
+                                    fit: BoxFit.fitWidth,
+                                  )
+                              ),
                             ),
-                          ),
 
 
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                    Container(
-                        width: MediaQuery.of(context).size.width ,
-                        padding: const EdgeInsets.only(left: 20.0,top: 20.0,right: 20.0,bottom: 15.0,),
+                      Container(
+                          width: MediaQuery.of(context).size.width ,
+                          padding: const EdgeInsets.only(left: 20.0,top: 20.0,right: 20.0,bottom: 15.0,),
 //                  color: Colors.black54,
-                        color: Color.fromRGBO(45, 87, 163, 1),
+                          color: Color.fromRGBO(45, 87, 163, 1),
 
 
 
 
-                        child: Align(
-                            alignment: Alignment.center,
-                            child: Container(
-                                child: FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  child: Text('Covid 19 Temp Register',
-                                    style: TextStyle( fontSize: 25,fontWeight:FontWeight.bold,color: Colors.white),),
-                                )
+                          child: Align(
+                              alignment: Alignment.center,
+                              child: Container(
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Text('Covid-19 Register',
+                                      style: TextStyle( fontSize: 25,fontWeight:FontWeight.bold,color: Colors.white),),
+                                  )
 
-                            )
+                              )
 
 
-                        )
-                    ),
-                  ],
-                )
+                          )
+                      ),
+                    ],
+                  )
 
-            ),
-            body:
-            Center (
-                    child:    Container(
-                        height: MediaQuery.of(context).size.height,
-                        width: MediaQuery.of(context).size.width ,
+              ),
+              body: new GestureDetector(
+                  onTap: () {
+                    FocusScopeNode currentFocus = FocusScope.of(context);
+
+                    if (!currentFocus.hasPrimaryFocus) {
+                      currentFocus.unfocus();
+                    }
+                  },
+                  child: new
+                  Center (
+                      child:    Container(
+                          height: MediaQuery.of(context).size.height,
+                          width: MediaQuery.of(context).size.width ,
 //          color: Color.fromRGBO(246,246,246, 1),
-                        padding: EdgeInsets.all(20.0),
+                          padding: EdgeInsets.all(20.0),
 //        color:Colors.green,
-                        child:Column(
-                            children: [
+                          child:Column(
+                              children: [
 
-                              Expanded(
-                        child: Scrollbar(
-                        child: SingleChildScrollView(
-                          child: Form(
-                          key: _formKey,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                Container(
+                                Expanded(
+                                    child: Scrollbar(
+                                        child: SingleChildScrollView(
+                                            child: Form(
+                                              key: _formKey,
+                                              child: Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: <Widget>[
+                                                  Container(
 //                  color: Colors.blue,
-                                  alignment: Alignment.topLeft,
-                                  child:  Align(
+                                                    alignment: Alignment.topLeft,
+                                                    child:  Align(
 //                          alignment: Alignment.topRight,
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text("Body Temperature is ",style: new TextStyle(fontSize: 20.0,fontWeight:FontWeight.w500,color: Colors.grey) ),
-                                        new Row(
-                                            mainAxisAlignment: MainAxisAlignment.start,
-                                            children: [
-                                              new Radio(
-                                                value: 1,
-                                                groupValue: tempVal,
-                                                onChanged: _handleRadioValueChange,
-                                                activeColor: Colors.blue,
-                                              ),
-                                              new Text(
-                                                '37.6 +',
-                                                style: new  TextStyle(fontSize: 16.0,fontWeight:FontWeight.w500,color: Colors.grey),
-                                              ),
+                                                      child: Column(
+                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                        children: [
+                                                          Text("Body Temperature is ",style: new TextStyle(fontSize: 20.0,fontWeight:FontWeight.w500,color: Colors.grey) ),
+                                                          new Row(
+                                                              mainAxisAlignment: MainAxisAlignment.start,
+                                                              children: [
+                                                                new Radio(
+                                                                  value: 1,
+                                                                  groupValue: tempVal,
+                                                                  onChanged: _handleRadioValueChange,
+                                                                  activeColor: Colors.blue,
+                                                                ),
+                                                                new Text(
+                                                                  '37.6 +',
+                                                                  style: new  TextStyle(fontSize: 16.0,fontWeight:FontWeight.w500,color: Colors.grey),
+                                                                ),
 
-                                            ]
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
+                                                              ]
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
 
-                                SizedBox(height: 10.0,),
+                                                  SizedBox(height: 10.0,),
 
-                                TextFormField(
+                                                  TextFormField(
 
-                                  decoration: new InputDecoration(
+                                                    decoration: new InputDecoration(
 
 //                              border: InputBorder.none,
 //                              focusedBorder: InputBorder.none,
 //                              enabledBorder: InputBorder.none,
 //                              errorBorder: InputBorder.none,
 //                              disabledBorder: InputBorder.none,
-                                      contentPadding:
-                                      EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
+                                                        contentPadding:
+                                                        EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
 //                    hintText: "Name / Staff ID*",
-                                      labelText:"Name / Staff ID*",
-                                      labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w500,color: Colors.grey)
-                                  ),
-                                  validator: (value) {
-                                    if (value.isEmpty) {
-                                      return 'Please enter some text';
-                                    }
-                                    return null;
-                                  },
-                                  onSaved: (val) {
-                                    AddCovid.staffName = val;
-                                    print( AddCovid.staffName);
-                                  },
-                                ),
-                                SizedBox(height: 15.0,),
+                                                        labelText:"Name / Staff ID*",
+                                                        labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w500,color: Colors.grey)
+                                                    ),
+                                                    validator: (value) {
+                                                      if (value.isEmpty) {
+                                                        return 'Please enter some text';
+                                                      }
+                                                      return null;
+                                                    },
+//                                  onSaved: (val) {
+//                                    AddCovid.staffName = val;
+//                                    print( AddCovid.staffName);
+//                                  },
+                                                    controller: nameController,
+                                                  ),
+                                                  SizedBox(height: 15.0,),
 
-                                TextFormField(
-                                  decoration: new InputDecoration(
+                                                  TextFormField(
+                                                    decoration: new InputDecoration(
 //                              border: InputBorder.none,
 //                              focusedBorder: InputBorder.none,
 //                              enabledBorder: InputBorder.none,
 //                              errorBorder: InputBorder.none,
 //                              disabledBorder: InputBorder.none,
-                                      contentPadding:
-                                      EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
+                                                        contentPadding:
+                                                        EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
 //                    hintText: "Name / Staff ID*",
-                                      labelText:"Company Name*" ,
-                                      labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w500,color: Colors.grey)
+                                                        labelText:"Company Name*" ,
+                                                        labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w500,color: Colors.grey)
 
-                                  ),
-                                  validator: (value) {
-                                    if (value.isEmpty) {
-                                      return 'Please enter some text';
-                                    }
-                                    return null;
-                                  },
-                                  onSaved: (val) {
-                                    AddCovid.company = val;
-                                    print( AddCovid.company);
-                                  },
-                                ),
-                                SizedBox(height: 15.0,),
+                                                    ),
+                                                    validator: (value) {
+                                                      if (value.isEmpty) {
+                                                        return 'Please enter some text';
+                                                      }
+                                                      return null;
+                                                    },
+//                                  onSaved: (val) {
+//                                    AddCovid.company = val;
+//                                    print( AddCovid.company);
+//                                  },
+                                                    controller: company_nameController,
+                                                  ),
+                                                  SizedBox(height: 15.0,),
 
-                                TextFormField(
-                                  decoration: new InputDecoration(
+                                                  TextFormField(
+                                                    decoration: new InputDecoration(
 //                              border: InputBorder.none,
 //                              focusedBorder: InputBorder.none,
 //                              enabledBorder: InputBorder.none,
 //                              errorBorder: InputBorder.none,
 //                              disabledBorder: InputBorder.none,
-                                      contentPadding:
-                                      EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
+                                                        contentPadding:
+                                                        EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
 //                    hintText: "Name / Staff ID*",
-                                      labelText:"Remarks*" ,
-                                      labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w500,color: Colors.grey)
+                                                        labelText:"Remarks" ,
+                                                        labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w500,color: Colors.grey)
 
-                                  ),
+                                                    ),
 //                                          validator: (value) {
 //                                            if (value.isEmpty) {
 //                                              return 'Please enter some text';
 //                                            }
 //                                            return null;
 //                                          },
-                                  onSaved: (val) {
-                                    AddCovid.remarks = val;
-                                    print( AddCovid.remarks);
-                                  },
-                                ),
-                                SizedBox(height: 30.0,),
-                                new  Container(
-                                  margin: EdgeInsets.only(left:8.0,),
+//                                  onSaved: (val) {
+//                                    AddCovid.remarks = val;
+//                                    print( AddCovid.remarks);
+//                                  },
+                                                    controller: remarksController,
+                                                  ),
+                                                  SizedBox(height: 30.0,),
+                                                  new  Container(
+                                                    margin: EdgeInsets.only(left:8.0,),
 
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    child: Column(
+                                                      crossAxisAlignment: CrossAxisAlignment.start,
 
-                                    children: <Widget>[
-                                      Container(
+                                                      children: <Widget>[
+                                                        Container(
 
-                                        child: file ==null
-                                            ? new Text("No attachment!")
-                                            : new Text("attachment added", ),
+                                                          child: file ==null
+                                                              ? new Text("Add attachment",style: TextStyle(fontSize: 20.0,color: DarkBlue,),)
+                                                              : new Text("Attachment added",style: TextStyle(fontSize: 20.0,color: Colors.green,)),
 
-                                      ),
-                                      new IconButton(
-                                        icon: new Icon(Icons.camera_alt, color:(isPressed) ? Colors.red
-                                            : DarkBlue),
+                                                        ),
+                                                        new IconButton(
+                                                            icon: new Icon(Icons.camera_alt, color:(isPressed) ? Colors.red
+                                                                : DarkBlue),
 //                                                highlightColor: Colors.deepOrangeAccent,
 
-                                        iconSize: 50.0,
-                                        onPressed: (){getImageCamera();},
-                                      ),
+                                                            iconSize: 50.0,
+                                                            onPressed:(){
+                                                              FocusScope.of(context).requestFocus(FocusNode());
+                                                              getImageCamera();
+                                                            }
+                                                        ),
 //                                              Container(
 //
 //                                                  child:  Row(
@@ -369,86 +395,110 @@ class _covid_19_reg  extends State<covid_19_reg > {
 //                                                  )
 //                                              ),
 
-                                    ],
-                                  ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  SizedBox(height: 20.0,),
+
+
+
+
+
+                                                ],
+                                              ),
+                                            )
+                                        )
+
+
+
+                                    )
                                 ),
-                                SizedBox(height: 20.0,),
-
-
-
-
-
-                              ],
-                            ),
-                            )
-                          )
-
-
-
-                                  )
-                              ),
 //                      Padding(
 //                          padding: const EdgeInsets.symmetric(vertical: 10.0),
 //                          child:
-                              Align(
-                                child: SizedBox(
+                                Align(
+                                  child: SizedBox(
 //                              width: 600,
-                                  child: ElevatedButton(
+                                    child: ElevatedButton(
 
-                                      style: ElevatedButton.styleFrom(
-                                        primary: Color.fromRGBO(45, 87, 163, 1),
+                                        style: ElevatedButton.styleFrom(
+                                          primary: Color.fromRGBO(45, 87, 163, 1),
 //                            onPrimary: Color.fromRGBO(32, 87, 163, 1),
 
 
-                                      ),
-                                      onPressed: () {
+                                        ),
+                                        onPressed: () {
 //                                   Validate returns true if the form is valid, or false
 //                                   otherwise.
-                                        if (_formKey.currentState.validate() && file != null) {
+                                          if (_formKey.currentState.validate() && file != null) {
 
-                                          showLoaderDialog(context);
+                                            showLoaderDialog(context);
+                                            _Submit();
+                                          }
+                                          else if (file == null ){
 
-                                          _submitForm();
-                                        }
-                                        else if (file == null ){
-
-                                          setState(()
-                                          {
-                                            isPressed= true;
-                                          });
-                                        }
-                                      },
-                                      child: Container(
+                                            setState(()
+                                            {
+                                              isPressed= true;
+                                            });
+                                          }
+                                        },
+                                        child: Container(
 //                                    height: MediaQuery.of(context).size.height,
-                                        width: MediaQuery.of(context).size.width ,
+                                          width: MediaQuery.of(context).size.width ,
 //                                    width: 600.0,
 
-                                        child:Text('Submit',textAlign: TextAlign.center,style: TextStyle(fontSize: 20.0)
-                                        ),
-                                      )
+                                          child:Text('Submit',textAlign: TextAlign.center,style: TextStyle(fontSize: 20.0)
+                                          ),
+                                        )
+                                    ),
                                   ),
-                                ),
-                              )
+                                )
 //                      )
-                            ]
-                        )
-                    )
-                )
+                              ]
+                          )
+                      )
+                  )
+              ),
             )
         )
 
     );
   }
 
-  void _showToast(BuildContext context) {
-    final scaffold = Scaffold.of(context);
-    scaffold.showSnackBar(
-      SnackBar(
-        content: const Text('Added to favorite'),
-        action: SnackBarAction(
-            label: 'UNDO', onPressed: scaffold.hideCurrentSnackBar),
-      ),
-    );
+  Future <void> AddToSqllite() async {
+    _onLoading();
+//    p_id = ModalRoute.of(context).settings.arguments;
+
+    CovidModel covidModel = CovidModel( id: null, projectId: p_id, userId: u_id, temperature: "Have temperature" ,staffName: nameController.text,
+      company:company_nameController.text ,remarks: remarksController.text ,image: imgString,);
+    await Covid19Controller().addData(covidModel).then((value){
+      if (value>0) {
+        print("Success");
+        userList();
+        print(list.length);
+      }else{
+        print("faild");
+      }
+
+    });
+  }
+
+  Future<void> _Submit() async {
+    final FormState form = _formKey.currentState;
+    form.save();
+    try {
+      final result = await InternetAddress.lookup('example.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        print('connected');
+        _submitForm();
+      }
+    } on SocketException catch (_) {
+      print('not connected');
+
+      AddToSqllite();
+    }
+
   }
 
   Future<void> _submitForm() async {
@@ -460,13 +510,14 @@ class _covid_19_reg  extends State<covid_19_reg > {
     SharedPreferences userData = await SharedPreferences.getInstance();
 //    //Return int
 //    int Value = prefs.getInt('jobId');
-    int u_id = userData.getInt('user_id');
-    int p_id = userData.getInt('project_id');
+
 
     AddCovid.userId = u_id;
-    AddCovid.projectId = ModalRoute.of(context).settings.arguments;
-    AddCovid.temperature = "p";
-
+    AddCovid.projectId = p_id;
+    AddCovid.temperature = "Have temperature";
+    AddCovid.staffName = nameController.text;
+    AddCovid.company = company_nameController.text;
+    AddCovid.remarks = remarksController.text;
 
 
 //    _AddResult.name = widget.EconomicDetail.name.toString();
@@ -549,7 +600,7 @@ class _covid_19_reg  extends State<covid_19_reg > {
                           onPressed: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (BuildContext context) =>  covid_19_reg (),),
+                              MaterialPageRoute(builder: (BuildContext context) =>  covid_19_reg (),settings: RouteSettings( arguments: p_id)),
                             );
 
                           },
@@ -608,30 +659,41 @@ class _covid_19_reg  extends State<covid_19_reg > {
           );
         });
   }
+
   Future getImageCamera() async{
-      final pickedFile = await picker.getImage(source: ImageSource.camera);
-      File imageFile = new File(pickedFile.path);
-      String fileExt = imageFile.path.split('.').last;
+    final pickedFile = await picker.getImage(source: ImageSource.camera);
+    File imageFile = new File(pickedFile.path);
+    String fileExt = imageFile.path.split('.').last;
 //    String basename = basename(imageFile.path);
     List<int> videoBytes = imageFile.readAsBytesSync();
     file = base64.encode(videoBytes);
     String fi = fileExt +","+ file ;
 
     setState(()  {
+      imgString = imageFile.path;
       isPressed= false;
       AddCovid.image = fi;
 
     });
   }
 
+
+
+
   showLoaderDialog(BuildContext context){
     AlertDialog alert=AlertDialog(
-      content: new Row(
+      content: new Row
+        (
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircularProgressIndicator(),
+          CircularProgressIndicator(
+              valueColor: new AlwaysStoppedAnimation<Color>(DarkBlue)
+          ),
           Container(margin: EdgeInsets.only(left: 15.0),child:Text("please wait ..." )),
         ],),
     );
+
     showDialog(barrierDismissible: false,
       context:context,
       builder:(BuildContext context){

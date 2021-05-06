@@ -10,6 +10,7 @@ String dailyHscModelToMap(DailyHscModel data) => json.encode(data.toMap());
 
 class DailyHscModel {
   DailyHscModel({
+    this.id,
     this.userId,
     this.projectId,
     this.name,
@@ -53,6 +54,7 @@ class DailyHscModel {
     this.cleaningDisinfectingRemarks,
   });
 
+  int id;
   int userId;
   int projectId;
   String name;
@@ -96,6 +98,7 @@ class DailyHscModel {
   String cleaningDisinfectingRemarks;
 
   factory DailyHscModel.fromMap(Map<String, dynamic> json) => DailyHscModel(
+    id: json["id"],
     userId: json["user_id"],
     projectId: json["project_id"],
     name: json["name"],
@@ -140,6 +143,7 @@ class DailyHscModel {
   );
 
   Map<String, dynamic> toMap() => {
+    "id": id,
     "user_id": userId,
     "project_id": projectId,
     "name": name,

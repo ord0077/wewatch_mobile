@@ -1,23 +1,25 @@
+import 'dart:async';
+
+import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
+import 'package:wewatchapp/DbSynchronization/AccidentIncidentSynchronize.dart';
+import 'package:wewatchapp/DbSynchronization/Covid19Synchronize.dart';
+import 'package:wewatchapp/DbSynchronization/DailyHscSynchronize.dart';
+import 'package:wewatchapp/DbSynchronization/DailySecuritySynchronize.dart';
+import 'package:wewatchapp/DbSynchronization/DailySiteVisitorSynchronize.dart';
+import 'package:wewatchapp/DbSynchronization/TrainingInductionSynchronize.dart';
+import 'package:wewatchapp/DbSynchronization/syncronize.dart';
 import 'package:wewatchapp/consts.dart';
+import 'package:wewatchapp/data/screens/user/daily_security_repo.dart';
 import 'package:wewatchapp/data/widgets/navDrawerWidget.dart';
 import 'package:wewatchapp/data/widgets/navDrawerWidget.dart';
 
+import '../../../Connectivity.dart';
 import 'wwmanager_Drawer.dart';
 
 
 class wwmanager_Dashboard extends StatefulWidget {
   wwmanager_Dashboard({Key key,}) : super(key: key);
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
 
   @override
   _wwmanager_Dashboard createState() => _wwmanager_Dashboard();
@@ -26,7 +28,104 @@ class wwmanager_Dashboard extends StatefulWidget {
 class _wwmanager_Dashboard extends State<wwmanager_Dashboard> {
   int _counter = 0;
   var scaffoldKey = GlobalKey<ScaffoldState>();
+  Map _source = {ConnectivityResult.none: false};
+  MyConnectivity _connectivity = MyConnectivity.instance;
+  Timer timer;
 
+  @override
+  void initState() {
+    super.initState();
+
+    _connectivity.initialise();
+    _connectivity.myStream.listen((source) {
+      setStateIfMounted(() => _source = source);
+    });
+    startTimer();
+  }
+
+  @override
+  void dispose() {
+    timer.cancel();
+    super.dispose();
+  }
+
+  void setStateIfMounted(f) {
+    if (mounted) setState(f);
+  }
+
+  startTimer() {
+    timer = Timer.periodic(Duration(seconds: 5), (Timer t) => checkNetThanSend() );
+
+  }
+  void pauseTimer() {
+    if (timer != null) timer.cancel();
+  }
+
+  void unpauseTimer() => startTimer();
+
+
+  Future syncToMysql() async{
+    pauseTimer();
+
+    await SyncronizationData().fetchAllInfo().then((userList)async{
+//      EasyLoading.show(status: 'Dont close app. we are sync...');
+      await SyncronizationData().saveToMysqlWith(userList);
+//      EasyLoading.showSuccess('Successfully save to mysql');
+
+    });
+    await TrainingInductionSync().fetchAllInfo().then((userList)async{
+//      EasyLoading.show(status: 'Dont close app. we are sync...');
+      await TrainingInductionSync().saveToMysqlWith(userList);
+//      EasyLoading.showSuccess('Successfully save to mysql');
+
+    });
+
+    await AccidentIncidentSynchronize().fetchAllInfo().then((userList)async{
+//      EasyLoading.show(status: 'Dont close app. we are sync...');
+      await AccidentIncidentSynchronize().saveToMysqlWith(userList);
+//      EasyLoading.showSuccess('Successfully save to mysql');
+
+    });
+
+    await Covid19Sync().fetchAllInfo().then((userList)async{
+//      EasyLoading.show(status: 'Dont close app. we are sync...');
+      await Covid19Sync().saveToMysqlWith(userList);
+//      EasyLoading.showSuccess('Successfully save to mysql');
+
+    });
+
+    await DailySiteVisitorSyn().fetchAllInfo().then((userList)async{
+//      EasyLoading.show(status: 'Dont close app. we are sync...');
+      await DailySiteVisitorSyn().saveToMysqlWith(userList);
+//      EasyLoading.showSuccess('Successfully save to mysql');
+
+    });
+
+//    await DailySecuritySynch().fetchAllInfo().then((userList)async{
+////      EasyLoading.show(status: 'Dont close app. we are sync...');
+//      await DailySecuritySynch().saveToMysqlWith(userList);
+////      EasyLoading.showSuccess('Successfully save to mysql');
+//
+//    });
+
+//    await DailyHscSync().fetchAllInfo().then((userList)async{
+////      EasyLoading.show(status: 'Dont close app. we are sync...');
+//      await DailyHscSync().saveToMysqlWith(userList);
+////      EasyLoading.showSuccess('Successfully save to mysql');
+//
+//    });
+    unpauseTimer();
+  }
+
+  Future checkNetThanSend() async{
+    switch (_source.keys.toList()[0]) {
+      case ConnectivityResult.wifi:
+      case ConnectivityResult.mobile:
+        print("MANAGER DB");
+        syncToMysql();
+        break;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,60 +137,60 @@ class _wwmanager_Dashboard extends State<wwmanager_Dashboard> {
     // than having to individually change instances of widgets.
     return SafeArea(
       child: Scaffold(
-      key: scaffoldKey,
-      drawer: Theme(
-        data: Theme.of(context).copyWith(
-            canvasColor: Color.fromRGBO(45, 87, 163, 1) //This will change the drawer background to blue.
-          //other styles
+        key: scaffoldKey,
+        drawer: Theme(
+          data: Theme.of(context).copyWith(
+              canvasColor: Color.fromRGBO(45, 87, 163, 1) //This will change the drawer background to blue.
+            //other styles
+          ),
+          child: NavDrawer(),
         ),
-        child: NavDrawer(),
-      ),
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(70.0),
-        child: Container(
-          // color: Theme.of(context).primaryColorLight,
-          color: lightBackgroundColor,
-          child:   Stack(
-            children: <Widget>[
-              new Center(
-                  child: new Column(
-                    children: <Widget>[
-                      Container(
-                        padding: EdgeInsets.only(top: 16.0),
-                        width: 200,
-                        child:Image(image: AssetImage('assets/images/wewatch_logo.png',)),
+        appBar: PreferredSize(
+          preferredSize: const Size.fromHeight(70.0),
+          child: Container(
+            // color: Theme.of(context).primaryColorLight,
+            color: lightBackgroundColor,
+            child:   Stack(
+              children: <Widget>[
+                new Center(
+                    child: new Column(
+                      children: <Widget>[
+                        Container(
+                          padding: EdgeInsets.only(top: 16.0),
+                          width: 200,
+                          child:Image(image: AssetImage('assets/images/wewatch_logo.png',)),
 
+                        )
+                      ],
+                    )),
+                Positioned(
+                  left: 10,
+                  top: 16,
+                  child:  GestureDetector(
+
+                      onTap: (){
+                        scaffoldKey.currentState.openDrawer();
+                      },
+
+
+                      child: Image.asset(
+                        'assets/images/drawer_icon.png',
+                        height: 40,
+                        width: 40,
+                        fit: BoxFit.fitWidth,
                       )
-                    ],
-                  )),
-              Positioned(
-                left: 10,
-                top: 16,
-                child:  GestureDetector(
-
-                  onTap: (){
-                    scaffoldKey.currentState.openDrawer();
-                  },
-
-
-                  child: Image.asset(
-                    'assets/images/drawer_icon.png',
-                  height: 40,
-                  width: 40,
-                  fit: BoxFit.fitWidth,
-                )
+                  ),
                 ),
-              ),
 
 
-            ],
+              ],
+            ),
           ),
         ),
-      ),
-      body:Center( child:Container(
-        child: Text('Manager Dashboard',
-          style: TextStyle( fontSize: 20,fontWeight:FontWeight.bold,color: Colors.blue),),
-      )),
+        body:Center( child:Container(
+          child: Text('Manager Dashboard',
+            style: TextStyle( fontSize: 20,fontWeight:FontWeight.bold,color: Colors.blue),),
+        )),
 //      Stack(
 //        children: <Widget>[
 ////          new Center(
@@ -117,8 +216,8 @@ class _wwmanager_Dashboard extends State<wwmanager_Dashboard> {
 //
 //        ],
 //      ),
-      // This trailing comma makes auto-formatting nicer for build methods.
-    ),
+        // This trailing comma makes auto-formatting nicer for build methods.
+      ),
     );
 
   }

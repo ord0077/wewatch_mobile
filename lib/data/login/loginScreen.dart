@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'dart:convert';
@@ -19,8 +21,15 @@ class _LoginScreenState extends State<LoginScreen> {
   final passwordController = TextEditingController();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   bool _isSelected = false;
-
+  Timer timer;
   bool loginIsTapped = false;
+
+
+//  @override
+//  void initState() {
+//    if (timer != null) timer.cancel();
+//    super.initState();
+//  }
 
   @override
   void dispose() {

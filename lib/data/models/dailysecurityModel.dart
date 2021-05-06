@@ -10,6 +10,7 @@ String dailySecurityModelToMap(DailySecurityModel data) => json.encode(data.toMa
 
 class DailySecurityModel {
   DailySecurityModel({
+    this.id,
     this.projectId,
     this.userId,
     this.dailyReportElements,
@@ -24,6 +25,7 @@ class DailySecurityModel {
     this.attachments,
   });
 
+  int id;
   int projectId;
   int userId;
   String dailyReportElements;
@@ -38,6 +40,7 @@ class DailySecurityModel {
   String attachments;
 
   factory DailySecurityModel.fromMap(Map<String, dynamic> json) => DailySecurityModel(
+    id: json["id"],
     projectId: json["project_id"],
     userId: json["user_id"],
     dailyReportElements: json["daily_report_elements"],
@@ -53,6 +56,7 @@ class DailySecurityModel {
   );
 
   Map<String, dynamic> toMap() => {
+    "id": id,
     "project_id": projectId,
     "user_id": userId,
     "daily_report_elements": dailyReportElements,

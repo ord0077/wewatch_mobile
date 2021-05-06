@@ -115,7 +115,7 @@ class MyConnectivity {
   }
 
   void disposeStream() => controller.close();
-  void CloseStream() => controller.onPause;
+  void PauseStream() => controller.onPause;
   void ResumeStream() => controller.onResume;
 
 

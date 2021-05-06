@@ -301,7 +301,7 @@ class _DailyHscReport extends State<DailyHscReport> {
                 child: Container(
                   child: FittedBox(
                     fit: BoxFit.scaleDown,
-                    child: Text('Daily HSC Report',
+                    child: Text('Daily HSC Form',
                       style: TextStyle( fontSize: 25,fontWeight:FontWeight.bold,color: Colors.white),),
                   )
 

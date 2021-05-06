@@ -1,9 +1,11 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:expansion_tile_card/expansion_tile_card.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wewatchapp/Connectivity.dart';
 import 'package:wewatchapp/consts.dart';
 import 'package:wewatchapp/data/login/loginScreen.dart';
 import 'package:wewatchapp/data/models/loginModel.dart';
@@ -42,6 +44,8 @@ class _NavDrawer extends State<NavDrawer> {
   bool _isExpanded = false;
   String userType = ""?? "";
   String project_name = "" ?? "" ;
+  Timer timer;
+  MyConnectivity _connectivity = MyConnectivity.instance;
 
   Future<SharedPreferences> sharedPreferences() async => await SharedPreferences.getInstance();
   @override
@@ -49,6 +53,7 @@ class _NavDrawer extends State<NavDrawer> {
     super.initState();
     _loadCounter();
   }
+
 
   _loadCounter() async {
     SharedPreferences userData = await SharedPreferences.getInstance();
@@ -130,13 +135,13 @@ class _NavDrawer extends State<NavDrawer> {
                     ),
 
                     decoration: BoxDecoration(
-                      color: DarkBlue,
+                      color: AppBlue,
                     ),
 
                   );
 
                 } else {
-                  return DrawerHeader(child: Container(color: DarkBlue),);
+                  return DrawerHeader(child: Container(color: AppBlue),);
                 }
               }
           ),
@@ -214,8 +219,8 @@ class _NavDrawer extends State<NavDrawer> {
                       return   ExpansionTile(
 
 //                           backgroundColor: Colors.white,
-                        leading: Icon(Icons.bubble_chart,) ,
-                        title: Text(ProjectList[index].projectName,style: TextStyle(color: Colors.white,fontSize: 14.0),),
+                        leading: Icon(Icons.bubble_chart,color: Colors.white,) ,
+                        title: Text(ProjectList[index].projectName,style: TextStyle(color: Colors.white,fontSize: 15.0,fontWeight: FontWeight.w600,),),
                         children: <Widget>[
 
                           NavigatorListItem(
@@ -247,7 +252,7 @@ class _NavDrawer extends State<NavDrawer> {
                           ),
                           NavigatorListItem(
                             icon: Icons.filter_frames,
-                            title: 'Covid 19 Temp Register',
+                            title: 'Covid-19 Register',
                             onTap: (){
                               Navigator.push(
                                   context, MaterialPageRoute(
@@ -255,7 +260,7 @@ class _NavDrawer extends State<NavDrawer> {
                           ),
                           NavigatorListItem(
                             icon: Icons.filter_frames,
-                            title: 'Project Site Visitors Daily Register',
+                            title: 'Daily Site Visitor Form',
                             onTap: (){
                               Navigator.push(
                                   context, MaterialPageRoute(
@@ -292,7 +297,7 @@ class _NavDrawer extends State<NavDrawer> {
                     child:ListView(
                       children: [
                         ListTile(
-                          title: Text("No project found"),
+                          title: Text("Empty"),
                         )
                       ],
                     )
@@ -311,7 +316,7 @@ class _NavDrawer extends State<NavDrawer> {
                     LoginModel userData = LoginModel.fromJson(userMap);
                     final List<Project> ProjectList = userData.project;
 
-                    return ListView.builder(
+                    return Expanded(child: ListView.builder(
                       shrinkWrap: true, //just set this property
                       padding: const EdgeInsets.all(8.0),
                       itemCount: ProjectList.length,
@@ -319,13 +324,13 @@ class _NavDrawer extends State<NavDrawer> {
 //
                         return   ExpansionTile(
 //                           backgroundColor: Colors.white,
-                          leading: Icon(Icons.bubble_chart,) ,
-                          title: Text(ProjectList[index].projectName,style: TextStyle(color: Colors.white,fontSize: 14.0),),
+                          leading: Icon(Icons.bubble_chart,color: Colors.white,) ,
+                          title: Text(ProjectList[index].projectName,style: TextStyle(color: Colors.white,fontSize: 15.0,fontWeight: FontWeight.w600,),),
                           children: <Widget>[
 
                             NavigatorListItem(
                               icon: Icons.filter_frames,
-                              title: 'Accident /  Incident Form',
+                              title: 'Accident / Incident Form',
 
                               onTap: (){
                                 Navigator.push(
@@ -356,14 +361,15 @@ class _NavDrawer extends State<NavDrawer> {
 
 
                       },
-                    );
+                    ));
+
                   } else {
                     return Container(
                         height: 100.0,
                         child:ListView(
                           children: [
                             ListTile(
-                              title: Text("No project found"),
+                              title: Text("Empty"),
                             )
                           ],
                         )
@@ -382,7 +388,7 @@ class _NavDrawer extends State<NavDrawer> {
                     LoginModel userData = LoginModel.fromJson(userMap);
                     final List<Project> ProjectList = userData.project;
 
-                    return ListView.builder(
+                    return  Expanded(child: ListView.builder(
                       shrinkWrap: true, //just set this property
                       padding: const EdgeInsets.all(8.0),
                       itemCount: ProjectList.length,
@@ -397,8 +403,8 @@ class _NavDrawer extends State<NavDrawer> {
 ////                          );
                         return   ExpansionTile(
 //                           backgroundColor: Colors.white,
-                          leading: Icon(Icons.bubble_chart,) ,
-                          title: Text(ProjectList[index].projectName,style: TextStyle(color: Colors.white,fontSize: 14.0),),
+                          leading: Icon(Icons.bubble_chart,color: Colors.white,) ,
+                          title: Text(ProjectList[index].projectName,style: TextStyle(color: Colors.white,fontSize: 15.0,fontWeight: FontWeight.w600,),),
                           children: <Widget>[
                             NavigatorListItem(
                               icon: Icons.filter_frames,
@@ -411,7 +417,7 @@ class _NavDrawer extends State<NavDrawer> {
 
                             NavigatorListItem(
                               icon: Icons.filter_frames,
-                              title: 'Covid 19 Temp Register',
+                              title: 'Covid-19 Register',
                               onTap: (){
                                 Navigator.push(
                                     context, MaterialPageRoute(
@@ -419,7 +425,7 @@ class _NavDrawer extends State<NavDrawer> {
                             ),
                             NavigatorListItem(
                               icon: Icons.filter_frames,
-                              title: 'Project Site Visitors Daily Register',
+                              title: 'Daily Site Visitor Form',
                               onTap: (){
                                 Navigator.push(
                                     context, MaterialPageRoute(
@@ -432,14 +438,15 @@ class _NavDrawer extends State<NavDrawer> {
 
 
                       },
-                    );
+                    ));
+
                   } else {
                     return Container(
                         height: 100.0,
                         child:ListView(
                           children: [
                             ListTile(
-                              title: Text("No project found"),
+                              title: Text("Empty"),
                             )
                           ],
                         )
@@ -453,7 +460,7 @@ class _NavDrawer extends State<NavDrawer> {
 
           NavigatorListItem(
 //
-            icon: Icons.power_settings_new,
+            icon: Icons.logout,
             title: "Log Out",
 
             onTap: () {
@@ -741,9 +748,12 @@ class _NavDrawer extends State<NavDrawer> {
           FlatButton(
             onPressed: () async {
 //              SystemChannels.platform.invokeMethod('SystemNavigator.pop');
-
+//            _connectivity.PauseStream();
               SharedPreferences prefs = await SharedPreferences.getInstance();
+              SharedPreferences userData = await SharedPreferences.getInstance();
               await prefs.remove(userKey);
+              await userData.remove(userKey);
+
               await Future.delayed(Duration(seconds: 1));
 
               Navigator.of(context).pushAndRemoveUntil(

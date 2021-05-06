@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 const Color lightBackgroundColor = Color(0xFFf6f6f6);
 const Color DarkBlue = Color.fromRGBO(36, 90, 166, 1);
 const Color Orange = Color.fromRGBO(241, 136, 18, 1);
-
+const Color AppBlue = Color.fromRGBO(45, 87, 163, 1);
 
 /// This decoration is used as the custom card decoration
 /// for any elevated card in the app

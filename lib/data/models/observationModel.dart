@@ -10,6 +10,7 @@ String observationModelToMap(ObservationModel data) => json.encode(data.toMap())
 
 class ObservationModel {
   ObservationModel({
+    this.id,
     this.projectId,
     this.userId,
     this.observationDescription,
@@ -18,6 +19,7 @@ class ObservationModel {
     this.attachments,
   });
 
+  int id;
   int projectId;
   int userId;
   String observationDescription;
@@ -26,6 +28,7 @@ class ObservationModel {
   String attachments;
 
   factory ObservationModel.fromMap(Map<String, dynamic> json) => ObservationModel(
+    id: json["id"],
     projectId: json["project_id"],
     userId: json["user_id"],
     observationDescription: json["observation_description"],
@@ -35,6 +38,7 @@ class ObservationModel {
   );
 
   Map<String, dynamic> toMap() => {
+    "id": id,
     "project_id": projectId,
     "user_id": userId,
     "observation_description": observationDescription,

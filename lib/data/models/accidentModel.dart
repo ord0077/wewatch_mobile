@@ -10,6 +10,7 @@ String accidentModelToMap(AccidentModel data) => json.encode(data.toMap());
 
 class AccidentModel {
   AccidentModel({
+    this.id,
     this.userId,
     this.projectId,
     this.location,
@@ -24,7 +25,7 @@ class AccidentModel {
     this.immediateAction,
     this.attachment,
   });
-
+  int id;
   int userId;
   int projectId;
   String location;
@@ -40,6 +41,7 @@ class AccidentModel {
   String attachment;
 //  xyz
   factory AccidentModel.fromMap(Map<String, dynamic> json) => AccidentModel(
+    id: json["id"],
     userId: json["user_id"],
     projectId: json["project_id"],
     location: json["location"],
@@ -56,6 +58,7 @@ class AccidentModel {
   );
 
   Map<String, dynamic> toMap() => {
+    "id": id,
     "user_id": userId,
     "project_id": projectId,
     "location": location,

@@ -1,4 +1,11 @@
+import 'dart:async';
+
+import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
+import 'package:wewatchapp/Connectivity.dart';
+import 'package:wewatchapp/DbSynchronization/Covid19Synchronize.dart';
+import 'package:wewatchapp/DbSynchronization/DailySiteVisitorSynchronize.dart';
+import 'package:wewatchapp/DbSynchronization/syncronize.dart';
 import 'package:wewatchapp/consts.dart';
 import 'package:wewatchapp/data/screens/guard/guard_Drawer.dart';
 import 'package:wewatchapp/data/widgets/navDrawerWidget.dart';
@@ -24,7 +31,81 @@ class GuardDashboard extends StatefulWidget {
 class _GuardDashboard extends State<GuardDashboard> {
   int _counter = 0;
   var scaffoldKey = GlobalKey<ScaffoldState>();
+  Map _source = {ConnectivityResult.none: false};
+  MyConnectivity _connectivity = MyConnectivity.instance;
+  Timer timer;
 
+  @override
+  void initState() {
+    super.initState();
+
+    _connectivity.initialise();
+    _connectivity.myStream.listen((source) {
+      setStateIfMounted(() => _source = source);
+    });
+    startTimer();
+  }
+
+  @override
+  void dispose() {
+    timer.cancel();
+    super.dispose();
+  }
+
+  void setStateIfMounted(f) {
+    if (mounted) setState(f);
+  }
+
+  startTimer() {
+    timer = Timer.periodic(Duration(seconds: 5), (Timer t) => checkNetThanSend() );
+
+  }
+  void pauseTimer() {
+    if (timer != null) timer.cancel();
+  }
+
+  void unpauseTimer() => startTimer();
+
+
+  Future syncToMysql() async{
+    pauseTimer();
+
+    await SyncronizationData().fetchAllInfo().then((userList)async{
+//      EasyLoading.show(status: 'Dont close app. we are sync...');
+      await SyncronizationData().saveToMysqlWith(userList);
+//      EasyLoading.showSuccess('Successfully save to mysql');
+
+    });
+
+
+    await Covid19Sync().fetchAllInfo().then((userList)async{
+//      EasyLoading.show(status: 'Dont close app. we are sync...');
+      await Covid19Sync().saveToMysqlWith(userList);
+//      EasyLoading.showSuccess('Successfully save to mysql');
+
+    });
+
+    await DailySiteVisitorSyn().fetchAllInfo().then((userList)async{
+//      EasyLoading.show(status: 'Dont close app. we are sync...');
+      await DailySiteVisitorSyn().saveToMysqlWith(userList);
+//      EasyLoading.showSuccess('Successfully save to mysql');
+
+    });
+
+
+
+    unpauseTimer();
+  }
+
+  Future checkNetThanSend() async {
+    switch (_source.keys.toList()[0]) {
+      case ConnectivityResult.wifi:
+      case ConnectivityResult.mobile:
+        print("Guard DB");
+        syncToMysql();
+        break;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

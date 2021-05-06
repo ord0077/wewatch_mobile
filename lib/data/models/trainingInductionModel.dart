@@ -17,9 +17,6 @@ class TrainingInducModel {
     this.subject,
     this.noAttendees,
     this.attachments,
-    this.createdAt,
-    this.updatedAt,
-    this.project,
   });
 
   int id;
@@ -29,9 +26,6 @@ class TrainingInducModel {
   String subject;
   int noAttendees;
   String attachments;
-  String createdAt;
-  String updatedAt;
-  dynamic project;
 
   factory TrainingInducModel.fromMap(Map<String, dynamic> json) => TrainingInducModel(
     id: json["id"],
@@ -41,9 +35,6 @@ class TrainingInducModel {
     subject: json["subject"],
     noAttendees: json["no_attendees"],
     attachments: json["attachments"],
-    createdAt: json["created_at"],
-    updatedAt: json["updated_at"],
-    project: json["project"],
   );
 
   Map<String, dynamic> toMap() => {
@@ -54,8 +45,5 @@ class TrainingInducModel {
     "subject": subject,
     "no_attendees": noAttendees,
     "attachments": attachments,
-    "created_at": createdAt,
-    "updated_at": updatedAt,
-    "project": project,
   };
 }
