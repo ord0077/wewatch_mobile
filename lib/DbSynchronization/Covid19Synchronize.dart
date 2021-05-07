@@ -9,8 +9,8 @@ import 'package:data_connection_checker/data_connection_checker.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:wewatchapp/DbControllers/Covid19Controller.dart';
 import 'package:wewatchapp/data/models/covid19Model.dart';
-import 'file:///C:/Users/user/Desktop/wewatch_app/lib/DbControllers/controller.dart';
 import 'package:wewatchapp/data/models/observationModel.dart';
 import 'package:wewatchapp/databaseHelper.dart';
 import 'package:http/http.dart' as http;
@@ -124,7 +124,7 @@ class Covid19Sync {
           print("Saving Data ");
           print(contactList[i].id);
 
-          await Controller().delete('covid19Table',contactList[i].id);
+          await Covid19Controller().delete('covid19Table',contactList[i].id);
 
           print("deleted entry");
 

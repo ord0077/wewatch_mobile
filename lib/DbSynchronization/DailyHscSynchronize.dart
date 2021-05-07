@@ -12,7 +12,6 @@ import 'package:sqflite/sqflite.dart';
 import 'package:wewatchapp/DbControllers/DailyHscController.dart';
 import 'package:wewatchapp/data/models/dailyhscModel.dart';
 import 'package:wewatchapp/data/models/dailysecurityModel.dart';
-import 'file:///C:/Users/user/Desktop/wewatch_app/lib/DbControllers/controller.dart';
 import 'package:wewatchapp/data/models/observationModel.dart';
 import 'package:wewatchapp/databaseHelper.dart';
 import 'package:http/http.dart' as http;

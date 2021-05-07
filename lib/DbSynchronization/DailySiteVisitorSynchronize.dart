@@ -10,7 +10,6 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wewatchapp/DbControllers/DailySiteVisitorController.dart';
-import 'file:///C:/Users/user/Desktop/wewatch_app/lib/DbControllers/controller.dart';
 import 'package:wewatchapp/data/models/observationModel.dart';
 import 'package:wewatchapp/data/models/projectSiteVisitorModel.dart';
 import 'package:wewatchapp/databaseHelper.dart';

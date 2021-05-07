@@ -11,7 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wewatchapp/CustomAppBar.dart';
 import 'dart:io';
 import 'package:http/http.dart' as http;
-import 'file:///C:/Users/user/Desktop/wewatch_app/lib/DbControllers/controller.dart';
+import 'package:wewatchapp/DbControllers/controller.dart';
 import 'dart:io' as Io;
 
 import 'package:wewatchapp/data/models/observationModel.dart';
