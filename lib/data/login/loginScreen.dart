@@ -23,7 +23,7 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isSelected = false;
   Timer timer;
   bool loginIsTapped = false;
-
+  bool _isObscure = true;
 
 //  @override
 //  void initState() {
@@ -118,7 +118,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               SizedBox(height: 20.0,),
 
                               // Input textfields for email
-                              InputBox(
+                              InputEmail(
                                 hint: "Email",
                                 icon: Icons.person_outline,
                                 isPassword: false,
@@ -130,6 +130,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                               // Input textfields for password
                               InputBox(
+
                                 hint: "Password",
                                 icon: Icons.lock_outline,
                                 isPassword: true,
@@ -371,7 +372,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               SizedBox(height: 20.0,),
 
                               // Input textfields for email
-                              InputBox(
+                              InputEmail(
                                 hint: "Email",
                                 icon: Icons.person_outline,
                                 isPassword: false,
@@ -570,7 +571,9 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 }
 
-class InputBox extends StatelessWidget {
+class InputBox extends StatefulWidget {
+
+
   const InputBox({
     Key key,
     @required this.textController, this.hint, this.icon, this.isPassword,
@@ -580,6 +583,12 @@ class InputBox extends StatelessWidget {
   final String hint;
   final IconData icon;
   final bool isPassword;
+  @override
+  _InputBox createState() => new _InputBox();
+}
+
+class _InputBox extends State<InputBox> {
+  bool _obscureText = true;
 
   @override
   Widget build(BuildContext context) {
@@ -587,6 +596,7 @@ class InputBox extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 4.0),
       decoration: BoxDecoration(
         border: Border.all(color: Colors.black),
+
       ),
       child: Row(
         children: <Widget>[
@@ -594,7 +604,7 @@ class InputBox extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(4.0),
             child: Icon(
-              icon,
+              widget.icon,
             ),
           ),
 
@@ -603,12 +613,80 @@ class InputBox extends StatelessWidget {
 //              enableInteractiveSelection: false,
 //              autofocus: false,
 //              autocorrect: false,
-              obscureText: isPassword,
-              controller: textController,
+              obscureText: _obscureText ,
+              controller: widget.textController,
               decoration: InputDecoration(
                 border: InputBorder.none,
-                hintText: hint,
+                hintText: widget.hint,
+                suffixIcon: new GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _obscureText = !_obscureText;
+                    });
+                  },
+                  child:
+                  new Icon(_obscureText ? Icons.visibility : Icons.visibility_off ,color: DarkBlue,),
+                ),
               ),
+
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class InputEmail extends StatefulWidget {
+
+
+  const InputEmail({
+    Key key,
+    @required this.textController, this.hint, this.icon, this.isPassword,
+  }) : super(key: key);
+
+  final TextEditingController textController;
+  final String hint;
+  final IconData icon;
+  final bool isPassword;
+  @override
+  _InputEmail createState() => new _InputEmail();
+}
+
+class _InputEmail extends State<InputEmail> {
+  bool _obscureText = true;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 4.0),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.black),
+
+      ),
+      child: Row(
+        children: <Widget>[
+
+          Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: Icon(
+              widget.icon,
+            ),
+          ),
+
+          Flexible(
+            child: TextField(
+//              enableInteractiveSelection: false,
+//              autofocus: false,
+//              autocorrect: false,
+              obscureText: widget.isPassword ,
+              controller: widget.textController,
+              decoration: InputDecoration(
+                border: InputBorder.none,
+                hintText: widget.hint,
+
+              ),
+
             ),
           ),
         ],
