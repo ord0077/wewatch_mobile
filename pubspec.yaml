@@ -44,6 +44,7 @@ dependencies:
   fluttertoast: any
   sqflite: any
   flutter_easyloading:
+  weather: any
 
 
 

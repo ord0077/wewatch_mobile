@@ -46,12 +46,17 @@ class _NavDrawer extends State<NavDrawer> {
   String project_name = "" ?? "" ;
   Timer timer;
   MyConnectivity _connectivity = MyConnectivity.instance;
+//  WeatherFactory wf = new WeatherFactory("YOUR_API_KEY");
+
+
+
 
   Future<SharedPreferences> sharedPreferences() async => await SharedPreferences.getInstance();
   @override
   void initState() {
     super.initState();
     _loadCounter();
+
   }
 
 
@@ -152,6 +157,7 @@ class _NavDrawer extends State<NavDrawer> {
 //              icon: Icons.bubble_chart,
 //              title: "Project: "+ project_name ,
 //            ),
+
 
                 if(userType == 'User')
                 NavigatorListItem(

@@ -343,6 +343,7 @@
 //////}
 
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:connectivity/connectivity.dart';
@@ -353,6 +354,7 @@ import 'package:wewatchapp/DbSynchronization/TrainingInductionSynchronize.dart';
 import 'package:wewatchapp/DbSynchronization/syncronize.dart';
 import 'package:wewatchapp/data/widgets/navDrawerWidget.dart';
 import 'package:wewatchapp/data/widgets/navDrawerWidget.dart';
+import 'package:http/http.dart' as http;
 
 import '../../consts.dart';
 
@@ -379,11 +381,17 @@ class _Dashboard extends State<Dashboard> {
   Map _source = {ConnectivityResult.none: false};
   MyConnectivity _connectivity = MyConnectivity.instance;
   Timer timer;
+  String key = '856822fd8e22db5e1ba48c0e7d69844a';
+  String cityName = 'Kongens Lyngby';
+//  WeatherFactory wf = WeatherFactory('856822fd8e22db5e1ba48c0e7d69844a');
+  String uri = "http://api.openweathermap.org/data/2.5/weather?q=Dubai&units=metric&appid=c77442b715a725c1a34e37121bca1d5c";
+  double temp  = 00;
+  var icon_url = "01d.png";
 
   @override
   void initState() {
     super.initState();
-
+    this.getWeather();
     _connectivity.initialise();
     _connectivity.myStream.listen((source) {
       setStateIfMounted(() => _source = source);
@@ -443,70 +451,164 @@ class _Dashboard extends State<Dashboard> {
     }
   }
 
+  Future getWeather () async {
+    http.Response response = await http.get(uri);
+    var result = jsonDecode(response.body);
+    setState(() {
+      this.temp = result['main']['temp'];
+      this.icon_url = result["weather"][0]["icon"] +".png";
+    });
+    print(temp);
+  }
+
   @override
   Widget build(BuildContext context) {
 
 
-    return  SafeArea(
-      child: Scaffold(
-        key: scaffoldKey,
-        drawer: Theme(
-          data: Theme.of(context).copyWith(
-              canvasColor: Color.fromRGBO(45, 87, 163,
-                  1) //This will change the drawer background to blue.
-            //other styles
+    return SafeArea(
+        child: Scaffold(
+          key: scaffoldKey,
+          drawer: Theme(
+            data: Theme.of(context).copyWith(
+                canvasColor: Color.fromRGBO(45, 87, 163, 1) //This will change the drawer background to blue.
+              //other styles
+            ),
+            child: NavDrawer(),
           ),
-          child: NavDrawer(),
-        ),
-        appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(70.0),
-          child: Container(
-            // color: Theme.of(context).primaryColorLight,
-            color: lightBackgroundColor,
-            child: Stack(
-              children: <Widget>[
-                new Center(
-                    child: new Column(
-                      children: <Widget>[
-                        Container(
-                          padding: EdgeInsets.only(top: 16.0),
-                          width: 200,
-                          child: Image(image: AssetImage(
-                            'assets/images/wewatch_logo.png',)),
+          appBar: PreferredSize(
+            preferredSize: const Size.fromHeight(70.0),
+            child: Container(
+              // color: Theme.of(context).primaryColorLight,
+              color: lightBackgroundColor,
+              child:   Stack(
+                children: <Widget>[
+                  new Center(
+                      child: new Column(
+                        children: <Widget>[
+                          Container(
+                            padding: EdgeInsets.only(top: 16.0),
+                            width: 200,
+                            child:Image(image: AssetImage('assets/images/wewatch_logo.png',)),
 
+                          )
+                        ],
+                      )),
+                  Positioned(
+                    left: 10,
+                    top: 16,
+                    child:  GestureDetector(
+
+                        onTap: (){
+                          scaffoldKey.currentState.openDrawer();
+                        },
+
+
+                        child: Image.asset(
+                          'assets/images/drawer_icon.png',
+                          height: 40,
+                          width: 40,
+                          fit: BoxFit.fitWidth,
                         )
-                      ],
-                    )),
-                Positioned(
-                  left: 10,
-                  top: 16,
-                  child: GestureDetector(
-
-                      onTap: () {
-                        scaffoldKey.currentState.openDrawer();
-                      },
+                    ),
+                  ),
 
 
-                      child: Image.asset(
-                        'assets/images/drawer_icon.png',
-                        height: 40,
-                        width: 40,
-                        fit: BoxFit.fitWidth,
+                ],
+              ),
+            ),
+          ),
+          body: Container(
+            child: Column(
+              children: [
+                Container(
+        margin:EdgeInsets.only(left: 20.0,right: 20.0),
+                  child:Card(
+                      color: Colors.blueGrey[100],
+                      shadowColor: Colors.grey,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                            image:  AssetImage('assets/images/ss.jpg'),
+                            fit: BoxFit.fitWidth,
+                            alignment: Alignment.topCenter,
+                          ),
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+
+//                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            SizedBox(
+                              height: 40,
+                            ),
+                            Container(
+                              height: 60.0,
+//                              width: 40.0,
+                              child:
+                              Image.network('https://openweathermap.org/img/w/$icon_url',
+                                  width: 70.0,
+                                  fit:BoxFit.cover),
+//                              Icon(
+//                                Icons.cloud_queue,
+//                                size: 50.0,
+//                                color: Colors.white,
+//                              ),
+                            ),
+
+                            Center(
+                              child: Text(
+                               temp.toString() !=null ? temp.round().toString()+" °C" : "--",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 40.0,
+                                  letterSpacing: -5,
+                                ),
+                              ),
+                            ),
+
+                          ],
+
+                        ),
+
                       )
                   ),
+
                 ),
-
-
+                Align(
+                    alignment: Alignment.center,
+                    child: Container(
+                      margin: EdgeInsets.only(top: 50.0),
+                      child: Text('User Dashboard',
+                        style: TextStyle(fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: DarkBlue),),
+                    )),
               ],
             ),
           ),
-        ),
-        body: Center(child: Container(
-          child: Text('Dashboard',
-            style: TextStyle(fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.blue),),
-        )),
+
+
+        )
+//        Align(
+//          alignment: Alignment.topCenter,
+//          child: Card(
+//            child: Column(
+//              mainAxisSize: MainAxisSize.min,
+//              mainAxisAlignment: MainAxisAlignment.center,
+//              crossAxisAlignment: CrossAxisAlignment.center,
+//              children: <Widget>[
+//                Container(
+//                  padding: EdgeInsets.only(top: 16.0),
+//                  width: 200,
+//                  child:Image(image: AssetImage('assets/images/wewatch_logo.png',)),
+//
+//                ),
+//                Text(  "Temparature:"  + temp.toString() !=null ? temp.toString()+"°C" : "--"),
+//              ],
+//            ),
+//          ),
+//        ),
+
 //      Stack(
 //        children: <Widget>[
 ////          new Center(
@@ -532,8 +634,8 @@ class _Dashboard extends State<Dashboard> {
 //
 //        ],
 //      ),
-        // This trailing comma makes auto-formatting nicer for build methods.
-      ),
+      // This trailing comma makes auto-formatting nicer for build methods.
+
     );
   }
 
