@@ -625,7 +625,7 @@ class _InputBox extends State<InputBox> {
                     });
                   },
                   child:
-                  new Icon(_obscureText ? Icons.visibility : Icons.visibility_off ,color: DarkBlue,),
+                  new Icon(_obscureText ? Icons.visibility_off : Icons.visibility ,color: DarkBlue,),
                 ),
               ),
 
