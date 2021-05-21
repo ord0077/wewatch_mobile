@@ -37,7 +37,7 @@ class _wwmanager_Dashboard extends State<wwmanager_Dashboard> {
   String key = '856822fd8e22db5e1ba48c0e7d69844a';
   String cityName = 'Kongens Lyngby';
 //  WeatherFactory wf = WeatherFactory('856822fd8e22db5e1ba48c0e7d69844a');
-  String uri = "http://api.openweathermap.org/data/2.5/weather?q=Dubai&units=metric&appid=c77442b715a725c1a34e37121bca1d5c";
+  String uri = "https://api.openweathermap.org/data/2.5/weather?q=Dubai&units=metric&appid=c77442b715a725c1a34e37121bca1d5c";
   double temp  = 00;
   var icon_url = "01d.png";
 
