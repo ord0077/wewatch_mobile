@@ -32,8 +32,6 @@
 /build/
 
 
-consts.dart
-
 # Web related
 lib/generated_plugin_registrant.dart
 
