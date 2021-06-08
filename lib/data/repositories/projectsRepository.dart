@@ -1,33 +1,41 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wewatchapp/consts.dart';
 import 'package:wewatchapp/data/models/loginModel.dart';
+import 'package:wewatchapp/data/models/projectsModel.dart';
+import 'package:http/http.dart' as http;
 
 
 /// This class is responsible for hendling the network request related to login
-class LoginRepository {
+class ProjectRepository {
 //  project: List<Project>.from(json["project"].map((x) => Project.fromJson(x))),
 //  "project": List<dynamic>.from(project.map((x) => x.toJson())),
 
   /// The function takes email and password as parameters and than recives a
   /// Customer object if the credentials are valid else throws exceptions
-  Future<LoginModel> login(String email, String password) async {
-
-    String url = baseURL + 'login';
-
+  Future<Projects> GetProjectList() async {
+    SharedPreferences userData = await SharedPreferences.getInstance();
+    String tokenn = userData.getString('token');
+    String token = 'Bearer '+ tokenn;
+    int ID = userData.getInt('user_id');
+    print(ID);
+    String url = baseURL + 'getAssignedProjects/' + ID.toString();
+    print(url);
     Map<String, String> headers = {"Content-type": "application/json"};
 
-    String body = '{"email": "${email.toLowerCase()}", "password": "$password", "device_type" : "mobile"}';
+    // String body = '{"email": "${email.toLowerCase()}", "password": "$password", "device_type" : "mobile"}';
 
-    print(body);
-
-    Response response = await post(Uri.parse(url), headers: headers, body: body);
+    Response response = await http.post(
+      Uri.parse(url), headers: { 'Content-type': 'application/json',
+      'Accept': 'application/json', HttpHeaders.authorizationHeader: token });
 
     print(response.body);
     if (response.statusCode == 200){
-      return LoginModel.fromJson(json.decode(response.body));
+      return Projects.fromJson(json.decode(response.body));
+
 
     } else if (response.statusCode == 422) {
 //      SharedPreferences prefs = await SharedPreferences.getInstance();

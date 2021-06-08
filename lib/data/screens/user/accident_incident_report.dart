@@ -1,8 +1,10 @@
 import 'dart:convert';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -12,6 +14,7 @@ import 'package:wewatchapp/data/models/accidentModel.dart';
 import 'package:wewatchapp/data/screens/dashboard.dart';
 import 'package:wewatchapp/data/screens/guard/guard_dashboard.dart';
 import 'package:wewatchapp/data/screens/wewatchManager/wwmanager_dashboard.dart';
+import 'package:wewatchapp/data/widgets/Custom_Button.dart';
 import 'package:wewatchapp/data/widgets/navDrawerWidget.dart';
 import 'package:wewatchapp/data/widgets/testing.dart';
 import 'dart:io';
@@ -37,7 +40,6 @@ class _AccidentIncidentReport extends State<AccidentIncidentReport> {
   var scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
   String file;
-  final locationController = TextEditingController();
   final  dateController = TextEditingController();
   final timeController = TextEditingController();
   final otherController = TextEditingController();
@@ -66,15 +68,17 @@ class _AccidentIncidentReport extends State<AccidentIncidentReport> {
   int p_id;
   int u_id;
   String imgString;
-
-
+  String location = '';
+  String filename = '';
 
   _User() async {
     SharedPreferences userData = await SharedPreferences.getInstance();
     setState(() {
+      List<dynamic> args = ModalRoute.of(context).settings.arguments;
       userType = (userData.getString('user_type') ?? '');
       u_id = userData.getInt('user_id');
-      p_id = ModalRoute.of(context).settings.arguments;
+      p_id = args[0];
+      location = args[1];
     });
   }
 
@@ -127,7 +131,6 @@ class _AccidentIncidentReport extends State<AccidentIncidentReport> {
   @override
   void dispose() {
     this.dateController.dispose();
-    this.locationController.dispose();
 
     super.dispose();
   }
@@ -249,29 +252,21 @@ class _AccidentIncidentReport extends State<AccidentIncidentReport> {
                                           children: <Widget>[
 
 
-                                            TextFormField(
+                                            new Row(
+                                                mainAxisAlignment: MainAxisAlignment.start,
+                                                children: [
+                                                  Container(
+                                                    margin:const EdgeInsets.only(left: 15.0,),
+                                                    child:
+                                                    Text("Location : ",style: new TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1)) ),
 
-                                              decoration: new InputDecoration(
-//                              border: InputBorder.none,
-//                              focusedBorder: InputBorder.none,
-//                              enabledBorder: InputBorder.none,
-//                              errorBorder: InputBorder.none,
-//                              disabledBorder: InputBorder.none,
-                                                  contentPadding:
-                                                  EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
-//                    hintText: "Name / Staff ID*",
-                                                  labelText:"Location",
-                                                  labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
-                                              ),
+                                                  ),
+                                                  new Text(
+                                                    location ?? '',
+                                                    style: new  TextStyle(fontSize: 20.0,fontWeight:FontWeight.w500,color: DarkBlue),
+                                                  ),
 
-                                              validator: (value) {
-                                                if (value.isEmpty) {
-                                                  return 'Please enter some text';
-                                                }
-                                                return null;
-                                              },
-                                              controller: locationController,
-
+                                                ]
                                             ),
                                             SizedBox(height: 30.0,),
 
@@ -498,7 +493,7 @@ class _AccidentIncidentReport extends State<AccidentIncidentReport> {
                                                     typeIncident = newValue;
                                                   });
                                                 },
-                                                items: <String>['Event Equipment', 'Scaffolding Collapse', 'Road Traffic Accident', 'Falls from Height','Other']
+                                                items: <String>['Event Equipment', 'Scaffolding Collapse', 'Road Traffic Accident', 'Falls from Height','Security','Other']
                                                     .map<DropdownMenuItem<String>>((String value) {
                                                   return DropdownMenuItem<String>(
                                                     value: value,
@@ -614,6 +609,8 @@ class _AccidentIncidentReport extends State<AccidentIncidentReport> {
                                                         ? new Text("Add attachment",style: TextStyle(fontSize: 20.0,color: DarkBlue,),)
                                                         : new Text("Attachment added",style: TextStyle(fontSize: 20.0,color: Colors.green,)),
                                                   ),
+                                                  Text(filename??'',style: new TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1)) ),
+
                                                   Container(
 
                                                       child:  Row(
@@ -651,16 +648,16 @@ class _AccidentIncidentReport extends State<AccidentIncidentReport> {
                                                                         child: Container(
                                                                           child: Row(
                                                                             children: <Widget>[
-                                                                              Icon(Icons.image,color: Colors.white,),
+                                                                              Icon(Icons.upload,color: Colors.white,),
                                                                               SizedBox(width: 10.0,),
-                                                                              Text('Gallery', style: TextStyle(color: Colors.white),),
+                                                                              Text('Upload', style: TextStyle(color: Colors.white),),
                                                                             ],
                                                                           ),
                                                                         ),
 
                                                                         onPressed: (){
                                                                           FocusScope.of(context).requestFocus(FocusNode());
-                                                                          getImageGallery();
+                                                                          getFile();
                                                                           //Actions
                                                                         }
                                                                     ),
@@ -717,17 +714,11 @@ class _AccidentIncidentReport extends State<AccidentIncidentReport> {
                             Align(
                               child: SizedBox(
 //                              width: 600,
-                                child: ElevatedButton(
 
-                                    style: ElevatedButton.styleFrom(
-                                      primary: Color.fromRGBO(45, 87, 163, 1),
-//                            onPrimary: Color.fromRGBO(32, 87, 163, 1),
+                                child:
+                                BouncingButton(
+                                    onPress: () {
 
-
-                                    ),
-                                    onPressed: () {
-//                                   Validate returns true if the form is valid, or false
-//                                   otherwise.
                                       if (_formKey.currentState.validate() && file != null ) {
                                         showLoaderDialog(context);
                                         _Submit();
@@ -742,14 +733,7 @@ class _AccidentIncidentReport extends State<AccidentIncidentReport> {
                                         });
                                       }
                                     },
-                                    child: Container(
-//                                    height: MediaQuery.of(context).size.height,
-                                      width: MediaQuery.of(context).size.width ,
-//                                    width: 600.0,
-
-                                      child:Text('Submit',textAlign: TextAlign.center,style: TextStyle(fontSize: 20.0)
-                                      ),
-                                    )
+                                    child: Container()
                                 ),
                               ),
                             )
@@ -770,7 +754,7 @@ class _AccidentIncidentReport extends State<AccidentIncidentReport> {
     _onLoading();
 //    p_id = ModalRoute.of(context).settings.arguments;
 
-    AccidentModel accidentModel = AccidentModel( id: null, projectId: p_id, userId: u_id, location: locationController.text ,reportedDate: dateController.text ,
+    AccidentModel accidentModel = AccidentModel( id: null, projectId: p_id, userId: u_id, location: location ,reportedDate: dateController.text ,
       reportedTime: timeController.text, categoryIncident:categoryIncident,typeInjury:typeInjury,typeIncident:typeIncident,other:otherController.text,
       fatality: fatalityController.text,describeIncident:incidentController.text,immediateAction:immediateController.text ,attachment: imgString,);
     await AccidentIncidentController().addData(accidentModel).then((value){
@@ -814,7 +798,7 @@ class _AccidentIncidentReport extends State<AccidentIncidentReport> {
 
     AddAccident.userId = u_id;
     AddAccident.projectId = p_id;
-    AddAccident.location = locationController.text;
+    AddAccident.location = location;
     AddAccident.reportedDate = dateController.text;
     AddAccident.reportedTime = timeController.text;
     AddAccident.categoryIncident = categoryIncident;
@@ -839,10 +823,10 @@ class _AccidentIncidentReport extends State<AccidentIncidentReport> {
 //    String tokenn ='90|ZHVdsajU7doU6LusdhVwd2D0s9zqZAebfnUhInLT';
     String token = 'Bearer '+ tokenn;
 
-    final uri = 'https://wewatch.ordd.tk/api/accidentincident';
+    final uri =  baseURL + 'accidentincident';
 //    _onLoading();
     http.Response response = await http.post(
-      uri, headers: { 'Content-type': 'application/json',
+      Uri.parse(uri), headers: { 'Content-type': 'application/json',
       'Accept': 'application/json', HttpHeaders.authorizationHeader: token },body: (json.encode(AddAccident.toMap())),
     );
     Navigator.pop(this.context);
@@ -909,7 +893,7 @@ class _AccidentIncidentReport extends State<AccidentIncidentReport> {
                           onPressed: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (BuildContext context) =>  AccidentIncidentReport (),settings: RouteSettings( arguments: p_id)),
+                              MaterialPageRoute(builder: (BuildContext context) =>  AccidentIncidentReport (),settings: RouteSettings( arguments: [p_id,location])),
                             );
 
                           },
@@ -1015,24 +999,64 @@ class _AccidentIncidentReport extends State<AccidentIncidentReport> {
       );
     }
   }
-  Future getImageGallery() async{
-    final pickedFile = await picker.getImage(source: ImageSource.gallery);
-    File imageFile = new File(pickedFile.path);
-    String fileExt = imageFile.path.split('.').last;
-    List<int> videoBytes = imageFile.readAsBytesSync();
-    file = base64.encode(videoBytes);
-    String fi = fileExt +","+ file ;
-    setState(()  {
-      imagePressed = false;
-      imgString = imageFile.path;
-      AddAccident.attachment = fi;
 
-    });
+  Future getFile() async {
+
+    FilePickerResult  result = await FilePicker.platform.pickFiles(
+      type: FileType.any,);
+
+    if(result != null) {
+      filename = result.files.single.name;
+      File filee = File(result.files.single.path);
+      int sizeInBytes = filee.lengthSync();
+      double sizeInMb = sizeInBytes / (1024 * 1024);
+      if (sizeInMb > 10){
+        Fluttertoast.showToast(
+            msg: "Attachment should be less than 10 Mb",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 2,
+            backgroundColor: Colors.black54,
+            textColor: Colors.white,
+            fontSize: 16.0
+        );      }
+      else {
+        String fileExt = filee.path.split('.').last;
+        List<int> videoBytes = filee.readAsBytesSync();
+        file = base64.encode(videoBytes);
+        String fi = fileExt +","+ file ;
+        setState(()  {
+          imagePressed = false;
+          imgString = filee.path;
+          AddAccident.attachment = fi;
+
+        });
+      }
+
+
+    }
+
   }
+
+  // Future getImageGallery() async{
+  //   final pickedFile = await picker.getImage(source: ImageSource.gallery);
+  //   File imageFile = new File(pickedFile.path);
+  //   String fileExt = imageFile.path.split('.').last;
+  //   List<int> videoBytes = imageFile.readAsBytesSync();
+  //   file = base64.encode(videoBytes);
+  //   String fi = fileExt +","+ file ;
+  //   setState(()  {
+  //     imagePressed = false;
+  //     imgString = imageFile.path;
+  //     AddAccident.attachment = fi;
+  //
+  //   });
+  // }
 
   Future getImageCamera() async{
     final pickedFile = await picker.getImage(source: ImageSource.camera);
     File imageFile = new File(pickedFile.path);
+    filename = imageFile.path.split('/').last;
     String fileExt = imageFile.path.split('.').last;
 //    String basename = basename(imageFile.path);
     List<int> videoBytes = imageFile.readAsBytesSync();

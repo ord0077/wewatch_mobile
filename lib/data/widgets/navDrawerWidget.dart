@@ -1,14 +1,18 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:expansion_tile_card/expansion_tile_card.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wewatchapp/Connectivity.dart';
 import 'package:wewatchapp/consts.dart';
 import 'package:wewatchapp/data/login/loginScreen.dart';
 import 'package:wewatchapp/data/models/loginModel.dart';
+import 'package:wewatchapp/data/models/projectsModel.dart';
+import 'package:wewatchapp/data/repositories/projectsRepository.dart';
 import 'package:wewatchapp/data/screens/dashboard.dart';
 import 'package:wewatchapp/data/screens/guard/covid_19.dart';
 import 'package:wewatchapp/data/screens/guard/guard_dashboard.dart';
@@ -44,18 +48,23 @@ class _NavDrawer extends State<NavDrawer> {
   bool _isExpanded = false;
   String userType = ""?? "";
   String project_name = "" ?? "" ;
+  String location = "" ?? "" ;
   Timer timer;
   MyConnectivity _connectivity = MyConnectivity.instance;
-//  WeatherFactory wf = new WeatherFactory("YOUR_API_KEY");
 
+//  WeatherFactory wf = new WeatherFactory("YOUR_API_KEY");
+  final ProjectRepository _projectRepo = ProjectRepository();
 
 
 
   Future<SharedPreferences> sharedPreferences() async => await SharedPreferences.getInstance();
+
   @override
   void initState() {
     super.initState();
     _loadCounter();
+
+    // ProjectRepository().GetProjectList();
 
   }
 
@@ -85,7 +94,7 @@ class _NavDrawer extends State<NavDrawer> {
               future: sharedPreferences(),
               builder: (context, snapshot) {
 
-                if (snapshot.hasData){
+                if (snapshot.hasData && snapshot.data!=null){
                   Map userMap = jsonDecode(snapshot.data.getString(userKey));
                   LoginModel userData = LoginModel.fromJson(userMap);
 
@@ -145,18 +154,17 @@ class _NavDrawer extends State<NavDrawer> {
 
                   );
 
-                } else {
-                  return DrawerHeader(child: Container(color: AppBlue),);
                 }
+                return DrawerHeader(child: Container(color: AppBlue),);
               }
           ),
 
 
-//          if(userType == 'Security Guard' || userType == 'User')
-//            NavigatorListItem(
-//              icon: Icons.bubble_chart,
-//              title: "Project: "+ project_name ,
-//            ),
+         // if(userType == 'Security Guard' || userType == 'User')
+         //   NavigatorListItem(
+         //     icon: Icons.bubble_chart,
+         //     title: "Project: "+ project_name ,
+         //   ),
 
 
                 if(userType == 'User')
@@ -200,19 +208,20 @@ class _NavDrawer extends State<NavDrawer> {
           if(userType == 'Wewatch Manager')
           FutureBuilder<SharedPreferences>(
               future: sharedPreferences(),
-              builder: (context, snapshot) {
+              builder: (context, snapshot)  {
 
-                if (snapshot.hasData){
-                  Map userMap = jsonDecode(snapshot.data.getString(userKey));
-                  LoginModel userData = LoginModel.fromJson(userMap);
-                  final List<Project> ProjectList = userData.project;
+                if (snapshot.hasData && snapshot.data!=null) {
+                  Map userMap = jsonDecode(snapshot.data.getString(projectKey));
+                  Projects projectData = Projects.fromJson(userMap);
+                   List<Project> ProjectList =  [];
+                  ProjectList = projectData.project;
 
-                  return Expanded(child:
+                  return Expanded(child:ProjectList.isEmpty ? Container(child: Text('Empty')) :
                   ListView.builder(
 
                     shrinkWrap: true, //just set this property
                     padding: const EdgeInsets.all(8.0),
-                    itemCount: ProjectList.length,
+                    itemCount: ProjectList.length != null ? (ProjectList?.length ?? 0) : 0,
                     itemBuilder: (context, index) {
 //                          return Column(
 ////                            children: [
@@ -236,7 +245,7 @@ class _NavDrawer extends State<NavDrawer> {
                             onTap: (){
                               Navigator.push(
                                   context, MaterialPageRoute(
-                                  builder: (context) => AccidentIncidentReport(),settings: RouteSettings( arguments: ProjectList[index].projectId)));
+                                  builder: (context) => AccidentIncidentReport(),settings: RouteSettings( arguments: [ProjectList[index].projectId,ProjectList[index].location])));
                             },
                           ),
                           NavigatorListItem(
@@ -245,7 +254,7 @@ class _NavDrawer extends State<NavDrawer> {
                             onTap: (){
                               Navigator.push(
                                   context, MaterialPageRoute(
-                                  builder: (context) => ObservationForm(),settings: RouteSettings( arguments: ProjectList[index].projectId)));                   },
+                                  builder: (context) => ObservationForm(),settings: RouteSettings( arguments: [ProjectList[index].projectId,ProjectList[index].location])));                   },
                           ),
                           NavigatorListItem(
                               icon: Icons.filter_frames,
@@ -272,22 +281,22 @@ class _NavDrawer extends State<NavDrawer> {
                                   context, MaterialPageRoute(
                                   builder: (context) => project_site_reg(),settings: RouteSettings( arguments: ProjectList[index].projectId)));                        },
                           ),
-                          NavigatorListItem(
-                            icon: Icons.filter_frames,
-                            title: 'Daily Security Form',
-                            onTap: (){
-                              Navigator.push(
-                                  context, MaterialPageRoute(
-                                  builder: (context) => DailySecurityReport(),settings: RouteSettings( arguments: ProjectList[index].projectId)));                       },
-                          ),
-                          NavigatorListItem(
-                            icon: Icons.filter_frames,
-                            title: 'Daily HSC Form',
-                            onTap: (){
-                              Navigator.push(
-                                  context, MaterialPageRoute(
-                                  builder: (context) => DailyHscReport(),settings: RouteSettings( arguments: ProjectList[index].projectId)));                   },
-                          ),
+                          // NavigatorListItem(
+                          //   icon: Icons.filter_frames,
+                          //   title: 'Daily Security Form',
+                          //   onTap: (){
+                          //     Navigator.push(
+                          //         context, MaterialPageRoute(
+                          //         builder: (context) => DailySecurityReport(),settings: RouteSettings( arguments: ProjectList[index].projectId)));                       },
+                          // ),
+                          // NavigatorListItem(
+                          //   icon: Icons.filter_frames,
+                          //   title: 'Daily HSE Form',
+                          //   onTap: (){
+                          //     Navigator.push(
+                          //         context, MaterialPageRoute(
+                          //         builder: (context) => DailyHscReport(),settings: RouteSettings( arguments: ProjectList[index].projectId)));                   },
+                          // ),
 
                         ],
                       );
@@ -299,28 +308,28 @@ class _NavDrawer extends State<NavDrawer> {
 
                 } else {
                   return Container(
-                    height: 100.0,
-                    child:ListView(
-                      children: [
-                        ListTile(
-                          title: Text("Empty"),
-                        )
-                      ],
-                    )
+                      height: 100.0,
+                      child: ListView(
+                        children: [
+                          ListTile(
+                            title: Text("Empty"),
+                          )
+                        ],
+                      )
                   );
-
                 }
               }
           ),
+
           if (userType == "User" )
             FutureBuilder<SharedPreferences>(
                 future: sharedPreferences(),
                 builder: (context, snapshot) {
 
-                  if (snapshot.hasData){
-                    Map userMap = jsonDecode(snapshot.data.getString(userKey));
-                    LoginModel userData = LoginModel.fromJson(userMap);
-                    final List<Project> ProjectList = userData.project;
+                  if (snapshot.hasData && snapshot.data!=null){
+                    Map userMap = jsonDecode(snapshot.data.getString(projectKey));
+                    Projects projectData = Projects.fromJson(userMap);
+                    final List<Project> ProjectList = projectData.project;
 
                     return Expanded(child: ListView.builder(
                       shrinkWrap: true, //just set this property
@@ -341,7 +350,7 @@ class _NavDrawer extends State<NavDrawer> {
                               onTap: (){
                                 Navigator.push(
                                     context, MaterialPageRoute(
-                                    builder: (context) => AccidentIncidentReport(),settings: RouteSettings( arguments: ProjectList[index].projectId)));
+                                    builder: (context) => AccidentIncidentReport(),settings: RouteSettings( arguments: [ProjectList[index].projectId,ProjectList[index].location])));
                               },
                             ),
                             NavigatorListItem(
@@ -350,7 +359,7 @@ class _NavDrawer extends State<NavDrawer> {
                               onTap: (){
                                 Navigator.push(
                                     context, MaterialPageRoute(
-                                    builder: (context) => ObservationForm(),settings: RouteSettings( arguments: ProjectList[index].projectId)));                   },
+                                    builder: (context) => ObservationForm(),settings: RouteSettings( arguments: [ProjectList[index].projectId,ProjectList[index].location])));                   },
                             ),
                             NavigatorListItem(
                                 icon: Icons.filter_frames,
@@ -369,19 +378,17 @@ class _NavDrawer extends State<NavDrawer> {
                       },
                     ));
 
-                  } else {
-                    return Container(
-                        height: 100.0,
-                        child:ListView(
-                          children: [
-                            ListTile(
-                              title: Text("Empty"),
-                            )
-                          ],
-                        )
-                    );
-
                   }
+                  return Container(
+                      height: 100.0,
+                      child:ListView(
+                        children: [
+                          ListTile(
+                            title: Text("Empty"),
+                          )
+                        ],
+                      )
+                  );
                 }
             ),
           if(userType == 'Security Guard')
@@ -389,12 +396,12 @@ class _NavDrawer extends State<NavDrawer> {
                 future: sharedPreferences(),
                 builder: (context, snapshot) {
 
-                  if (snapshot.hasData){
-                    Map userMap = jsonDecode(snapshot.data.getString(userKey));
-                    LoginModel userData = LoginModel.fromJson(userMap);
-                    final List<Project> ProjectList = userData.project;
+                  if (snapshot.hasData && snapshot.data!=null){
+                    Map userMap = jsonDecode(snapshot.data.getString(projectKey));
+                    Projects projectData = Projects.fromJson(userMap);
+                    final List<Project> ProjectList = projectData.project;
 
-                    return  Expanded(child: ListView.builder(
+                    return  Expanded(child: ProjectList.isEmpty ? Container(child: Text('Empty')) : ListView.builder(
                       shrinkWrap: true, //just set this property
                       padding: const EdgeInsets.all(8.0),
                       itemCount: ProjectList.length,
@@ -418,7 +425,7 @@ class _NavDrawer extends State<NavDrawer> {
                               onTap: (){
                                 Navigator.push(
                                     context, MaterialPageRoute(
-                                    builder: (context) => ObservationForm(),settings: RouteSettings( arguments: ProjectList[index].projectId)));                   },
+                                    builder: (context) => ObservationForm(),settings: RouteSettings( arguments: [ProjectList[index].projectId,ProjectList[index].location])));                   },
                             ),
 
                             NavigatorListItem(
@@ -446,19 +453,17 @@ class _NavDrawer extends State<NavDrawer> {
                       },
                     ));
 
-                  } else {
-                    return Container(
-                        height: 100.0,
-                        child:ListView(
-                          children: [
-                            ListTile(
-                              title: Text("Empty"),
-                            )
-                          ],
-                        )
-                    );
-
                   }
+                  return Container(
+                      height: 100.0,
+                      child:ListView(
+                        children: [
+                          ListTile(
+                            title: Text("Empty"),
+                          )
+                        ],
+                      )
+                  );
                 }
             ),
 
@@ -473,138 +478,6 @@ class _NavDrawer extends State<NavDrawer> {
               _exitApp(context);
             },
           ),
-//          Flexible(
-//            child: ListView(
-//              padding: EdgeInsets.all(0.0),
-//              children: <Widget>[
-//                NavigatorListItem(
-//                  icon: Icons.bubble_chart,
-//                  title: "Project: "+ project_name,
-//
-//                ),
-//                if(userType == 'User')
-//                NavigatorListItem(
-//                  icon: Icons.home,
-//                  title: "Home",
-//                  onTap: (){
-//                    Navigator.pushAndRemoveUntil(
-//                        context,
-//                        MaterialPageRoute(builder: (context) => Dashboard()),
-//                            (Route<dynamic> route) => false
-//                    );
-//                  },
-//                ),
-//                if(userType == 'Security Guard')
-//                  NavigatorListItem(
-//                    icon: Icons.home,
-//                    title: "Home",
-//                    onTap: (){
-//                      Navigator.pushAndRemoveUntil(
-//                          context,
-//                          MaterialPageRoute(builder: (context) => GuardDashboard()),
-//                              (Route<dynamic> route) => false
-//                      );
-//                    },
-//                  ),
-//                if(userType == 'Wewatch Manager')
-//
-//                  NavigatorListItem(
-//                    icon: Icons.home,
-//                    title: "Home",
-//                    onTap: (){
-//                      Navigator.pushAndRemoveUntil(
-//                          context,
-//                          MaterialPageRoute(builder: (context) => wwmanager_Dashboard()),
-//                              (Route<dynamic> route) => false
-//                      );
-//                    },
-//                  ),
-//                if (userType == "User"|| userType == "Wewatch Manager" )
-//                  NavigatorListItem(
-//                    icon: Icons.local_mall,
-//                    title: 'Accident /  Incident Form',
-//
-//                    onTap: (){
-//                      Navigator.push(
-//                          context, MaterialPageRoute(
-//                          builder: (context) => AccidentIncidentReport()));
-//                    },
-//                  ),
-//
-//
-//                if (userType == "User" || userType == "Wewatch Manager")
-//                  NavigatorListItem(
-//                    icon: Icons.local_mall,
-//                    title: "Observation Form",
-//                    onTap: (){
-//                      Navigator.push(
-//                          context, MaterialPageRoute(
-//                          builder: (context) => ObservationForm()));                   },
-//                  ),
-//
-//                if (userType == "User" || userType == "Wewatch Manager" || userType == 'Security Guard')
-//                  NavigatorListItem(
-//                    icon: Icons.work,
-//                    title: "Training Induction Form",
-//                    onTap: () {
-//                      Navigator.push(
-//                          context, MaterialPageRoute(
-//                          builder: (context) => training_induction_form()));
-//                    }
-//                    ),
-//
-//                if (userType == "Security Guard"|| userType == "Wewatch Manager")
-//                  NavigatorListItem(
-//                    icon: Icons.work,
-//                    title: 'Covid 19 Temp Register',
-//                    onTap: (){
-//                               Navigator.push(
-//                                  context, MaterialPageRoute(
-//                                builder: (context) => covid_19_reg()));       },
-//                  ),
-//
-//                if (userType == "Security Guard" || userType == "Wewatch Manager")
-//                  NavigatorListItem(
-//                    icon: Icons.work,
-//                    title: 'Project Site Visitors Daily Register',
-//                    onTap: (){
-//                      Navigator.push(
-//                          context, MaterialPageRoute(
-//                          builder: (context) => project_site_reg()));                        },
-//                  ),
-//                if (userType == "Wewatch Manager")
-//                  NavigatorListItem(
-//                    icon: Icons.work,
-//                    title: 'Daily Security Form',
-//                    onTap: (){
-//                      Navigator.push(
-//                          context, MaterialPageRoute(
-//                          builder: (context) => DailySecurityReport()));                       },
-//                  ),
-//                if (userType == "Wewatch Manager")
-//                  NavigatorListItem(
-//                    icon: Icons.work,
-//                    title: 'Daily HSC Form',
-//                    onTap: (){
-//                      Navigator.push(
-//                          context, MaterialPageRoute(
-//                          builder: (context) => DailyHscReport()));                   },
-//                  ),
-//                SizedBox(height: 20.0),
-//                NavigatorListItem(
-//
-//                  icon: Icons.power_settings_new,
-//                  title: "Log Out",
-//
-//                  onTap: () {
-//                    _exitApp(context);
-//                  },
-//                ),
-//
-//
-//              ],
-//            ),
-//          ),
 
 
         ],
@@ -613,128 +486,6 @@ class _NavDrawer extends State<NavDrawer> {
   }
 
 
-//  @override
-//  Widget build(BuildContext context) {
-//    return Drawer(
-//
-//      child: ListView(
-//
-//        children: <Widget>[
-//          DrawerHeader(
-//            child:Row(
-//          children: [
-//          Container(
-////          alignment: Alignment.topLeft,
-//          height: 50,
-////          width: MediaQuery.of(context).size.width,
-//          child: Image.asset(
-//            "assets/images/menu-icon.png",
-//          )),
-//      Container(
-//        padding: EdgeInsets.only(left: 10.0,right: 10.0),
-//        child:Text("Testing User",style: TextStyle(color: Colors.white,fontSize: 18.0)),
-//      ),
-//      Container(
-//
-//          padding: EdgeInsets.only(left: 10.0,right: 10.0),
-//        child:CircleAvatar(
-//          radius:25.0,
-//          child: Icon(Icons.face_rounded,size: 50.0,),
-//        )
-//    )
-//        ],
-//      ),
-//            decoration: BoxDecoration(
-//              color: Colors.transparent,
-//            ),
-//          ),
-//
-//          const Divider(
-////            color: Colors.white,
-////            height: 10,
-////            thickness: 2,
-////            indent: 20,
-////            endIndent: 0,
-////          ),
-//          ListTile(
-//            leading: Icon(Icons.insert_drive_file,color: Colors.white,),
-//            title: Text('Accident /  Incident Report',style: TextStyle(color: Colors.white,fontSize: 14.0),),
-//            trailing: Icon(Icons.keyboard_arrow_right,color: Colors.white,),
-//            onTap: () {
-//              Navigator.push(
-//                context,
-//                MaterialPageRoute(builder: (context) => AccidentIncidentReport()),
-//              );
-//              // Update the state of the app.
-//              // ...
-//            },
-//          ),
-//          const Divider(
-//            color: Colors.white,
-//            height: 10,
-//            thickness: 2,
-//            indent: 20,
-//            endIndent: 0,
-//          ),
-//
-//          ListTile(
-//            leading: Icon(Icons.insert_drive_file,color: Colors.white,),
-//            title: Text('Observation Form',style: TextStyle(color: Colors.white,fontSize: 14.0),),
-//            trailing: Icon(Icons.keyboard_arrow_right,color: Colors.white,),
-//            onTap: () {
-//              Navigator.push(
-//                context,
-//                MaterialPageRoute(builder: (context) => ObservationForm()),
-//              );
-//              // Update the state of the app.
-//              // ...
-//            },
-//          ),
-//          const Divider(
-//            color: Colors.white,
-//            height: 10,
-//            thickness: 2,
-//            indent: 20,
-//            endIndent: 0,
-//          ),
-//
-//          ListTile(
-//            leading: Icon(Icons.insert_drive_file,color: Colors.white,),
-//            title: Text('Training Induction Form',style: TextStyle(color: Colors.white,fontSize: 14.0),),
-//            trailing: Icon(Icons.keyboard_arrow_right,color: Colors.white,),
-//            onTap: () {
-//              Navigator.push(
-//                context,
-//                MaterialPageRoute(builder: (context) => training_induction_form()),
-//              );
-//              // Update the state of the app.
-//              // ...
-//            },
-//          ),
-//          const Divider(
-//            color: Colors.white,
-//            height: 10,
-//            thickness: 2,
-//            indent: 20,
-//            endIndent: 0,
-//          ),
-//          ListTile(
-//            leading: Icon(Icons.logout,color: Colors.white,),
-//            title: Text('Logout',style: TextStyle(color: Colors.white,fontSize: 14.0),),
-////            trailing: Icon(Icons.keyboard_arrow_right,color: Colors.white,),
-//            onTap: () {
-//              _exitApp(context);
-//              // Update the state of the app.
-//              // ...
-//            },
-//          ),
-//
-//
-//        ],
-//      ),
-//    );
-//
-//  }
 
 
   Future<bool> _exitApp(BuildContext context) {
@@ -744,21 +495,23 @@ class _NavDrawer extends State<NavDrawer> {
         title: Text('Are you sure ?'),
         content: Text('Do you want to Logout ?'),
         actions: <Widget>[
-          FlatButton(
+          TextButton(
             onPressed: () {
               print("you choose no");
               Navigator.of(context).pop(false);
             },
             child: Text('No',style: TextStyle( fontSize: 17,color: Colors.blue), ),
           ),
-          FlatButton(
+          TextButton(
             onPressed: () async {
 //              SystemChannels.platform.invokeMethod('SystemNavigator.pop');
 //            _connectivity.PauseStream();
               SharedPreferences prefs = await SharedPreferences.getInstance();
               SharedPreferences userData = await SharedPreferences.getInstance();
+              SharedPreferences projectData = await SharedPreferences.getInstance();
               await prefs.remove(userKey);
               await userData.remove(userKey);
+              await projectData.clear();
 
               await Future.delayed(Duration(seconds: 1));
 
@@ -814,3 +567,5 @@ class NavigatorListItem extends StatelessWidget {
     );
   }
 }
+
+

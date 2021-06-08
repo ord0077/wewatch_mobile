@@ -48,6 +48,7 @@ class SqfliteDatabaseHelper {
           observation_description TEXT,
           location TEXT,
           action TEXT,
+          report TEXT,
           attachments TEXT,
           image BLOB
           

@@ -223,8 +223,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
                                       userData.setInt('user_id', loginModel.user.id?? '');
                                       userData.setString('user_type', loginModel.user.userType?? '' );
-                                      userData.setInt('project_id', loginModel.project.first.projectId?? '');
-                                      userData.setString('project_name', loginModel.project.first.projectName?? '');
+                                      // userData.setInt('project_id', loginModel.project.first.projectId?? '');
+                                      // userData.setString('project_name', loginModel.project.first.projectName?? '');
 
 
                                       userData.setString(userKey, userJSON);
@@ -476,8 +476,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
                                       userData.setInt('user_id', loginModel.user.id?? '');
                                       userData.setString('user_type', loginModel.user.userType?? '' );
-                                      userData.setInt('project_id', loginModel.project.first.projectId?? '');
-                                      userData.setString('project_name', loginModel.project.first.projectName?? '');
+                                      // userData.setInt('project_id', loginModel.project.first.projectId?? '');
+                                      // userData.setString('project_name', loginModel.project.first.projectName?? '');
 
 
                                       userData.setString(userKey, userJSON);

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -18,6 +19,7 @@ import 'package:wewatchapp/data/models/observationModel.dart';
 import 'package:wewatchapp/data/screens/dashboard.dart';
 import 'package:wewatchapp/data/screens/guard/guard_dashboard.dart';
 import 'package:wewatchapp/data/screens/wewatchManager/wwmanager_dashboard.dart';
+import 'package:wewatchapp/data/widgets/Custom_Button.dart';
 import 'package:wewatchapp/data/widgets/navDrawerWidget.dart';
 
 import '../../../consts.dart';
@@ -55,16 +57,18 @@ class _ObservationForm extends State<ObservationForm> {
   String userType = ""?? "";
   int u_id ;
   int p_id;
-
-
+  String type  ;
+String location = '';
+ String filename = '';
 
   _User() async {
     SharedPreferences userData = await SharedPreferences.getInstance();
     setState(() {
+      List<dynamic> args = ModalRoute.of(context).settings.arguments;
       userType = (userData.getString('user_type') ?? '');
       u_id = userData.getInt('user_id');
-      p_id = ModalRoute.of(context).settings.arguments;
-
+      p_id = args[0];
+      location = args[1];
 //      p_id = userData.getInt('project_id');
     });
   }
@@ -113,7 +117,7 @@ class _ObservationForm extends State<ObservationForm> {
   @override
   void initState() {
     _User();
-    locationController.text ="Location";
+    locationController.text =location;
     userList();
     super.initState();
   }
@@ -243,7 +247,23 @@ class _ObservationForm extends State<ObservationForm> {
                                             crossAxisAlignment: CrossAxisAlignment.start,
                                             children: <Widget>[
                                               SizedBox(height: 40.0,),
+                                              new Row(
+                                                  mainAxisAlignment: MainAxisAlignment.start,
+                                                  children: [
+                                                    Container(
+                                                      margin:const EdgeInsets.only(left: 15.0,),
+                                                      child:
+                                                      Text("Location : ",style: new TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1)) ),
 
+                                                    ),
+                                                    new Text(
+                                                      location ?? '',
+                                                      style: new  TextStyle(fontSize: 20.0,fontWeight:FontWeight.w500,color: DarkBlue),
+                                                    ),
+
+                                                  ]
+                                              ),
+                                              SizedBox(height: 30.0,),
 
                                               TextFormField(
                                                 decoration: new InputDecoration(
@@ -268,32 +288,8 @@ class _ObservationForm extends State<ObservationForm> {
                                                 controller: observertionController,
                                               ),
                                               SizedBox(height: 30.0,),
+
                                               TextFormField(
-
-                                                readOnly: true,
-                                                decoration: new InputDecoration(
-
-//                              border: InputBorder.none,
-//                              focusedBorder: InputBorder.none,
-//                              enabledBorder: InputBorder.none,
-//                              errorBorder: InputBorder.none,
-//                              disabledBorder: InputBorder.none,
-                                                    contentPadding:
-                                                    EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
-//                    hintText: "Name / Staff ID*",
-                                                    labelText:"Location to fetched from project",
-
-                                                    labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
-                                                ),
-//                                validator: (value) {
-//                                  if (value.isEmpty) {
-//                                    return 'Please enter some text';
-//                                  }
-//                                  return null;
-//                                },
-                                                controller: locationController,
-                                              ),
-                                              SizedBox(height: 30.0,), TextFormField(
                                                 decoration: new InputDecoration(
 
 //                              border: InputBorder.none,
@@ -315,6 +311,43 @@ class _ObservationForm extends State<ObservationForm> {
                                                 },
                                                 controller: req_actionController,
                                               ),
+                                              SizedBox(height: 30.0,),
+                                              ButtonTheme(
+                                                // alignedDropdown: true,
+                                                child: DropdownButtonFormField<String>(
+                                                  decoration: new InputDecoration(
+                                                      contentPadding:
+                                                      EdgeInsets.only(left: 15,),
+                                                      ),
+                                                  hint: Text(
+                                                    'Select any',
+                                                  ),
+                                                  isExpanded: true,
+                                                  value: type,
+                                                  icon: Icon(Icons.arrow_drop_down),
+                                                  iconSize: 24,
+                                                  elevation: 16,
+                                                  style: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400, color: Color.fromRGBO(113, 113, 113, 1)
+                                                  ),
+
+                                                  validator: (value) => value == null ? 'Please select' : null,
+                                                  onChanged: (String newValue) {
+                                                    setState(() {
+                                                      type = newValue;
+                                                    });
+                                                  },
+
+                                                  items: <String>['Security','HSE']
+                                                      .map<DropdownMenuItem<String>>((String value) {
+                                                    return DropdownMenuItem<String>(
+                                                      value: value,
+                                                      child: Text(value),
+                                                    );
+                                                  }).toList(),
+
+                                                ),
+
+                                              ),
                                               SizedBox(height: 40.0,),
                                               new  Container(
                                                 margin: EdgeInsets.only(left:8.0,),
@@ -328,6 +361,7 @@ class _ObservationForm extends State<ObservationForm> {
                                                           ? new Text("Add attachment",style: TextStyle(fontSize: 20.0,color: DarkBlue,),)
                                                           : new Text("Attachment added",style: TextStyle(fontSize: 20.0,color: Colors.green,)),
                                                     ),
+                                                    Text(filename??'',style: new TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1)) ),
                                                     Container(
 
                                                         child:  Row(
@@ -361,16 +395,16 @@ class _ObservationForm extends State<ObservationForm> {
                                                                           child: Container(
                                                                             child: Row(
                                                                               children: <Widget>[
-                                                                                Icon(Icons.image,color: Colors.white,),
+                                                                                Icon(Icons.upload,color: Colors.white,),
                                                                                 SizedBox(width: 10.0,),
-                                                                                Text('Gallery', style: TextStyle(color: Colors.white),),
+                                                                                Text('Upload', style: TextStyle(color: Colors.white),),
                                                                               ],
                                                                             ),
                                                                           ),
 
                                                                           onPressed: (){
                                                                             FocusScope.of(context).requestFocus(FocusNode());
-                                                                            getImageGallery();
+                                                                            getFile();
                                                                             //Actions
                                                                           }
                                                                       ),
@@ -426,15 +460,9 @@ class _ObservationForm extends State<ObservationForm> {
                               Align(
                                 child: SizedBox(
 //                              width: 600,
-                                  child: ElevatedButton(
+                                  child: BouncingButton(
 
-                                      style: ElevatedButton.styleFrom(
-                                        primary: Color.fromRGBO(45, 87, 163, 1),
-//                            onPrimary: Color.fromRGBO(32, 87, 163, 1),
-
-
-                                      ),
-                                      onPressed: () async {
+                                      onPress: () async {
 //                                   Validate returns true if the form is valid, or false
 //                                   otherwise.
                                         if (_formKey.currentState.validate() && file != null ) {
@@ -452,12 +480,6 @@ class _ObservationForm extends State<ObservationForm> {
                                         }
                                       },
                                       child: Container(
-//                                    height: MediaQuery.of(context).size.height,
-                                        width: MediaQuery.of(context).size.width ,
-//                                    width: 600.0,
-
-                                        child:Text('Submit',textAlign: TextAlign.center,style: TextStyle(fontSize: 20.0)
-                                        ),
                                       )
                                   ),
                                 ),
@@ -478,9 +500,9 @@ class _ObservationForm extends State<ObservationForm> {
 
   Future <void> AddToSqllite() async {
     _onLoading();
-    p_id = ModalRoute.of(context).settings.arguments;
+    // p_id = ModalRoute.of(context).settings.arguments;
 
-    ObservationModel observationModel = ObservationModel( id: null, projectId: p_id, userId: u_id, observationDescription: observertionController.text,location:  locationController.text,action: req_actionController.text,attachments: imgString,);
+    ObservationModel observationModel = ObservationModel( id: null, projectId: p_id, userId: u_id, observationDescription: observertionController.text,location:  location,action: req_actionController.text,report: type, attachments: imgString,);
     await Controller().addData(observationModel).then((value){
       if (value>0) {
         print("Success");
@@ -524,17 +546,18 @@ class _ObservationForm extends State<ObservationForm> {
     AddObservation.userId = u_id;
     AddObservation.projectId = p_id;
     AddObservation.observationDescription = observertionController.text;
-    AddObservation.location = locationController.text;
+    AddObservation.location = location;
     AddObservation.action =req_actionController.text;
+    AddObservation.report = type;
 
     String tokenn = userData.getString('token');
 //    String tokenn ='90|ZHVdsajU7doU6LusdhVwd2D0s9zqZAebfnUhInLT';
     String token = 'Bearer '+ tokenn;
 
-    final uri = 'https://wewatch.ordd.tk/api/observation';
+    final uri = baseURL +'observation';
 //    _onLoading();
     http.Response response = await http.post(
-      uri, headers: { 'Content-type': 'application/json',
+      Uri.parse(uri), headers: { 'Content-type': 'application/json',
       'Accept': 'application/json', HttpHeaders.authorizationHeader: token },body: (json.encode(AddObservation.toMap())),
     );
     Navigator.pop(this.context);
@@ -601,7 +624,7 @@ class _ObservationForm extends State<ObservationForm> {
                           onPressed: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (BuildContext context) =>  ObservationForm (),settings: RouteSettings( arguments: p_id)),
+                              MaterialPageRoute(builder: (BuildContext context) =>  ObservationForm (),settings: RouteSettings( arguments: [p_id,location])),
                             );
 
                           },
@@ -684,25 +707,65 @@ class _ObservationForm extends State<ObservationForm> {
     );
   }
 
+  Future getFile() async {
 
-  Future getImageGallery() async{
-    final pickedFile = await picker.getImage(source: ImageSource.gallery);
-    File imageFile = new File(pickedFile.path);
-    String fileExt = imageFile.path.split('.').last;
-    List<int> videoBytes = imageFile.readAsBytesSync();
-    file = base64.encode(videoBytes);
-    String fi = fileExt +","+ file ;
-    setState(()  {
-      imagePressed = false;
-      imgString = imageFile.path;
-      AddObservation.attachments = fi;
+    FilePickerResult  result = await FilePicker.platform.pickFiles(
+      type: FileType.any,);
 
-    });
+
+    if(result != null) {
+      filename = result.files.single.name;
+      File filee = File(result.files.single.path);
+      int sizeInBytes = filee.lengthSync();
+      double sizeInMb = sizeInBytes / (1024 * 1024);
+      if (sizeInMb > 10){
+        Fluttertoast.showToast(
+            msg: "Attachment should be less than 10 Mb",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 2,
+            backgroundColor: Colors.black54,
+            textColor: Colors.white,
+            fontSize: 16.0
+        );      }
+      else {
+        String fileExt = filee.path.split('.').last;
+        List<int> videoBytes = filee.readAsBytesSync();
+        file = base64.encode(videoBytes);
+        String fi = fileExt +","+ file ;
+        setState(()  {
+          imagePressed = false;
+          imgString = filee.path;
+          AddObservation.attachments = fi;
+
+        });
+      }
+
+
+    }
+
   }
+
+
+  // Future getImageGallery() async{
+  //   final pickedFile = await picker.getImage(source: ImageSource.gallery);
+  //   File imageFile = new File(pickedFile.path);
+  //   String fileExt = imageFile.path.split('.').last;
+  //   List<int> videoBytes = imageFile.readAsBytesSync();
+  //   file = base64.encode(videoBytes);
+  //   String fi = fileExt +","+ file ;
+  //   setState(()  {
+  //     imagePressed = false;
+  //     imgString = imageFile.path;
+  //     AddObservation.attachments = fi;
+  //
+  //   });
+  // }
 
   Future getImageCamera() async{
     final pickedFile = await picker.getImage(source: ImageSource.camera);
     File imageFile = new File(pickedFile.path);
+    filename = imageFile.path.split('/').last;
     String fileExt = imageFile.path.split('.').last;
 //    String basename = basename(imageFile.path);
     List<int> videoBytes = imageFile.readAsBytesSync();

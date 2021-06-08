@@ -16,6 +16,7 @@ class ObservationModel {
     this.observationDescription,
     this.location,
     this.action,
+    this.report,
     this.attachments,
   });
 
@@ -25,6 +26,7 @@ class ObservationModel {
   String observationDescription;
   String location;
   String action;
+  String report;
   String attachments;
 
   factory ObservationModel.fromMap(Map<String, dynamic> json) => ObservationModel(
@@ -34,6 +36,7 @@ class ObservationModel {
     observationDescription: json["observation_description"],
     location: json["location"],
     action: json["action"],
+    report: json["report"],
     attachments: json["attachments"],
   );
 
@@ -44,6 +47,7 @@ class ObservationModel {
     "observation_description": observationDescription,
     "location": location,
     "action": action,
+    "report": report,
     "attachments": attachments,
   };
 }

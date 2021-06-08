@@ -405,7 +405,7 @@ class _covid_19_reg  extends State<covid_19_reg > {
     final uri = 'https://wewatch.ordd.tk/api/covid';
 //    _onLoading();
     http.Response response = await http.post(
-      uri, headers: { 'Content-type': 'application/json',
+      Uri.parse(uri), headers: { 'Content-type': 'application/json',
       'Accept': 'application/json', HttpHeaders.authorizationHeader: token },body: (json.encode(AddCovid.toMap())),
     );
     Navigator.pop(this.context);
