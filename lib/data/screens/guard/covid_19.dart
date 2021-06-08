@@ -412,7 +412,7 @@ class _covid_19_reg  extends State<covid_19_reg > {
                                                                               child: Container(
                                                                                 child: Row(
                                                                                   children: <Widget>[
-                                                                                    Icon(Icons.upload,color: Colors.white,),
+                                                                                    Icon(Icons.file_upload,color: Colors.white,),
                                                                                     SizedBox(width: 10.0,),
                                                                                     Text('Upload', style: TextStyle(color: Colors.white),),
                                                                                   ],

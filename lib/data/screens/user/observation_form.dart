@@ -395,7 +395,7 @@ String location = '';
                                                                           child: Container(
                                                                             child: Row(
                                                                               children: <Widget>[
-                                                                                Icon(Icons.upload,color: Colors.white,),
+                                                                                Icon(Icons.file_upload,color: Colors.white,),
                                                                                 SizedBox(width: 10.0,),
                                                                                 Text('Upload', style: TextStyle(color: Colors.white),),
                                                                               ],
