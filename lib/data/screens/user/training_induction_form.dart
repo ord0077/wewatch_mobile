@@ -418,7 +418,7 @@ class _training_induction_form extends State<training_induction_form> {
                                                                         child: Container(
                                                                           child: Row(
                                                                             children: <Widget>[
-                                                                              Icon(Icons.upload,color: Colors.white,),
+                                                                              Icon(Icons.file_upload,color: Colors.white,),
                                                                               SizedBox(width: 10.0,),
                                                                               Text('Upload', style: TextStyle(color: Colors.white),),
                                                                             ],
