@@ -112,7 +112,7 @@ class TrainingInductionSync {
       final uri = 'https://wewatch.ordd.tk/api/traininginduction';
 //    _onLoading();
       http.Response response = await http.post(
-          uri, headers: { 'Content-type': 'application/json',
+          Uri.parse(uri), headers: { 'Content-type': 'application/json',
         'Accept': 'application/json', HttpHeaders.authorizationHeader: token },body: (json.encode(data)));
 
 

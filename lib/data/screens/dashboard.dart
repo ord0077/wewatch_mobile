@@ -348,10 +348,14 @@ import 'dart:io';
 
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wewatchapp/Connectivity.dart';
 import 'package:wewatchapp/DbSynchronization/AccidentIncidentSynchronize.dart';
 import 'package:wewatchapp/DbSynchronization/TrainingInductionSynchronize.dart';
 import 'package:wewatchapp/DbSynchronization/syncronize.dart';
+import 'package:wewatchapp/data/models/projectsModel.dart';
+import 'package:wewatchapp/data/repositories/projectsRepository.dart';
 import 'package:wewatchapp/data/widgets/navDrawerWidget.dart';
 import 'package:wewatchapp/data/widgets/navDrawerWidget.dart';
 import 'package:http/http.dart' as http;
@@ -381,12 +385,12 @@ class _Dashboard extends State<Dashboard> {
   Map _source = {ConnectivityResult.none: false};
   MyConnectivity _connectivity = MyConnectivity.instance;
   Timer timer;
-  String key = '856822fd8e22db5e1ba48c0e7d69844a';
-  String cityName = 'Kongens Lyngby';
-//  WeatherFactory wf = WeatherFactory('856822fd8e22db5e1ba48c0e7d69844a');
+
   String uri = "https://api.openweathermap.org/data/2.5/weather?q=Dubai&units=metric&appid=c77442b715a725c1a34e37121bca1d5c";
-  var temp  = 0;
+  String temp  = "- -";
   var icon_url = "01d.png";
+  final ProjectRepository _projectRepo = ProjectRepository();
+
 
   @override
   void initState() {
@@ -397,6 +401,7 @@ class _Dashboard extends State<Dashboard> {
       setStateIfMounted(() => _source = source);
     });
     startTimer();
+    CheckInternet();
   }
 
 
@@ -452,14 +457,50 @@ class _Dashboard extends State<Dashboard> {
   }
 
   Future getWeather () async {
-    http.Response response = await http.get(uri);
+    http.Response response = await http.get(Uri.parse(uri));
     var result = jsonDecode(response.body);
     setState(() {
-      this.temp = result['main']['temp'];
+      var tem = result['main']['temp'];
+      tem =tem.round();
+      this.temp = tem.toString();
+
       this.icon_url = result["weather"][0]["icon"] +".png";
     });
     print(temp);
   }
+
+  CheckInternet() async {
+    try {
+      final result = await InternetAddress.lookup('example.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        print('connected');
+        projectMethod();
+      }
+    } on SocketException catch (_) {
+      print('not connected');
+      Fluttertoast.showToast(
+          msg: "No internet connection available",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.black54,
+          textColor: Colors.white,
+          fontSize: 16.0
+      );
+    }
+  }
+
+  projectMethod() async {
+
+    Future<Projects> projectResponse = _projectRepo.GetProjectList() ;
+    projectResponse.then((Projects) async {
+      SharedPreferences projectData = await SharedPreferences.getInstance();
+      String projectJSON = jsonEncode(Projects);
+
+      projectData.setString(projectKey, projectJSON);
+    });
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -521,68 +562,106 @@ class _Dashboard extends State<Dashboard> {
             child: Column(
               children: [
                 Container(
-        margin:EdgeInsets.only(left: 20.0,right: 20.0),
+                  // margin:EdgeInsets.only(left: 20.0,right: 20.0),
                   child:Card(
-                      color: Colors.blueGrey[100],
-                      shadowColor: Colors.grey,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          image: DecorationImage(
-                            image:  AssetImage('assets/images/ss.jpg'),
-                            fit: BoxFit.fitWidth,
-                            alignment: Alignment.topCenter,
+                      color: Colors.white,
+                      shadowColor: Colors.white,
+                      semanticContainer: true,
+                      clipBehavior: Clip.antiAliasWithSaveLayer,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(7.0),
+                      ),
+                      elevation: 5,
+                      margin: EdgeInsets.all(10),
+                      child: Column(
+                        children: [
+                          Container(
+                            height: 200,
+                            decoration: BoxDecoration(
+                              image: DecorationImage(
+                                image:  AssetImage('assets/images/weather_bg.png'),
+                                fit: BoxFit.fill,
+                                alignment: Alignment.topCenter,
+                              ),
+                            ),
                           ),
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
+                          Column(
+                            mainAxisSize: MainAxisSize.min,
 
 //                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            SizedBox(
-                              height: 40,
-                            ),
-                            Container(
-                              height: 60.0,
+                            children: [
+
+
+                              Container(
+                                height: 60.0,
 //                              width: 40.0,
-                              child:
-                              Image.network('https://openweathermap.org/img/w/$icon_url',
-                                  width: 70.0,
-                                  fit:BoxFit.cover),
+                                child:
+                                Image.network('https://openweathermap.org/img/w/$icon_url',
+                                    width: 50.0,
+                                    fit:BoxFit.cover),
 //                              Icon(
 //                                Icons.cloud_queue,
 //                                size: 50.0,
 //                                color: Colors.white,
 //                              ),
-                            ),
+                              ),
 
-                            Center(
-                              child: Text(
-                               temp.toString() !=null ? temp.round().toString()+" °C" : "--",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 40.0,
-                                  letterSpacing: -5,
+                              Center(
+                                child: Text(
+                                  temp.toString() !=null ? temp +" °C" : "--",
+                                  style: TextStyle(
+                                    color: Colors.black54,
+                                    fontSize: 25.0,
+                                    letterSpacing: -2,
+                                  ),
                                 ),
                               ),
-                            ),
 
-                          ],
+                            ],
 
-                        ),
-
+                          ),
+                        ],
                       )
+
                   ),
 
                 ),
                 Align(
-                    alignment: Alignment.center,
-                    child: Container(
-                      margin: EdgeInsets.only(top: 50.0),
-                      child: Text('User Dashboard',
-                        style: TextStyle(fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: DarkBlue),),
-                    )),
+                  alignment: Alignment.center,
+                  child:Column(
+                    children: [
+                      Container(
+                        margin: EdgeInsets.only(top: 50.0),
+                        child: Text('User Dashboard',
+                          style: TextStyle(fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: DarkBlue),),
+                      ),
+                      ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            primary:DarkBlue,
+                            onPrimary: Color.fromRGBO(32, 87, 163, 1),
+                          ),
+                          child: Container(
+                            width: 200.0,
+
+                            child: Row(
+
+                              children: <Widget>[
+                                Icon(Icons.refresh,color: Colors.white,),
+                                SizedBox(width: 10.0,),
+                                Text('Refresh project list', style: TextStyle(color: Colors.white),),
+                              ],
+                            ),
+                          ),
+
+                          onPressed:(){
+                            CheckInternet();
+                          }
+                      ),
+                    ],
+                  ),
+                )
               ],
             ),
           ),

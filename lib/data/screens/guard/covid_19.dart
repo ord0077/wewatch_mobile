@@ -1,8 +1,10 @@
 import 'dart:convert';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wewatchapp/CustomAppBar.dart';
@@ -15,6 +17,7 @@ import 'package:wewatchapp/data/screens/dashboard.dart';
 import 'package:wewatchapp/data/screens/guard/guard_Drawer.dart';
 import 'package:wewatchapp/data/screens/guard/guard_dashboard.dart';
 import 'package:wewatchapp/data/screens/wewatchManager/wwmanager_dashboard.dart';
+import 'package:wewatchapp/data/widgets/Custom_Button.dart';
 import 'package:wewatchapp/data/widgets/navDrawerWidget.dart';
 import 'package:http/http.dart' as http;
 import 'dart:io' as Io;
@@ -39,7 +42,7 @@ class _covid_19_reg  extends State<covid_19_reg > {
   final _formKey = GlobalKey<FormState>();
   String file ;
   final picker = ImagePicker();
-  bool isPressed = false;
+  bool imagePressed = false;
   String imgString;
 
 
@@ -53,8 +56,8 @@ class _covid_19_reg  extends State<covid_19_reg > {
   String userType = ""?? "";
   int u_id;
   int p_id;
-
-
+  double rangeValues = 97.0 ;
+  String filename = '';
 
   _User() async {
     SharedPreferences userData = await SharedPreferences.getInstance();
@@ -97,7 +100,7 @@ class _covid_19_reg  extends State<covid_19_reg > {
     userList();
     setState(() {
       _User();
-      isPressed = false;
+      imagePressed = false;
       picker == null ?? "no image";
 
     });
@@ -234,23 +237,41 @@ class _covid_19_reg  extends State<covid_19_reg > {
                                                       child: Column(
                                                         crossAxisAlignment: CrossAxisAlignment.start,
                                                         children: [
-                                                          Text("Body Temperature is ",style: new TextStyle(fontSize: 20.0,fontWeight:FontWeight.w500,color: Colors.grey) ),
                                                           new Row(
                                                               mainAxisAlignment: MainAxisAlignment.start,
                                                               children: [
+                                                                Container(
+                                                                  margin:const EdgeInsets.only(left: 15.0,),
+                                                                  child:
+                                                                  Text("Body Temperature is ",style: new TextStyle(fontSize: 20.0,fontWeight:FontWeight.w500,color: Colors.grey) ),
+
+                                                                ),
+
                                                                 new Radio(
                                                                   value: 1,
                                                                   groupValue: tempVal,
                                                                   onChanged: _handleRadioValueChange,
-                                                                  activeColor: Colors.blue,
+                                                                  activeColor: WOrange,
                                                                 ),
                                                                 new Text(
-                                                                  '37.6 +',
-                                                                  style: new  TextStyle(fontSize: 16.0,fontWeight:FontWeight.w500,color: Colors.grey),
+                                                                  rangeValues.toStringAsFixed(1) +"°F",
+                                                                  style: new  TextStyle(fontSize: 20.0,fontWeight:FontWeight.w500,color: Colors.black54),
                                                                 ),
 
                                                               ]
                                                           ),
+                                                          Slider(
+                                                            activeColor: WOrange,
+                                                            value: rangeValues.toDouble(),
+                                                            min: 97.0,
+                                                            max: 105.0,
+                                                            // divisions: 10,
+                                                            onChanged: (double newValue) {
+                                                              setState(() {
+                                                                rangeValues = newValue;
+                                                              });
+                                                            },
+                                                          )
                                                         ],
                                                       ),
                                                     ),
@@ -356,16 +377,60 @@ class _covid_19_reg  extends State<covid_19_reg > {
                                                               : new Text("Attachment added",style: TextStyle(fontSize: 20.0,color: Colors.green,)),
 
                                                         ),
-                                                        new IconButton(
-                                                            icon: new Icon(Icons.camera_alt, color:(isPressed) ? Colors.red
-                                                                : DarkBlue),
-//                                                highlightColor: Colors.deepOrangeAccent,
+                                                        Text(filename??'',style: new TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1)) ),
 
-                                                            iconSize: 50.0,
-                                                            onPressed:(){
-                                                              FocusScope.of(context).requestFocus(FocusNode());
-                                                              getImageCamera();
-                                                            }
+                                                        Container(
+
+                                                            child:  Row(
+
+                                                              children: <Widget>[
+                                                                RaisedButton(
+                                                                    color: (imagePressed) ? Colors.red
+                                                                        : DarkBlue,
+                                                                    child: Icon(Icons.camera_alt, color: Colors.white,),
+                                                                    onPressed:(){
+                                                                      FocusScope.of(context).requestFocus(FocusNode());
+                                                                      getImageCamera();
+                                                                    }
+                                                                ),
+                                                                SizedBox(width: 10.0,),
+                                                                Padding(
+
+                                                                    padding: const EdgeInsets.symmetric(vertical: 16.0),
+                                                                    child: Align(
+                                                                        alignment: Alignment.topLeft,
+                                                                        child:SizedBox(
+                                                                          width: 120,
+                                                                          child: ElevatedButton(
+                                                                              style: ElevatedButton.styleFrom(
+                                                                                primary: (imagePressed) ? Colors.red
+                                                                                    : DarkBlue,
+                                                                                onPrimary: Color.fromRGBO(32, 87, 163, 1),
+                                                                              ),
+
+//                                                       ),
+                                                                              child: Container(
+                                                                                child: Row(
+                                                                                  children: <Widget>[
+                                                                                    Icon(Icons.upload,color: Colors.white,),
+                                                                                    SizedBox(width: 10.0,),
+                                                                                    Text('Upload', style: TextStyle(color: Colors.white),),
+                                                                                  ],
+                                                                                ),
+                                                                              ),
+
+                                                                              onPressed:(){
+                                                                                FocusScope.of(context).requestFocus(FocusNode());
+                                                                                getFile();
+                                                                              }
+                                                                          ),
+                                                                        )
+                                                                    )
+
+                                                                ),
+
+                                                              ],
+                                                            )
                                                         ),
 //                                              Container(
 //
@@ -419,17 +484,10 @@ class _covid_19_reg  extends State<covid_19_reg > {
                                 Align(
                                   child: SizedBox(
 //                              width: 600,
-                                    child: ElevatedButton(
-
-                                        style: ElevatedButton.styleFrom(
-                                          primary: Color.fromRGBO(45, 87, 163, 1),
-//                            onPrimary: Color.fromRGBO(32, 87, 163, 1),
+                                    child: BouncingButton(
 
 
-                                        ),
-                                        onPressed: () {
-//                                   Validate returns true if the form is valid, or false
-//                                   otherwise.
+                                        onPress: () {
                                           if (_formKey.currentState.validate() && file != null) {
 
                                             showLoaderDialog(context);
@@ -439,17 +497,11 @@ class _covid_19_reg  extends State<covid_19_reg > {
 
                                             setState(()
                                             {
-                                              isPressed= true;
+                                              imagePressed= true;
                                             });
                                           }
                                         },
                                         child: Container(
-//                                    height: MediaQuery.of(context).size.height,
-                                          width: MediaQuery.of(context).size.width ,
-//                                    width: 600.0,
-
-                                          child:Text('Submit',textAlign: TextAlign.center,style: TextStyle(fontSize: 20.0)
-                                          ),
                                         )
                                     ),
                                   ),
@@ -470,7 +522,7 @@ class _covid_19_reg  extends State<covid_19_reg > {
     _onLoading();
 //    p_id = ModalRoute.of(context).settings.arguments;
 
-    CovidModel covidModel = CovidModel( id: null, projectId: p_id, userId: u_id, temperature: "Have temperature" ,staffName: nameController.text,
+    CovidModel covidModel = CovidModel( id: null, projectId: p_id, userId: u_id, temperature: rangeValues.toStringAsFixed(2) ,staffName: nameController.text,
       company:company_nameController.text ,remarks: remarksController.text ,image: imgString,);
     await Covid19Controller().addData(covidModel).then((value){
       if (value>0) {
@@ -514,7 +566,7 @@ class _covid_19_reg  extends State<covid_19_reg > {
 
     AddCovid.userId = u_id;
     AddCovid.projectId = p_id;
-    AddCovid.temperature = "Have temperature";
+    AddCovid.temperature = rangeValues.toStringAsFixed(2);
     AddCovid.staffName = nameController.text;
     AddCovid.company = company_nameController.text;
     AddCovid.remarks = remarksController.text;
@@ -530,10 +582,10 @@ class _covid_19_reg  extends State<covid_19_reg > {
 //    String tokenn ='90|ZHVdsajU7doU6LusdhVwd2D0s9zqZAebfnUhInLT';
     String token = 'Bearer '+ tokenn;
 
-    final uri = 'https://wewatch.ordd.tk/api/covid';
+    final uri = baseURL +'covid';
 //    _onLoading();
     http.Response response = await http.post(
-      uri, headers: { 'Content-type': 'application/json',
+      Uri.parse(uri), headers: { 'Content-type': 'application/json',
       'Accept': 'application/json', HttpHeaders.authorizationHeader: token },body: (json.encode(AddCovid.toMap())),
     );
     Navigator.pop(this.context);
@@ -660,9 +712,51 @@ class _covid_19_reg  extends State<covid_19_reg > {
         });
   }
 
+  Future getFile() async {
+
+    FilePickerResult  result = await FilePicker.platform.pickFiles(
+      type: FileType.any,
+
+      // allowedExtensions: ['mp4','png','jpg', 'pdf', 'docx'],
+    );
+
+    if(result != null) {
+      filename = result.files.single.name;
+      File filee = File(result.files.single.path);
+      int sizeInBytes = filee.lengthSync();
+      double sizeInMb = sizeInBytes / (1024 * 1024);
+      if (sizeInMb > 10){
+        Fluttertoast.showToast(
+            msg: "Attachment should be less than 10 Mb",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 2,
+            backgroundColor: Colors.black54,
+            textColor: Colors.white,
+            fontSize: 16.0
+        );      }
+      else {
+        String fileExt = filee.path.split('.').last;
+        List<int> videoBytes = filee.readAsBytesSync();
+        file = base64.encode(videoBytes);
+        String fi = fileExt +","+ file ;
+        setState(()  {
+          imagePressed = false;
+          imgString = filee.path;
+          AddCovid.image = fi;
+
+        });
+      }
+
+
+    }
+
+  }
+
   Future getImageCamera() async{
     final pickedFile = await picker.getImage(source: ImageSource.camera);
     File imageFile = new File(pickedFile.path);
+    filename = imageFile.path.split('/').last;
     String fileExt = imageFile.path.split('.').last;
 //    String basename = basename(imageFile.path);
     List<int> videoBytes = imageFile.readAsBytesSync();
@@ -671,7 +765,7 @@ class _covid_19_reg  extends State<covid_19_reg > {
 
     setState(()  {
       imgString = imageFile.path;
-      isPressed= false;
+      imagePressed= false;
       AddCovid.image = fi;
 
     });

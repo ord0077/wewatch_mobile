@@ -56,7 +56,6 @@ class _DailySecurityReport extends State<DailySecurityReport> {
   String imgString;
 
 
-
   _User() async {
     SharedPreferences userData = await SharedPreferences.getInstance();
     setState(() {
@@ -371,7 +370,7 @@ class _DailySecurityReport extends State<DailySecurityReport> {
                                               contentPadding:
                                               EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
 //                    hintText: "Name / Staff ID*",
-                                              labelText:"Security Management Ispections Conducted",
+                                              labelText:"Security Management Inspections Conducted",
                                               labelStyle: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1))
                                           ),
                                           validator: (value) {
@@ -696,10 +695,10 @@ class _DailySecurityReport extends State<DailySecurityReport> {
 //    String tokenn ='90|ZHVdsajU7doU6LusdhVwd2D0s9zqZAebfnUhInLT';
     String token = 'Bearer '+ tokenn;
 
-    final uri = 'https://wewatch.ordd.tk/api/dailysecurityreport';
+    final uri = baseURL +'dailysecurityreport';
 //    _onLoading();
     http.Response response = await http.post(
-      uri, headers: { 'Content-type': 'application/json',
+      Uri.parse(uri), headers: { 'Content-type': 'application/json',
       'Accept': 'application/json', HttpHeaders.authorizationHeader: token },body: (json.encode(AddDailySecurity.toMap())),
     );
     Navigator.pop(this.context);

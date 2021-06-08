@@ -12,19 +12,19 @@ class LoginModel {
     LoginModel({
         this.token,
         this.user,
-        this.project,
+        // this.project,
         this.userId,
     });
 
     String token;
     User user;
-    List<Project> project = [];
+    // List<Project> project = [];
     int userId;
 
     factory LoginModel.fromJson(Map<String, dynamic> json) => LoginModel(
         token: json["token"],
         user: User.fromJson(json["user"]),
-        project:json["project"] == null ? null : List<Project>.from(json["project"].map((x) => Project.fromJson(x))),
+        // project:json["project"] == null ? null : List<Project>.from(json["project"].map((x) => Project.fromJson(x))),
 
         userId: json["user_id"],
     );
@@ -32,38 +32,42 @@ class LoginModel {
     Map<String, dynamic> toJson() => {
         "token": token,
         "user": user.toJson(),
-        "project" : project == null ? null : List<dynamic>.from(project.map((x) => x.toJson())),
+        // "project" : project == null ? null : List<dynamic>.from(project.map((x) => x.toJson())),
          "user_id": userId,
     };
 }
 
-class Project {
-    Project({
-        this.projectId,
-        this.projectName,
-        this.user,
-        this.zones,
-    });
-
-    int projectId;
-    String projectName;
-    dynamic user;
-    List<dynamic> zones;
-
-    factory Project.fromJson(Map<String, dynamic> json) => Project(
-        projectId: json["project_id"],
-        projectName: json["project_name"],
-        user: json["user"],
-        zones: List<dynamic>.from(json["zones"].map((x) => x)),
-    );
-
-    Map<String, dynamic> toJson() => {
-        "project_id": projectId,
-        "project_name": projectName,
-        "user": user,
-        "zones": List<dynamic>.from(zones.map((x) => x)),
-    };
-}
+// class Project {
+//     Project({
+//         this.projectId,
+//         this.projectName,
+//         this.location,
+//         this.user,
+//         this.zones,
+//     });
+//
+//     int projectId;
+//     String projectName;
+//     String location;
+//     dynamic user;
+//     List<dynamic> zones;
+//
+//     factory Project.fromJson(Map<String, dynamic> json) => Project(
+//         projectId: json["project_id"],
+//         projectName: json["project_name"],
+//         location: json["location"],
+//         user: json["user"],
+//         zones: List<dynamic>.from(json["zones"].map((x) => x)),
+//     );
+//
+//     Map<String, dynamic> toJson() => {
+//         "project_id": projectId,
+//         "project_name": projectName,
+//         "location": location,
+//         "user": user,
+//         "zones": List<dynamic>.from(zones.map((x) => x)),
+//     };
+// }
 
 class User {
     User({

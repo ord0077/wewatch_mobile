@@ -301,7 +301,7 @@ class _DailyHscReport extends State<DailyHscReport> {
                 child: Container(
                   child: FittedBox(
                     fit: BoxFit.scaleDown,
-                    child: Text('Daily HSC Form',
+                    child: Text('Daily HSE Form',
                       style: TextStyle( fontSize: 25,fontWeight:FontWeight.bold,color: Colors.white),),
                   )
 
@@ -2270,10 +2270,10 @@ class _DailyHscReport extends State<DailyHscReport> {
 //    String tokenn ='90|ZHVdsajU7doU6LusdhVwd2D0s9zqZAebfnUhInLT';
     String token = 'Bearer '+ tokenn;
 
-    final uri = 'https://wewatch.ordd.tk/api/hsereport';
+    final uri = baseURL +'hsereport';
 //    _onLoading();
     http.Response response = await http.post(
-      uri, headers: { 'Content-type': 'application/json',
+      Uri.parse(uri), headers: { 'Content-type': 'application/json',
       'Accept': 'application/json', HttpHeaders.authorizationHeader: token },body: (json.encode(AddHsc.toMap())),
     );
     Navigator.pop(this.context);

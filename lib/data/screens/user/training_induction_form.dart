@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wewatchapp/CustomAppBar.dart';
@@ -13,11 +15,14 @@ import 'package:http/http.dart' as http;
 import 'package:wewatchapp/data/screens/dashboard.dart';
 import 'package:wewatchapp/data/screens/guard/guard_dashboard.dart';
 import 'package:wewatchapp/data/screens/wewatchManager/wwmanager_dashboard.dart';
+import 'package:wewatchapp/data/widgets/Custom_Button.dart';
 
 import 'package:wewatchapp/data/widgets/navDrawerWidget.dart';
 
 import '../../../consts.dart';
-
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 
 
@@ -39,6 +44,7 @@ class _training_induction_form extends State<training_induction_form> {
   String file;
   String _character= 'safety Induction' ;
   final picker = ImagePicker();
+  final filepicker = FilePicker;
   final AddTraining = TrainingInducModel();
   final trainingController = TextEditingController();
   final attendeesController = TextEditingController();
@@ -47,9 +53,10 @@ class _training_induction_form extends State<training_induction_form> {
   int p_id;
   int u_id;
   String imgString;
-
-
-
+  String filename = '';
+  FileType fileType;
+  List<String> extensions;
+  bool isLoadingPath = false;
 
   _User() async {
     SharedPreferences userData = await SharedPreferences.getInstance();
@@ -376,6 +383,8 @@ class _training_induction_form extends State<training_induction_form> {
                                                         ? new Text("Add attachment",style: TextStyle(fontSize: 20.0,color: DarkBlue,),)
                                                         : new Text("Attachment added",style: TextStyle(fontSize: 20.0,color: Colors.green,)),
                                                   ),
+                                                  Text(filename??'',style: new TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1)) ),
+
                                                   Container(
 
                                                       child:  Row(
@@ -409,16 +418,16 @@ class _training_induction_form extends State<training_induction_form> {
                                                                         child: Container(
                                                                           child: Row(
                                                                             children: <Widget>[
-                                                                              Icon(Icons.image,color: Colors.white,),
+                                                                              Icon(Icons.upload,color: Colors.white,),
                                                                               SizedBox(width: 10.0,),
-                                                                              Text('Gallery', style: TextStyle(color: Colors.white),),
+                                                                              Text('Upload', style: TextStyle(color: Colors.white),),
                                                                             ],
                                                                           ),
                                                                         ),
 
                                                                         onPressed:(){
                                                                           FocusScope.of(context).requestFocus(FocusNode());
-                                                                          getImageCamera();
+                                                                          getFile();
                                                                         }
                                                                     ),
                                                                   )
@@ -473,15 +482,9 @@ class _training_induction_form extends State<training_induction_form> {
                             Align(
                               child: SizedBox(
 //                              width: 600,
-                                child: ElevatedButton(
+                                child: BouncingButton(
 
-                                    style: ElevatedButton.styleFrom(
-                                      primary: Color.fromRGBO(45, 87, 163, 1),
-//                            onPrimary: Color.fromRGBO(32, 87, 163, 1),
-
-
-                                    ),
-                                    onPressed: () {
+                                    onPress: () {
 //                                   Validate returns true if the form is valid, or false
 //                                   otherwise.
                                       if (_formKey.currentState.validate() && file != null ) {
@@ -499,12 +502,7 @@ class _training_induction_form extends State<training_induction_form> {
                                       }
                                     },
                                     child: Container(
-//                                    height: MediaQuery.of(context).size.height,
-                                      width: MediaQuery.of(context).size.width ,
-//                                    width: 600.0,
-
-                                      child:Text('Submit',textAlign: TextAlign.center,style: TextStyle(fontSize: 20.0)
-                                      ),
+//
                                     )
                                 ),
                               ),
@@ -582,10 +580,10 @@ class _training_induction_form extends State<training_induction_form> {
 //    String tokenn ='90|ZHVdsajU7doU6LusdhVwd2D0s9zqZAebfnUhInLT';
     String token = 'Bearer '+ tokenn;
 
-    final uri = 'https://wewatch.ordd.tk/api/traininginduction';
+    final uri = baseURL +'traininginduction';
 //    _onLoading();
     http.Response response = await http.post(
-      uri, headers: { 'Content-type': 'application/json',
+      Uri.parse(uri), headers: { 'Content-type': 'application/json',
       'Accept': 'application/json', HttpHeaders.authorizationHeader: token },body: (json.encode(AddTraining.toMap())),
     );
     Navigator.pop(this.context);
@@ -735,26 +733,65 @@ class _training_induction_form extends State<training_induction_form> {
     );
   }
 
+  Future getFile() async {
+
+    FilePickerResult  result = await FilePicker.platform.pickFiles(
+      type: FileType.any,);
+
+    if(result != null) {
+      filename = result.files.single.name;
+      File filee = File(result.files.single.path);
+      int sizeInBytes = filee.lengthSync();
+      double sizeInMb = sizeInBytes / (1024 * 1024);
+      if (sizeInMb > 10){
+        Fluttertoast.showToast(
+            msg: "Attachment should be less than 10 Mb",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 2,
+            backgroundColor: Colors.black54,
+            textColor: Colors.white,
+            fontSize: 16.0
+        );      }
+      else {
+        String fileExt = filee.path.split('.').last;
+        List<int> videoBytes = filee.readAsBytesSync();
+        file = base64.encode(videoBytes);
+        String fi = fileExt +","+ file ;
+        setState(()  {
+          imagePressed = false;
+          imgString = filee.path;
+          AddTraining.attachments = fi;
+
+        });
+      }
 
 
-  Future getImageGallery() async{
-    final pickedFile = await picker.getImage(source: ImageSource.gallery);
-    File imageFile = new File(pickedFile.path);
-    String fileExt = imageFile.path.split('.').last;
-    List<int> videoBytes = imageFile.readAsBytesSync();
-    file = base64.encode(videoBytes);
-    String fi = fileExt +","+ file ;
-    setState(()  {
-      imagePressed = false;
-      imgString = imageFile.path;
-      AddTraining.attachments = fi;
+    }
 
-    });
   }
+
+
+  // Future getImageGallery() async{
+  //   final pickedFile = await picker.getImage(source: ImageSource.gallery);
+  //   File imageFile = new File(pickedFile.path);
+  //   String fileExt = imageFile.path.split('.').last;
+  //   List<int> videoBytes = imageFile.readAsBytesSync();
+  //   file = base64.encode(videoBytes);
+  //   String fi = fileExt +","+ file ;
+  //   setState(()  {
+  //     imagePressed = false;
+  //     imgString = imageFile.path;
+  //     AddTraining.attachments = fi;
+  //
+  //   });
+  // }
 
   Future getImageCamera() async{
     final pickedFile = await picker.getImage(source: ImageSource.camera);
     File imageFile = new File(pickedFile.path);
+    filename = imageFile.path.split('/').last;
+
     String fileExt = imageFile.path.split('.').last;
 //    String basename = basename(imageFile.path);
     List<int> videoBytes = imageFile.readAsBytesSync();
@@ -768,6 +805,7 @@ class _training_induction_form extends State<training_induction_form> {
 
     });
   }
+
 
 
   Future NavigateToDashboard () async {

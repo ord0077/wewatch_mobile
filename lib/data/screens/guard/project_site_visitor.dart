@@ -14,6 +14,7 @@ import 'package:wewatchapp/data/screens/guard/guard_Drawer.dart';
 import 'package:http/http.dart' as http;
 import 'package:wewatchapp/data/screens/guard/guard_dashboard.dart';
 import 'package:wewatchapp/data/screens/wewatchManager/wwmanager_dashboard.dart';
+import 'package:wewatchapp/data/widgets/Custom_Button.dart';
 import 'dart:io' as Io;
 
 import 'package:wewatchapp/data/widgets/navDrawerWidget.dart';
@@ -51,8 +52,8 @@ class _project_site_reg extends State<project_site_reg> {
   String IDimgString;
   int u_id;
   int p_id;
-
-
+  String filenameCar = '';
+  String filenameID = '';
   _User() async {
     SharedPreferences userData = await SharedPreferences.getInstance();
     setState(() {
@@ -263,7 +264,7 @@ class _project_site_reg extends State<project_site_reg> {
                                             SizedBox(height: 20.0,),
                                             Padding(
                                               padding: EdgeInsets.only(left:15.0,),
-                                              child:   Text("Reason For Visit", style: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w600,color: Color.fromRGBO(89, 89, 89, 1)
+                                              child:   Text("Reason For Visit", style: TextStyle(fontSize: 20.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(89, 89, 89, 1)
                                               )),
                                             ),
                                             SizedBox(height: 10.0,),
@@ -299,12 +300,14 @@ class _project_site_reg extends State<project_site_reg> {
                                               ),
                                             ),
 
-                                            SizedBox(height: 20.0,),
+                                            SizedBox(height: 10.0,),
                                             new Container(
                                               child: file == null
                                                   ? new Text("")
                                                   : new Text("Attachment added",style: TextStyle(fontSize: 20.0,color: Colors.green,)),
                                             ),
+                                            Text(filenameCar??'',style: new TextStyle(fontSize: 15.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1)) ),
+
                                             new Row(
                                                 mainAxisAlignment: MainAxisAlignment.start,
                                                 children: [
@@ -343,12 +346,14 @@ class _project_site_reg extends State<project_site_reg> {
                                                 ]
                                             ),
 
-                                            SizedBox(height: 20.0,),
+                                            SizedBox(height: 10.0,),
                                             new Container(
                                               child: file2 == null
                                                   ? new Text("")
                                                   : new Text("Attachment added",style: TextStyle(fontSize: 20.0,color: Colors.green,)),
                                             ),
+                                            Text(filenameID??'',style: new TextStyle(fontSize: 15.0,fontWeight:FontWeight.w400,color: Color.fromRGBO(113, 113, 113, 1)) ),
+
                                             new Row(
                                                 mainAxisAlignment: MainAxisAlignment.start,
                                                 children: [
@@ -403,15 +408,10 @@ class _project_site_reg extends State<project_site_reg> {
                             Align(
                               child: SizedBox(
 //                              width: 600,
-                                child: ElevatedButton(
-
-                                    style: ElevatedButton.styleFrom(
-                                      primary: DarkBlue,
-//                            onPrimary: Color.fromRGBO(32, 87, 163, 1),
+                                child: BouncingButton(
 
 
-                                    ),
-                                    onPressed: () {
+                                    onPress: () {
 //                                   Validate returns true if the form is valid, or false
 //                                   otherwise.
                                       if (_formKey.currentState.validate() && file != null && file2 != null) {
@@ -443,12 +443,6 @@ class _project_site_reg extends State<project_site_reg> {
                                       }
                                     },
                                     child: Container(
-//                                    height: MediaQuery.of(context).size.height,
-                                      width: MediaQuery.of(context).size.width ,
-//                                    width: 600.0,
-
-                                      child:Text('Submit',textAlign: TextAlign.center,style: TextStyle(fontSize: 20.0)
-                                      ),
                                     )
                                 ),
                               ),
@@ -529,10 +523,10 @@ class _project_site_reg extends State<project_site_reg> {
 //    String tokenn ='90|ZHVdsajU7doU6LusdhVwd2D0s9zqZAebfnUhInLT';
     String token = 'Bearer '+ tokenn;
 
-    final uri = 'https://wewatch.ordd.tk/api/dailyvisitorsregister';
+    final uri = baseURL +'dailyvisitorsregister';
 //    _onLoading();
     http.Response response = await http.post(
-      uri, headers: { 'Content-type': 'application/json',
+      Uri.parse(uri), headers: { 'Content-type': 'application/json',
       'Accept': 'application/json', HttpHeaders.authorizationHeader: token },body: (json.encode(AddSiteVisitor.toMap())),
     );
     Navigator.pop(this.context);
@@ -685,6 +679,7 @@ class _project_site_reg extends State<project_site_reg> {
   Future getCarImage() async{
     final pickedFile = await picker.getImage(source: ImageSource.camera);
     File imageFile = new File(pickedFile.path);
+    filenameCar = imageFile.path.split('/').last;
     String fileExt = imageFile.path.split('.').last;
 //    String basename = basename(imageFile.path);
     List<int> videoBytes = imageFile.readAsBytesSync();
@@ -702,6 +697,7 @@ class _project_site_reg extends State<project_site_reg> {
   Future getIdImage() async{
     final pickedFile2 = await picker2.getImage(source: ImageSource.camera);
     File imageFile2 = new File(pickedFile2.path);
+    filenameID = imageFile2.path.split('/').last;
     String fileExt2 = imageFile2.path.split('.').last;
 //    String basename = basename(imageFile.path);
     List<int> videoBytes2 = imageFile2.readAsBytesSync();
