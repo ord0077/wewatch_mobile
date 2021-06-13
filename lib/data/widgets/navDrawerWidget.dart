@@ -211,6 +211,7 @@ class _NavDrawer extends State<NavDrawer> {
               builder: (context, snapshot)  {
 
                 if (snapshot.hasData && snapshot.data!=null) {
+                  print(snapshot.data);
                   Map userMap = jsonDecode(snapshot.data.getString(projectKey));
                   Projects projectData = Projects.fromJson(userMap);
                    List<Project> ProjectList =  [];
@@ -306,7 +307,8 @@ class _NavDrawer extends State<NavDrawer> {
                   )
                   );
 
-                } else {
+                }
+                else if (snapshot.hasError || snapshot.data ==null ) {
                   return Container(
                       height: 100.0,
                       child: ListView(
@@ -318,7 +320,21 @@ class _NavDrawer extends State<NavDrawer> {
                       )
                   );
                 }
+                else {
+                  return Container(
+                      height: 100.0,
+                      child: ListView(
+                        children: [
+                          ListTile(
+                            title: Text("Empty"),
+                          )
+                        ],
+                      )
+                  );
+                }
+
               }
+
           ),
 
           if (userType == "User" )

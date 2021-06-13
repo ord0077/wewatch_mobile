@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wewatchapp/DbSynchronization/AccidentIncidentSynchronize.dart';
@@ -24,6 +25,8 @@ import 'package:wewatchapp/data/widgets/navDrawerWidget.dart';
 import '../../../Connectivity.dart';
 import 'wwmanager_Drawer.dart';
 import 'package:http/http.dart' as http;
+import 'package:cached_network_image/cached_network_image.dart';
+
 
 class wwmanager_Dashboard extends StatefulWidget {
   wwmanager_Dashboard({Key key,}) : super(key: key);
@@ -162,23 +165,31 @@ class _wwmanager_Dashboard extends State<wwmanager_Dashboard> {
         print('connected');
         projectMethod();
       }
-    } on SocketException catch (_) {
-      print('not connected');
-      Fluttertoast.showToast(
-          msg: "No internet connection available",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Colors.black54,
-          textColor: Colors.white,
-          fontSize: 16.0
-      );
+    } catch (e) {
+      if(e is SocketException){
+        print('not connected');
+        Fluttertoast.showToast(
+            msg: "No internet connection available",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.black54,
+            textColor: Colors.white,
+            fontSize: 16.0
+        );
+      }
+      else if(e is TimeoutException){
+        //treat TimeoutException
+        print("Timeout exception: ${e.toString()}");
+      }
+      else print("Unhandled exception: ${e.toString()}");
     }
+
   }
 
   projectMethod() async {
-
-    Future<Projects> projectResponse = _projectRepo.GetProjectList() ;
+    Future<Projects> projectResponse ;
+     projectResponse = _projectRepo.GetProjectList()  ;
     projectResponse.then((Projects) async {
       SharedPreferences projectData = await SharedPreferences.getInstance();
       String projectJSON = jsonEncode(Projects);
@@ -284,15 +295,20 @@ class _wwmanager_Dashboard extends State<wwmanager_Dashboard> {
                               Container(
                                 height: 60.0,
 //                              width: 40.0,
-                                child:
-                                Image.network('https://openweathermap.org/img/w/$icon_url',
-                                    width: 50.0,
-                                    fit:BoxFit.cover),
-//                              Icon(
-//                                Icons.cloud_queue,
-//                                size: 50.0,
-//                                color: Colors.white,
-//                              ),
+                                child: CachedNetworkImage(
+                                  imageUrl: "https://openweathermap.org/img/w/$icon_url",
+                                  // progressIndicatorBuilder: (context, url, downloadProgress) =>
+                                  //     SizedBox(
+                                  //       child: CircularProgressIndicator(),
+                                  //       height: 3.0,
+                                  //       width: 10.0,
+                                  //
+                                  //     ),
+                                  errorWidget: (context, url, error) => Icon(Icons.error,color: DarkBlue,),
+                                ),
+                                // Image.network('https://openweathermap.org/img/w/$icon_url',
+                                //     width: 50.0,
+                                //     fit:BoxFit.cover),
                               ),
 
                               Center(
