@@ -6,6 +6,7 @@ import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wewatchapp/DbSynchronization/AccidentIncidentSynchronize.dart';
 import 'package:wewatchapp/DbSynchronization/Covid19Synchronize.dart';
@@ -41,9 +42,8 @@ class _wwmanager_Dashboard extends State<wwmanager_Dashboard> {
   Map _source = {ConnectivityResult.none: false};
   MyConnectivity _connectivity = MyConnectivity.instance;
   Timer timer;
-  double lat = 55.0111;
-  double lon = 15.0569;
-  String uri = "https://api.openweathermap.org/data/2.5/weather?q=Dubai&units=metric&appid=c77442b715a725c1a34e37121bca1d5c";
+  String Lat = '';
+  String Long = '';
   String temp  = "- -";
   var icon_url = "01d.png";
   final ProjectRepository _projectRepo = ProjectRepository();
@@ -56,8 +56,10 @@ class _wwmanager_Dashboard extends State<wwmanager_Dashboard> {
     _connectivity.myStream.listen((source) {
       setStateIfMounted(() => _source = source);
     });
+
     startTimer();
     CheckInternet();
+
   }
 
   @override
@@ -80,19 +82,76 @@ class _wwmanager_Dashboard extends State<wwmanager_Dashboard> {
 
   void unpauseTimer() => startTimer();
 
+  Future<Position> _determinePosition() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    // Test if location services are enabled.
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      // Location services are not enabled don't continue
+      // accessing the position and request users of the
+      // App to enable the location services.
+      return Future.error('Location services are disabled.');
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        // Permissions are denied, next time you could try
+        // requesting permissions again (this is also where
+        // Android's shouldShowRequestPermissionRationale
+        // returned true. According to Android guidelines
+        // your App should show an explanatory UI now.
+        return Future.error('Location permissions are denied');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      // Permissions are denied forever, handle appropriately.
+      return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.');
+    }
+
+    // When we reach here, permissions are granted and we can
+    // continue accessing the position of the device.
+    return await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+  }
+  Future getWeather() async {
+
+    try {
+      final result = await InternetAddress.lookup('example.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        print('connected');
+        Position position = await _determinePosition();
+        // Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+        setState(() {
+          Lat= position.latitude.toString();
+          Long = position.longitude.toString();
+          print(Lat);
+          print(Long);
+
+        });
+
+        String uri ="https://api.openweathermap.org/data/2.5/weather?lat=$Lat&lon=$Long&units=metric&appid=c77442b715a725c1a34e37121bca1d5c";
 
 
-  Future getWeather () async {
-    http.Response response = await http.get(Uri.parse(uri));
-    var result = jsonDecode(response.body);
-    setState(() {
-      var tem = result['main']['temp'];
-      tem =tem.round();
-      this.temp = tem.toString();
+        http.Response response = await http.get(Uri.parse(uri));
+        var result = jsonDecode(response.body);
+        setState(() {
+          var tem = result['main']['temp'];
+          tem =tem.round();
+          this.temp = tem.toString();
 
-      this.icon_url = result["weather"][0]["icon"] +".png";
-    });
-    print(temp);
+          this.icon_url = result["weather"][0]["icon"] +".png";
+        });
+        print(temp);
+      }
+    } on Exception catch (_) {
+      print('error');
+    }
+
   }
 
   Future syncToMysql() async{
@@ -153,6 +212,7 @@ class _wwmanager_Dashboard extends State<wwmanager_Dashboard> {
       case ConnectivityResult.wifi:
       case ConnectivityResult.mobile:
         print("MANAGER DB");
+
         syncToMysql();
         break;
     }
@@ -163,6 +223,7 @@ class _wwmanager_Dashboard extends State<wwmanager_Dashboard> {
       final result = await InternetAddress.lookup('example.com');
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
         print('connected');
+
         projectMethod();
       }
     } catch (e) {

@@ -56,7 +56,7 @@ class _covid_19_reg  extends State<covid_19_reg > {
   String userType = ""?? "";
   int u_id;
   int p_id;
-  double rangeValues = 97.0 ;
+  double rangeValues = 36.0 ;
   String filename = '';
 
   _User() async {
@@ -254,7 +254,7 @@ class _covid_19_reg  extends State<covid_19_reg > {
                                                                   activeColor: WOrange,
                                                                 ),
                                                                 new Text(
-                                                                  rangeValues.toStringAsFixed(1) +"°F",
+                                                                  rangeValues.toStringAsFixed(1) +"°C",
                                                                   style: new  TextStyle(fontSize: 20.0,fontWeight:FontWeight.w500,color: Colors.black54),
                                                                 ),
 
@@ -263,8 +263,8 @@ class _covid_19_reg  extends State<covid_19_reg > {
                                                           Slider(
                                                             activeColor: WOrange,
                                                             value: rangeValues.toDouble(),
-                                                            min: 97.0,
-                                                            max: 105.0,
+                                                            min: 36.0,
+                                                            max: 41.0,
                                                             // divisions: 10,
                                                             onChanged: (double newValue) {
                                                               setState(() {

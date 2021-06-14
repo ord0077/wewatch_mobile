@@ -279,7 +279,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                         //treat TimeoutException
                                         print("Timeout exception: ${error.toString()}");
                                       }
-                                      else print("Unhandled exception: ${error.toString()}");
+                                      else _showToast(context, error);
 
                                     }).whenComplete((){
                                       setState(() {
@@ -532,8 +532,23 @@ class _LoginScreenState extends State<LoginScreen> {
                                           _showToast(context, 'Some error occurred please try again later');
                                       }
                                     }).catchError((error){
-                                      _showToast(context, error);
-
+                                      if(error is SocketException){
+                                        //treat SocketException
+                                        Fluttertoast.showToast(
+                                            msg: "No internet connection available",
+                                            toastLength: Toast.LENGTH_SHORT,
+                                            gravity: ToastGravity.BOTTOM,
+                                            timeInSecForIosWeb: 1,
+                                            backgroundColor: Colors.black54,
+                                            textColor: Colors.white,
+                                            fontSize: 16.0
+                                        );
+                                      }
+                                      else if(error is TimeoutException){
+                                        //treat TimeoutException
+                                        print("Timeout exception: ${error.toString()}");
+                                      }
+                                      else _showToast(context, error);
                                     }).whenComplete((){
                                       setState(() {
                                         loginIsTapped = false;
