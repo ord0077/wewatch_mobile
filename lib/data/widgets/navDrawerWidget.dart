@@ -246,7 +246,7 @@ class _NavDrawer extends State<NavDrawer> {
                             onTap: (){
                               Navigator.push(
                                   context, MaterialPageRoute(
-                                  builder: (context) => AccidentIncidentReport(),settings: RouteSettings( arguments: [ProjectList[index].projectId,ProjectList[index].location])));
+                                  builder: (context) => AccidentIncidentReport(),settings: RouteSettings( arguments: [ProjectList[index].Id,ProjectList[index].location])));
                             },
                           ),
                           NavigatorListItem(
@@ -255,7 +255,7 @@ class _NavDrawer extends State<NavDrawer> {
                             onTap: (){
                               Navigator.push(
                                   context, MaterialPageRoute(
-                                  builder: (context) => ObservationForm(),settings: RouteSettings( arguments: [ProjectList[index].projectId,ProjectList[index].location])));                   },
+                                  builder: (context) => ObservationForm(),settings: RouteSettings( arguments: [ProjectList[index].Id,ProjectList[index].location])));                   },
                           ),
                           NavigatorListItem(
                               icon: Icons.filter_frames,
@@ -263,7 +263,7 @@ class _NavDrawer extends State<NavDrawer> {
                               onTap: () {
                                 Navigator.push(
                                     context, MaterialPageRoute(
-                                    builder: (context) => training_induction_form(),settings: RouteSettings( arguments: ProjectList[index].projectId)));
+                                    builder: (context) => training_induction_form(),settings: RouteSettings( arguments: ProjectList[index].Id)));
                               }
                           ),
                           NavigatorListItem(
@@ -272,7 +272,7 @@ class _NavDrawer extends State<NavDrawer> {
                             onTap: (){
                               Navigator.push(
                                   context, MaterialPageRoute(
-                                  builder: (context) => covid_19_reg(),settings: RouteSettings( arguments: ProjectList[index].projectId)));       },
+                                  builder: (context) => covid_19_reg(),settings: RouteSettings( arguments: ProjectList[index].Id)));       },
                           ),
                           NavigatorListItem(
                             icon: Icons.filter_frames,
@@ -280,7 +280,7 @@ class _NavDrawer extends State<NavDrawer> {
                             onTap: (){
                               Navigator.push(
                                   context, MaterialPageRoute(
-                                  builder: (context) => project_site_reg(),settings: RouteSettings( arguments: ProjectList[index].projectId)));                        },
+                                  builder: (context) => project_site_reg(),settings: RouteSettings( arguments: ProjectList[index].Id)));                        },
                           ),
                           // NavigatorListItem(
                           //   icon: Icons.filter_frames,
@@ -366,7 +366,7 @@ class _NavDrawer extends State<NavDrawer> {
                               onTap: (){
                                 Navigator.push(
                                     context, MaterialPageRoute(
-                                    builder: (context) => AccidentIncidentReport(),settings: RouteSettings( arguments: [ProjectList[index].projectId,ProjectList[index].location])));
+                                    builder: (context) => AccidentIncidentReport(),settings: RouteSettings( arguments: [ProjectList[index].Id,ProjectList[index].location])));
                               },
                             ),
                             NavigatorListItem(
@@ -375,7 +375,7 @@ class _NavDrawer extends State<NavDrawer> {
                               onTap: (){
                                 Navigator.push(
                                     context, MaterialPageRoute(
-                                    builder: (context) => ObservationForm(),settings: RouteSettings( arguments: [ProjectList[index].projectId,ProjectList[index].location])));                   },
+                                    builder: (context) => ObservationForm(),settings: RouteSettings( arguments: [ProjectList[index].Id,ProjectList[index].location])));                   },
                             ),
                             NavigatorListItem(
                                 icon: Icons.filter_frames,
@@ -383,7 +383,7 @@ class _NavDrawer extends State<NavDrawer> {
                                 onTap: () {
                                   Navigator.push(
                                       context, MaterialPageRoute(
-                                      builder: (context) => training_induction_form(),settings: RouteSettings( arguments: ProjectList[index].projectId)));
+                                      builder: (context) => training_induction_form(),settings: RouteSettings( arguments: ProjectList[index].Id)));
                                 }
                             ),
 
@@ -441,7 +441,7 @@ class _NavDrawer extends State<NavDrawer> {
                               onTap: (){
                                 Navigator.push(
                                     context, MaterialPageRoute(
-                                    builder: (context) => ObservationForm(),settings: RouteSettings( arguments: [ProjectList[index].projectId,ProjectList[index].location])));                   },
+                                    builder: (context) => ObservationForm(),settings: RouteSettings( arguments: [ProjectList[index].Id,ProjectList[index].location])));                   },
                             ),
 
                             NavigatorListItem(
@@ -450,7 +450,7 @@ class _NavDrawer extends State<NavDrawer> {
                               onTap: (){
                                 Navigator.push(
                                     context, MaterialPageRoute(
-                                    builder: (context) => covid_19_reg(),settings: RouteSettings( arguments: ProjectList[index].projectId)));       },
+                                    builder: (context) => covid_19_reg(),settings: RouteSettings( arguments: ProjectList[index].Id)));       },
                             ),
                             NavigatorListItem(
                               icon: Icons.filter_frames,
@@ -458,7 +458,7 @@ class _NavDrawer extends State<NavDrawer> {
                               onTap: (){
                                 Navigator.push(
                                     context, MaterialPageRoute(
-                                    builder: (context) => project_site_reg(),settings: RouteSettings( arguments: ProjectList[index].projectId)));                        },
+                                    builder: (context) => project_site_reg(),settings: RouteSettings( arguments: ProjectList[index].Id)));                        },
                             ),
 
 
@@ -530,8 +530,8 @@ class _NavDrawer extends State<NavDrawer> {
               await projectData.clear();
 
               await Future.delayed(Duration(seconds: 1));
-
-              Navigator.of(context).pushAndRemoveUntil(
+              Navigator.pop(context);
+              Navigator.of(context).pushReplacement(
                 // the new route
                   MaterialPageRoute(
                     builder: (BuildContext context) => LoginScreen(),
@@ -540,7 +540,7 @@ class _NavDrawer extends State<NavDrawer> {
                   // this function should return true when we're done removing routes
                   // but because we want to remove all other screens, we make it
                   // always return false
-                      (Route<dynamic> route) => false
+                  //     (Route<dynamic> route) => false
               );
             },
             child: Text('Yes', style: TextStyle( fontSize: 17,color:Colors.blue)),

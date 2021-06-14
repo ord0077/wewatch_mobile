@@ -26,23 +26,23 @@ class Projects {
 
 class Project {
   Project({
-    this.projectId,
+    this.Id,
     this.projectName,
     this.location,
   });
 
-  int projectId;
+  int Id;
   String projectName;
   String location;
 
   factory Project.fromJson(Map<String, dynamic> json) => Project(
-    projectId: json["project_id"],
+    Id: json["id"],
     projectName: json["project_name"],
     location: json["location"],
   );
 
   Map<String, dynamic> toJson() => {
-    "project_id": projectId,
+    "id": Id,
     "project_name": projectName,
     "location": location,
   };

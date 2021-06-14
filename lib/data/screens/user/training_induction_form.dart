@@ -222,7 +222,7 @@ class _training_induction_form extends State<training_induction_form> {
                                                     new Radio(
                                                       value: 'safety Induction',
                                                       groupValue: _character,
-                                                      activeColor: Colors.blue,
+                                                      activeColor: DarkBlue,
 
                                                       onChanged:  ( value) {
                                                         setState(() {
