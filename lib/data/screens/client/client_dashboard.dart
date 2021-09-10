@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -16,71 +17,82 @@ import 'package:wewatchapp/DbSynchronization/DailySiteVisitorSynchronize.dart';
 import 'package:wewatchapp/DbSynchronization/TrainingInductionSynchronize.dart';
 import 'package:wewatchapp/DbSynchronization/syncronize.dart';
 import 'package:wewatchapp/consts.dart';
+import 'package:wewatchapp/data/models/projectListModel.dart';
 import 'package:wewatchapp/data/models/projectsModel.dart';
 import 'package:wewatchapp/data/repositories/projectsRepository.dart';
+import 'package:wewatchapp/data/screens/client/single_projectDetails.dart';
 import 'package:wewatchapp/data/screens/user/daily_security_repo.dart';
 import 'package:wewatchapp/data/widgets/Custom_Button.dart';
 import 'package:wewatchapp/data/widgets/navDrawerWidget.dart';
 import 'package:wewatchapp/data/widgets/navDrawerWidget.dart';
 
 import '../../../Connectivity.dart';
-import 'wwmanager_Drawer.dart';
 import 'package:http/http.dart' as http;
 import 'package:cached_network_image/cached_network_image.dart';
 
 
-class wwmanager_Dashboard extends StatefulWidget {
-  wwmanager_Dashboard({Key key,}) : super(key: key);
+class client_Dashboard extends StatefulWidget {
+  client_Dashboard({Key key,}) : super(key: key);
 
   @override
-  _wwmanager_Dashboard createState() => _wwmanager_Dashboard();
+  _client_Dashboard createState() => _client_Dashboard();
 }
 
-class _wwmanager_Dashboard extends State<wwmanager_Dashboard> {
-  int _counter = 0;
+class _client_Dashboard extends State<client_Dashboard> {
+
+
   var scaffoldKey = GlobalKey<ScaffoldState>();
   Map _source = {ConnectivityResult.none: false};
   MyConnectivity _connectivity = MyConnectivity.instance;
-  Timer timer;
+  // Timer timer;
   String Lat = '';
   String Long = '';
   String temp  = "- -";
   var icon_url = "01d.png";
   final ProjectRepository _projectRepo = ProjectRepository();
 
+  // List data;
+  // List<ProjectListModel> _projectListModel;
+  Future<List<ProjectListModel>> _projectlList;
+  ProjectListModel projectList = ProjectListModel();
+
+
   @override
   void initState() {
     super.initState();
-    this.getWeather();
-    _connectivity.initialise();
-    _connectivity.myStream.listen((source) {
-      setStateIfMounted(() => _source = source);
-    });
+      // getData();
+    _projectlList= this.getData();
 
-    startTimer();
+    this.getWeather();
+    // _connectivity.initialise();
+    // _connectivity.myStream.listen((source) {
+    //   setStateIfMounted(() => _source = source);
+    // });
+    //
+    // startTimer();
     CheckInternet();
 
   }
 
   @override
   void dispose() {
-    timer.cancel();
+    // timer.cancel();
     super.dispose();
   }
 
-  void setStateIfMounted(f) {
-    if (mounted) setState(f);
-  }
+  // void setStateIfMounted(f) {
+  //   if (mounted) setState(f);
+  // }
 
-  startTimer() {
-    timer = Timer.periodic(Duration(seconds: 5), (Timer t) => checkNetThanSend() );
+  // startTimer() {
+  //   timer = Timer.periodic(Duration(seconds: 5), (Timer t) => checkNetThanSend() );
+  //
+  // }
+  // void pauseTimer() {
+  //   if (timer != null) timer.cancel();
+  // }
 
-  }
-  void pauseTimer() {
-    if (timer != null) timer.cancel();
-  }
-
-  void unpauseTimer() => startTimer();
+  // void unpauseTimer() => startTimer();
 
   Future<Position> _determinePosition() async {
     bool serviceEnabled;
@@ -118,6 +130,7 @@ class _wwmanager_Dashboard extends State<wwmanager_Dashboard> {
     // continue accessing the position of the device.
     return await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
   }
+
   Future getWeather() async {
 
     try {
@@ -154,69 +167,16 @@ class _wwmanager_Dashboard extends State<wwmanager_Dashboard> {
 
   }
 
-  Future syncToMysql() async{
-    pauseTimer();
-
-    await SyncronizationData().fetchAllInfo().then((userList)async{
-//      EasyLoading.show(status: 'Dont close app. we are sync...');
-      await SyncronizationData().saveToMysqlWith(userList);
-//      EasyLoading.showSuccess('Successfully save to mysql');
-
-    });
-    await TrainingInductionSync().fetchAllInfo().then((userList)async{
-//      EasyLoading.show(status: 'Dont close app. we are sync...');
-      await TrainingInductionSync().saveToMysqlWith(userList);
-//      EasyLoading.showSuccess('Successfully save to mysql');
-
-    });
-
-    await AccidentIncidentSynchronize().fetchAllInfo().then((userList)async{
-//      EasyLoading.show(status: 'Dont close app. we are sync...');
-      await AccidentIncidentSynchronize().saveToMysqlWith(userList);
-//      EasyLoading.showSuccess('Successfully save to mysql');
-
-    });
-
-    await Covid19Sync().fetchAllInfo().then((userList)async{
-//      EasyLoading.show(status: 'Dont close app. we are sync...');
-      await Covid19Sync().saveToMysqlWith(userList);
-//      EasyLoading.showSuccess('Successfully save to mysql');
-
-    });
-
-    await DailySiteVisitorSyn().fetchAllInfo().then((userList)async{
-//      EasyLoading.show(status: 'Dont close app. we are sync...');
-      await DailySiteVisitorSyn().saveToMysqlWith(userList);
-//      EasyLoading.showSuccess('Successfully save to mysql');
-
-    });
-
-//    await DailySecuritySynch().fetchAllInfo().then((userList)async{
-////      EasyLoading.show(status: 'Dont close app. we are sync...');
-//      await DailySecuritySynch().saveToMysqlWith(userList);
-////      EasyLoading.showSuccess('Successfully save to mysql');
-//
-//    });
-
-//    await DailyHscSync().fetchAllInfo().then((userList)async{
-////      EasyLoading.show(status: 'Dont close app. we are sync...');
-//      await DailyHscSync().saveToMysqlWith(userList);
-////      EasyLoading.showSuccess('Successfully save to mysql');
-//
-//    });
-    unpauseTimer();
-  }
-
-  Future checkNetThanSend() async{
-    switch (_source.keys.toList()[0]) {
-      case ConnectivityResult.wifi:
-      case ConnectivityResult.mobile:
-        print("MANAGER DB");
-
-        syncToMysql();
-        break;
-    }
-  }
+  // Future checkNetThanSend() async{
+  //   switch (_source.keys.toList()[0]) {
+  //     case ConnectivityResult.wifi:
+  //     case ConnectivityResult.mobile:
+  //       print("MANAGER DB");
+  //
+  //       // syncToMysql();
+  //       break;
+  //   }
+  // }
 
   CheckInternet() async {
     try {
@@ -224,7 +184,8 @@ class _wwmanager_Dashboard extends State<wwmanager_Dashboard> {
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
         print('connected');
 
-        projectMethod();
+
+        // projectMethod();
       }
     } catch (e) {
       if(e is SocketException){
@@ -248,15 +209,58 @@ class _wwmanager_Dashboard extends State<wwmanager_Dashboard> {
 
   }
 
-  projectMethod() async {
-    Future<Projects> projectResponse ;
-     projectResponse = _projectRepo.GetProjectList()  ;
-    projectResponse.then((Projects) async {
-      SharedPreferences projectData = await SharedPreferences.getInstance();
-      String projectJSON = jsonEncode(Projects);
+  Future<List<ProjectListModel>> getData() async {
 
-      projectData.setString(projectKey, projectJSON);
-    });
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String tokenn = ( prefs.getString('token'));
+    int id = (prefs.getInt(('user_id')));
+
+    String token = 'Bearer '+ tokenn;
+//    final apiUrl = 'https://orangeroomdigital.com/sscp/public/api/btl_records';
+    final apiUrl = baseURL + 'projectbyuserid/'+ id.toString();
+    List<ProjectListModel> records = [];
+
+    try {
+      final result = await InternetAddress.lookup('google.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        print('connected');
+        var result = await http.get(
+          Uri.parse(apiUrl), headers: { 'Content-type': 'application/json',
+          'Accept': 'application/json',HttpHeaders.authorizationHeader: token},);
+
+
+        var response = json.decode(result.body);
+//        print(response);
+//        List<Datum> data = [];
+//        data= response;
+//        dbHelper.save(data);
+
+//         List<District> dis = [];
+
+
+        for (var u in response) {
+          ProjectListModel Item = ProjectListModel( id: u['id'],projectName: u['project_name'] ,projectLogo: u["project_logo"], user: User(name: u["user"]["name"]),startDate:  DateTime.tryParse(u["start_date"]),endDate: DateTime.tryParse(u["end_date"]) ,location: u["location"] );
+
+          records.add(Item);
+//          List<Datum> data = [];
+//          data= records;
+//          dbHelper.save(Item);
+          print(records);
+//      dis.add(d);
+
+        }
+
+      }
+    } on SocketException catch (_) {
+
+      print('not connected');
+    }
+//    print("${_btlModel.data[0].taskTitle}");
+    return records ;
+
+
+
   }
 
   @override
@@ -323,10 +327,10 @@ class _wwmanager_Dashboard extends State<wwmanager_Dashboard> {
             child: Column(
               children: [
                 Container(
-        // margin:EdgeInsets.only(left: 20.0,right: 20.0),
+                  // margin:EdgeInsets.only(left: 20.0,right: 20.0),
                   child:Card(
                       color: Colors.white,
-                    shadowColor: Colors.white,
+                      shadowColor: Colors.white,
                       semanticContainer: true,
                       clipBehavior: Clip.antiAliasWithSaveLayer,
                       shape: RoundedRectangleBorder(
@@ -392,42 +396,133 @@ class _wwmanager_Dashboard extends State<wwmanager_Dashboard> {
                   ),
 
                 ),
-
                 Align(
-                    alignment: Alignment.center,
-                    child:Column(
-                      children: [
-                        Container(
-                          margin: EdgeInsets.only(top: 50.0),
-                          child: Text('Manager Dashboard',
-                            style: TextStyle(fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: DarkBlue),),
-                        ),
-                        ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              primary:DarkBlue,
-                              onPrimary: Color.fromRGBO(32, 87, 163, 1),
-                            ),
-                            child: Container(
-                              width: 200.0,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: <Widget>[
-                                  Icon(Icons.refresh,color: Colors.white,),
-                                  SizedBox(width: 10.0,),
-                                  Text('Refresh project list', style: TextStyle(color: Colors.white),),
-                                ],
-                              ),
-                            ),
+                  alignment: Alignment.topLeft,
+                  child: Container(
+                    margin: EdgeInsets.only(top: 15.0,left: 15.0,bottom: 15.0),
+                    child: Text(' Project List',
+                      style: TextStyle(fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: DarkBlue),),
+                  ),
+                ),
+                Expanded(child:
+                    SingleChildScrollView(
 
-                            onPressed:(){
-                              CheckInternet();
-                            }
+                      physics: ScrollPhysics(),
+                      // child: Scrollbar(
+                        child:Column(
+
+                          children: [
+
+
+                            FutureBuilder<List<ProjectListModel>>(
+
+                              future: _projectlList,
+                              builder: (BuildContext context, AsyncSnapshot snapshot) {
+                                if( snapshot.connectionState == ConnectionState.waiting)
+                                  return Center(
+                                      child:SpinKitFadingCircle(
+                                        color: DarkBlue,
+                                        size: 70.0,)
+
+                                  );
+                                else if(snapshot.hasError){
+                                  return Center(
+                                      child: Container(
+                                        child: Column(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          crossAxisAlignment: CrossAxisAlignment.center,
+
+                                          children: <Widget>[
+                                            Text("Problem in fetching data ..!",  style: TextStyle(height: 2, fontSize:20),),
+                                            Text("Try again later",  style: TextStyle(height: 2, fontSize: 20),),
+
+                                          ],
+                                        ),
+                                      )
+                                  );
+                                }
+                                else {
+                                  if (snapshot.hasData && snapshot.data.isNotEmpty) {
+                                    List<ProjectListModel> data = snapshot.data;
+//              final f = new DateFormat('yyyy-MM-dd');
+
+//              print(_p_address(snapshot.data[0]));
+                                    return Container(
+                                      width: MediaQuery.of(context).size.width/2,
+                                      child:
+                                          Scrollbar(
+                                            child: ListView.builder(
+                                                physics: NeverScrollableScrollPhysics(),
+
+                                                scrollDirection: Axis.vertical,
+                                                shrinkWrap: true,
+                                                itemCount: data.length,
+                                                itemBuilder: (BuildContext context, int index) {
+                                                  return Container(
+
+                                                    // height: 60.0,
+                                                    child: ElevatedButton(
+
+                                                      style: ElevatedButton.styleFrom(
+                                                        primary:DarkBlue,
+                                                        onPrimary: Color.fromRGBO(32, 87, 163, 1),
+                                                      ),
+                                                      onPressed: () {
+                                                        Navigator.push(
+                                                          context,
+                                                          MaterialPageRoute(builder: (context) => single_projectDetails(),settings: RouteSettings( arguments: projectList =data[index] )),
+                                                        );
+                                                      },
+                                                      child: Container(
+                                                          padding: EdgeInsets.only(top: 10.0,bottom: 10.0),
+                                                          // width: MediaQuery.of(context).size.width/2,
+                                                          child:Column(
+                                                            children: [
+                                                              Text(data[index].projectName, style: TextStyle(color: Colors.white),)
+
+                                                            ],
+                                                          )
+                                                      ),
+
+
+                                                    ),
+                                                  );
+                                                }
+                                            ),
+                                          ),
+
+                                    ) ;
+
+
+                                  }
+
+                                  else {
+                                    return Center(child: SpinKitFadingCircle(
+                                      color:DarkBlue,
+                                      size: 50.0,)
+                                    );
+                                  }
+                                }
+                              },
+
+
+                            ),
+                            ///
+                          ],
                         ),
-                      ],
-                    ),
+                      // ),
+
+                    )
+
                 )
+                // Align(
+                //   alignment: Alignment.center,
+                //   child:
+
+
+                // )
               ],
             ),
           ),

@@ -374,7 +374,7 @@ class _GuardDashboard extends State<GuardDashboard> {
                             width: 200.0,
 
                             child: Row(
-
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: <Widget>[
                                 Icon(Icons.refresh,color: Colors.white,),
                                 SizedBox(width: 10.0,),

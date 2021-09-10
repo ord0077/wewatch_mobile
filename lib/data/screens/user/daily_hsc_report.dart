@@ -10,7 +10,7 @@ import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:wewatchapp/consts.dart';
 import 'package:wewatchapp/data/models/dailyhscModel.dart';
-import 'package:wewatchapp/data/screens/dashboard.dart';
+import 'package:wewatchapp/data/screens/user/dashboard.dart';
 import 'package:wewatchapp/data/screens/guard/guard_dashboard.dart';
 import 'package:wewatchapp/data/screens/wewatchManager/wwmanager_dashboard.dart';
 import 'package:wewatchapp/data/widgets/navDrawerWidget.dart';

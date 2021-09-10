@@ -51,6 +51,14 @@ const Color kDarkBlue = Color(0xFF1046B3);
 const Color kWhite = Color(0xFFFFFFFF);
 const Color kGrey = Color(0xFFF4F5F7);
 const Color kBlack = Color(0xFF2D3243);
+const Color AccidentColor = Color.fromRGBO(45,86,165, 1);
+const Color CovidColor = Color.fromRGBO(244,93,82, 1);
+const Color TrainingColor = Color.fromRGBO(110,76,66, 1);
+const Color SiteColor = Color.fromRGBO(207,71,233, 1);
+const Color ObservationColor = Color.fromRGBO(76,176,80, 1);
+const Color SecurityColor = Color.fromRGBO(228,119,62, 1);
+const Color HSEColor = Color.fromRGBO(74,194,182, 1);
+
 
 // Padding
 const double kPaddingS = 8.0;

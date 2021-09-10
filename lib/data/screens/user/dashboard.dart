@@ -361,7 +361,7 @@ import 'package:wewatchapp/data/widgets/navDrawerWidget.dart';
 import 'package:wewatchapp/data/widgets/navDrawerWidget.dart';
 import 'package:http/http.dart' as http;
 
-import '../../consts.dart';
+import '../../../consts.dart';
 
 class Dashboard extends StatefulWidget {
   Dashboard({Key key,}) : super(key: key);
@@ -707,7 +707,7 @@ class _Dashboard extends State<Dashboard> {
                             width: 200.0,
 
                             child: Row(
-
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: <Widget>[
                                 Icon(Icons.refresh,color: Colors.white,),
                                 SizedBox(width: 10.0,),

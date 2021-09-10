@@ -16,7 +16,7 @@ import 'package:wewatchapp/DbControllers/controller.dart';
 import 'dart:io' as Io;
 
 import 'package:wewatchapp/data/models/observationModel.dart';
-import 'package:wewatchapp/data/screens/dashboard.dart';
+import 'package:wewatchapp/data/screens/user/dashboard.dart';
 import 'package:wewatchapp/data/screens/guard/guard_dashboard.dart';
 import 'package:wewatchapp/data/screens/wewatchManager/wwmanager_dashboard.dart';
 import 'package:wewatchapp/data/widgets/Custom_Button.dart';

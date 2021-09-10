@@ -13,7 +13,8 @@ import 'package:wewatchapp/data/login/loginScreen.dart';
 import 'package:wewatchapp/data/models/loginModel.dart';
 import 'package:wewatchapp/data/models/projectsModel.dart';
 import 'package:wewatchapp/data/repositories/projectsRepository.dart';
-import 'package:wewatchapp/data/screens/dashboard.dart';
+import 'package:wewatchapp/data/screens/client/client_dashboard.dart';
+import 'package:wewatchapp/data/screens/user/dashboard.dart';
 import 'package:wewatchapp/data/screens/guard/covid_19.dart';
 import 'package:wewatchapp/data/screens/guard/guard_dashboard.dart';
 import 'package:wewatchapp/data/screens/guard/project_site_visitor.dart';
@@ -204,6 +205,23 @@ class _NavDrawer extends State<NavDrawer> {
                       );
                     },
                   ),
+                  if(userType == 'project Admin')
+
+                    NavigatorListItem(
+                      icon: Icons.home,
+                      title: "Home",
+                      onTap: (){
+                        Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(builder: (context) => client_Dashboard()),
+                                (Route<dynamic> route) => false
+                        );
+                      },
+                    ),
+
+
+
+
 
           if(userType == 'Wewatch Manager')
           FutureBuilder<SharedPreferences>(
@@ -485,15 +503,20 @@ class _NavDrawer extends State<NavDrawer> {
 
 
 
-          NavigatorListItem(
+            Align(
+            alignment: FractionalOffset.bottomCenter,
+              child: NavigatorListItem(
 //
-            icon: Icons.logout,
-            title: "Log Out",
+                icon: Icons.logout,
+                title: "Log Out",
 
-            onTap: () {
-              _exitApp(context);
-            },
-          ),
+                onTap: () {
+                  _exitApp(context);
+                },
+              ),
+            )
+
+
 
 
         ],

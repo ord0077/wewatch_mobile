@@ -12,7 +12,7 @@ import 'package:wewatchapp/DbControllers/TrainingInductionController.dart';
 import 'package:wewatchapp/data/models/trainingInductionModel.dart';
 import 'dart:io';
 import 'package:http/http.dart' as http;
-import 'package:wewatchapp/data/screens/dashboard.dart';
+import 'package:wewatchapp/data/screens/user/dashboard.dart';
 import 'package:wewatchapp/data/screens/guard/guard_dashboard.dart';
 import 'package:wewatchapp/data/screens/wewatchManager/wwmanager_dashboard.dart';
 import 'package:wewatchapp/data/widgets/Custom_Button.dart';
