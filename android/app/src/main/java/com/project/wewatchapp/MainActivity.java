@@ -1,4 +1,4 @@
-package com.example.wewatchapp;
+package com.project.wewatchapp;
 
 import io.flutter.embedding.android.FlutterActivity;
 

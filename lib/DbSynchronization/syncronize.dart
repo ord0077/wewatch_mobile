@@ -99,6 +99,7 @@ class SyncronizationData {
         "observation_description":contactList[i].observationDescription,
         "location":contactList[i].location,
         "action":contactList[i].action,
+        "report": contactList[i].report,
         "attachments":fi,
       };
 

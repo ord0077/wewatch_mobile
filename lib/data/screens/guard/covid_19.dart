@@ -4,6 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -13,7 +14,7 @@ import 'package:intl/intl.dart';
 import 'package:wewatchapp/DbControllers/Covid19Controller.dart';
 import 'package:wewatchapp/consts.dart';
 import 'package:wewatchapp/data/models/covid19Model.dart';
-import 'package:wewatchapp/data/screens/dashboard.dart';
+import 'package:wewatchapp/data/screens/user/dashboard.dart';
 import 'package:wewatchapp/data/screens/guard/guard_Drawer.dart';
 import 'package:wewatchapp/data/screens/guard/guard_dashboard.dart';
 import 'package:wewatchapp/data/screens/wewatchManager/wwmanager_dashboard.dart';
@@ -820,6 +821,8 @@ class _covid_19_reg  extends State<covid_19_reg > {
       );
     }
   }
+
+
 
 }
 

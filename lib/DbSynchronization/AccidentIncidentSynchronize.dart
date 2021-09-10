@@ -107,7 +107,7 @@ class AccidentIncidentSynchronize {
         "fatality":contactList[i].fatality,
         "describe_incident":contactList[i].describeIncident,
         "immediate_action":contactList[i].immediateAction,
-        "attachments":fi,
+        "attachment":fi,
       };
 
       SharedPreferences userData = await SharedPreferences.getInstance();
@@ -129,6 +129,7 @@ class AccidentIncidentSynchronize {
         if (response.statusCode==200) {
           print("Saving Data ");
           print(contactList[i].id);
+          // print(fi);
 
           await AccidentIncidentController().delete('accidentIncidentTable',contactList[i].id);
 

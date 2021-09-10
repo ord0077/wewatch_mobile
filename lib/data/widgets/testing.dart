@@ -10,7 +10,7 @@ import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:wewatchapp/consts.dart';
 import 'package:wewatchapp/data/models/covid19Model.dart';
-import 'package:wewatchapp/data/screens/dashboard.dart';
+import 'package:wewatchapp/data/screens/user/dashboard.dart';
 import 'package:wewatchapp/data/widgets/navDrawerWidget.dart';
 import 'package:http/http.dart' as http;
 import 'dart:io' as Io;

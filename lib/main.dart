@@ -4,15 +4,15 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_statusbarcolor/flutter_statusbarcolor.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wewatchapp/consts.dart';
 import 'package:wewatchapp/data/login/loginScreen.dart';
 import 'package:wewatchapp/data/models/loginModel.dart';
-import 'package:wewatchapp/data/screens/dashboard.dart';
+import 'package:wewatchapp/data/screens/client/client_dashboard.dart';
+import 'package:wewatchapp/data/screens/user/dashboard.dart';
 import 'package:wewatchapp/data/screens/guard/guard_dashboard.dart';
-import 'package:wewatchapp/data/screens/superAdmin/add_user.dart';
-import 'package:wewatchapp/data/screens/superAdmin/user_list.dart';
 import 'package:wewatchapp/data/screens/user/accident_incident_report.dart';
 import 'data/screens/wewatchManager/wwmanager_dashboard.dart';
 
@@ -25,6 +25,11 @@ Future<void> main() async {
     if (kReleaseMode)
       exit(1);
   };
+
+  WidgetsFlutterBinding.ensureInitialized();
+  await FlutterDownloader.initialize(
+      debug: true // optional: set false to disable printing logs to console
+  );
   runApp(new MyApp());
 }
 
@@ -34,6 +39,7 @@ class MyApp extends StatelessWidget {
 
   bool isLogged = false;
   String route = '/login';
+  // String route = '/project_Admin';
 
   @override
   Widget build(BuildContext context) {
@@ -68,14 +74,14 @@ class MyApp extends StatelessWidget {
                   case "Wewatch Manager":
                     route = '/wewatch_manager';
                     break;
-//
-//                case "maintenance":
-//                  route = '/maintenance';
-//                  break;
+
+                   case "project Admin":
+                    route = '/project_Admin';
+                    break;
 
                   default:
-//                  route = '/login';
-                    route = '/login';
+                 route = '/login';
+                    // route = '/project_Admin';
                 }
               }
 
@@ -119,8 +125,9 @@ class MyApp extends StatelessWidget {
                   '/login': (BuildContext context) => new LoginScreen(),
                   '/User': (BuildContext context) => new Dashboard(),
                   '/guard': (BuildContext context) => new GuardDashboard(),
-                  '/wewatch_manager': (
-                      BuildContext context) => new wwmanager_Dashboard(),
+                  '/wewatch_manager': (BuildContext context) => new wwmanager_Dashboard(),
+                  '/project_Admin': (BuildContext context) => new client_Dashboard(),
+                  // '/client': (BuildContext context) => new client_Dashboard(),
 
 
 //                '/customer' : (BuildContext context) => new AddUser(),

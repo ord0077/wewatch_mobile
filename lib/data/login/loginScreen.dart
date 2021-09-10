@@ -259,6 +259,13 @@ class _LoginScreenState extends State<LoginScreen> {
                                           );
                                           break;
 
+                                        case "project Admin":
+                                          Navigator.pushReplacementNamed(
+                                            context,
+                                            '/project_Admin',
+                                          );
+                                          break;
+
                                         default:
                                           _showToast(context, 'Some error occurred please try again later');
                                       }
@@ -525,6 +532,13 @@ class _LoginScreenState extends State<LoginScreen> {
                                           Navigator.pushReplacementNamed(
                                             context,
                                             '/wewatch_manager',
+                                          );
+                                          break;
+
+                                        case "project Admin":
+                                          Navigator.pushReplacementNamed(
+                                            context,
+                                            '/project_Admin',
                                           );
                                           break;
 
