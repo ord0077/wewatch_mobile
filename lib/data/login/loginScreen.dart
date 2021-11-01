@@ -6,6 +6,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:wewatchapp/consts.dart';
 import 'package:wewatchapp/data/models/loginModel.dart';
 import 'package:wewatchapp/data/repositories/loginRepository.dart';
@@ -298,6 +299,27 @@ class _LoginScreenState extends State<LoginScreen> {
                                   }
                                 },
 
+                              ),
+                              SizedBox(height: 20.0,),
+                              new Center(
+                                child:Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text('Visit our '),
+                                Material(
+                                  color: Colors.transparent,
+                                  child:  new InkWell(
+                                      splashColor: Colors.orangeAccent,
+                                      child: new Text('Website',style: TextStyle(
+                                          color: DarkBlue,fontSize: 16.0,fontWeight: FontWeight.w500
+                                      ),),
+                                      onTap: () => launch('https://wewatch.ae/')
+                                  ),
+
+                                )
+
+                              ],
+                              )
                               ),
                               SizedBox(height: 60.0,),
 
