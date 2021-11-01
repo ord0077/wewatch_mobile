@@ -38,7 +38,7 @@ dependencies:
   path_provider: any
   path: any
   intl: any
-  flutter_statusbarcolor: any
+#  flutter_statusbarcolor: any
   connectivity: any
   data_connection_checker:
   fluttertoast: any
