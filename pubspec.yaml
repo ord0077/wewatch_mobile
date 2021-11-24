@@ -53,6 +53,8 @@ dependencies:
   full_screen_image: any
   flutter_downloader: any
   permission_handler: ^8.1.4+2
+  flutter_inappwebview: ^5.3.2
+  flushbar: any
 
 
 dev_dependencies:

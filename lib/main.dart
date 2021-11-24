@@ -11,9 +11,11 @@ import 'package:wewatchapp/consts.dart';
 import 'package:wewatchapp/data/login/loginScreen.dart';
 import 'package:wewatchapp/data/models/loginModel.dart';
 import 'package:wewatchapp/data/screens/client/client_dashboard.dart';
+import 'package:wewatchapp/data/screens/public_user.dart';
 import 'package:wewatchapp/data/screens/user/dashboard.dart';
 import 'package:wewatchapp/data/screens/guard/guard_dashboard.dart';
 import 'package:wewatchapp/data/screens/user/accident_incident_report.dart';
+import 'package:wewatchapp/data/screens/wewtachWebView.dart';
 import 'data/screens/wewatchManager/wwmanager_dashboard.dart';
 
 
@@ -92,6 +94,10 @@ case "project Admin":
 route = '/project_Admin';
 break;
 
+  case "public":
+    route = '/public';
+    break;
+
 default:
 route = '/login';
 // route = '/project_Admin';
@@ -140,6 +146,7 @@ routes: <String, WidgetBuilder>{
 '/guard': (BuildContext context) => new GuardDashboard(),
 '/wewatch_manager': (BuildContext context) => new wwmanager_Dashboard(),
 '/project_Admin': (BuildContext context) => new client_Dashboard(),
+  '/public': (BuildContext context) => new public_Dashboard(),
 // '/client': (BuildContext context) => new client_Dashboard(),
 
 
