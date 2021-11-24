@@ -8,8 +8,10 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:wewatchapp/consts.dart';
+import 'package:wewatchapp/data/login/RegistrationScreen.dart';
 import 'package:wewatchapp/data/models/loginModel.dart';
 import 'package:wewatchapp/data/repositories/loginRepository.dart';
+import 'package:wewatchapp/data/screens/wewtachWebView.dart';
 
 
 class LoginScreen extends StatefulWidget {
@@ -124,7 +126,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               // Input textfields for email
                               InputEmail(
                                 hint: "Email",
-                                icon: Icons.person_outline,
+                                icon: Icons.email_outlined,
                                 isPassword: false,
                                 textController: emailController,
                               ),
@@ -268,6 +270,13 @@ class _LoginScreenState extends State<LoginScreen> {
                                           );
                                           break;
 
+                                        case "public":
+                                          Navigator.pushReplacementNamed(
+                                            context,
+                                            '/public',
+                                          );
+                                          break;
+
                                         default:
                                           _showToast(context, 'Some error occurred please try again later');
                                       }
@@ -306,15 +315,22 @@ class _LoginScreenState extends State<LoginScreen> {
                                   child:Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Text('Visit our '),
+                                      Text('For Registration '),
                                       Material(
                                         color: Colors.transparent,
                                         child:  new InkWell(
                                             splashColor: Colors.orangeAccent,
-                                            child: new Text('Website',style: TextStyle(
+                                            child: new Text('Click here',style: TextStyle(
                                                 color: DarkBlue,fontSize: 16.0,fontWeight: FontWeight.w500
                                             ),),
-                                            onTap: () => launch('https://wewatch.ae/')
+                                          onTap: () {
+
+                                            Navigator.pushReplacement(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (_) => SignUp(),
+                                                ));
+                                          },
                                         ),
 
                                       )
@@ -425,7 +441,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 // Input textfields for email
                                 InputEmail(
                                   hint: "Email",
-                                  icon: Icons.person_outline,
+                                  icon: Icons.email_outlined,
                                   isPassword: false,
                                   textController: emailController,
                                 ),
@@ -568,6 +584,13 @@ class _LoginScreenState extends State<LoginScreen> {
                                             );
                                             break;
 
+                                          case "public":
+                                            Navigator.pushReplacementNamed(
+                                              context,
+                                              '/public',
+                                            );
+                                            break;
+
                                           default:
                                             _showToast(context, 'Some error occurred please try again later');
                                         }
@@ -605,15 +628,22 @@ class _LoginScreenState extends State<LoginScreen> {
                                     child:Row(
                                       mainAxisAlignment: MainAxisAlignment.center,
                                       children: [
-                                        Text('Visit our '),
+                                        Text('For Registration '),
                                         Material(
                                           color: Colors.transparent,
                                           child:  new InkWell(
-                                              splashColor: Colors.orangeAccent,
-                                              child: new Text('Website',style: TextStyle(
-                                                  color: DarkBlue,fontSize: 16.0,fontWeight: FontWeight.w500
-                                              ),),
-                                              onTap: () => launch('https://wewatch.ae/')
+                                            splashColor: Colors.orangeAccent,
+                                            child: new Text('Click here',style: TextStyle(
+                                                color: DarkBlue,fontSize: 16.0,fontWeight: FontWeight.w500
+                                            ),),
+                                            onTap: () {
+
+                                              Navigator.pushReplacement(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (_) => SignUp(),
+                                                  ));
+                                            },
                                           ),
 
                                         )

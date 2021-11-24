@@ -14,6 +14,7 @@ import 'package:wewatchapp/data/models/loginModel.dart';
 import 'package:wewatchapp/data/models/projectsModel.dart';
 import 'package:wewatchapp/data/repositories/projectsRepository.dart';
 import 'package:wewatchapp/data/screens/client/client_dashboard.dart';
+import 'package:wewatchapp/data/screens/public_user.dart';
 import 'package:wewatchapp/data/screens/user/dashboard.dart';
 import 'package:wewatchapp/data/screens/guard/covid_19.dart';
 import 'package:wewatchapp/data/screens/guard/guard_dashboard.dart';
@@ -218,7 +219,19 @@ class _NavDrawer extends State<NavDrawer> {
                         );
                       },
                     ),
+                    if(userType == 'public')
 
+                      NavigatorListItem(
+                        icon: Icons.home,
+                        title: "Home",
+                        onTap: (){
+                          Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(builder: (context) => public_Dashboard()),
+                                  (Route<dynamic> route) => false
+                          );
+                        },
+                      ),
 
 
 
