@@ -34,11 +34,7 @@ const String orderJsonPath = 'assets/json/order.json';
 RegExp reg = new RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))');
 Function mathFunc = (Match match) => '${match[1]},';
 
-// base usl
-//const String baseURL = 'https://api.movenpickicecream.ae/api/';
-//const String baseURL = 'https://orangeroomdigital.com/mnp_dev/public/api/';
-//const String baseURL = 'https://mnpbackend.ordd.tk/api/';
-
+// base url
 //const String baseURL = 'https://backend.dev-ssep.tk/api/';
 // const String baseURL = 'https://wewatch.ordd.tk/api/';
 const String baseURL = 'https://wewatch.dev-ord.tk/api/';

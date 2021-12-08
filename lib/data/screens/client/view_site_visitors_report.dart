@@ -302,8 +302,7 @@ class _view_site_visitors_report extends State<view_site_visitors_report> {
 
 
     String token = 'Bearer '+ tokenn;
-//    final apiUrl = 'https://orangeroomdigital.com/sscp/public/api/btl_records';
-    String apiUrl = Uri.encodeFull("https://wewatch.ordd.tk/api/dailyvisitorsregister/project/" + progId.toString() +"?page=$page");
+    String apiUrl = Uri.encodeFull( baseURL +"dailyvisitorsregister/project/" + progId.toString() +"?page=$page");
     print('page ${page}');
     try {
       /*String url = Uri.encodeFull(
