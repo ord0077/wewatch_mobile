@@ -303,8 +303,7 @@ class _view_training_induction_report extends State<view_training_induction_repo
 
 
     String token = 'Bearer '+ tokenn;
-//    final apiUrl = 'https://orangeroomdigital.com/sscp/public/api/btl_records';
-    String apiUrl = Uri.encodeFull("https://wewatch.ordd.tk/api/traininginduction/project/" + projId.toString() +"?page=$page");
+    String apiUrl = Uri.encodeFull( baseURL + "traininginduction/project/" + projId.toString() +"?page=$page");
     print('page ${page}');
     try {
       /*String url = Uri.encodeFull(
