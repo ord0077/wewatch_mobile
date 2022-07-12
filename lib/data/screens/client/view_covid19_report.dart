@@ -12,7 +12,7 @@ import 'package:flutter_paginator/flutter_paginator.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:full_screen_image/full_screen_image.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:permission_handler/permission_handler.dart';
+// import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wewatchapp/DbSynchronization/AccidentIncidentSynchronize.dart';
 import 'package:wewatchapp/DbSynchronization/Covid19Synchronize.dart';
@@ -311,25 +311,25 @@ class _view_covid19_report extends State<view_covid19_report> {
 
   }
 
-  void _requestDownload(String link) async {
-
-    final status = await Permission.storage.request();
-
-
-    if(status.isGranted){
-      final baseStorage = await getApplicationDocumentsDirectory();
-      final taskId = await FlutterDownloader.enqueue(
-        url: 'https://wewatch.ordd.tk/uploads/covid/attach_6130dc9039fc5.docx',
-        savedDir: baseStorage.path,
-        fileName: "file",
-        // showNotification: true, // show download progress in status bar (for Android)
-        // openFileFromNotification: true, // click on notification to open downloaded file (for Android)
-      );
-    }else{
-      print("no permission");
-    }
-
-  }
+  // void _requestDownload(String link) async {
+  //
+  //   // final status = await Permission.storage.request();
+  //
+  //
+  //   // if(status.isGranted){
+  //     final baseStorage = await getApplicationDocumentsDirectory();
+  //     final taskId = await FlutterDownloader.enqueue(
+  //       url: 'https://wewatch.ordd.tk/uploads/covid/attach_6130dc9039fc5.docx',
+  //       savedDir: baseStorage.path,
+  //       fileName: "file",
+  //       // showNotification: true, // show download progress in status bar (for Android)
+  //       // openFileFromNotification: true, // click on notification to open downloaded file (for Android)
+  //     );
+  //   // }else{
+  //   //   print("no permission");
+  //   // }
+  //
+  // }
 
   _moveToPreviousScreen(BuildContext context) =>
       Navigator.pushReplacement(

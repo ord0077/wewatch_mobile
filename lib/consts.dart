@@ -36,7 +36,8 @@ Function mathFunc = (Match match) => '${match[1]},';
 
 // base url
 // const String baseURL = 'https://wewatch.ordd.tk/api/';
-const String baseURL = 'https://wewatch-backend.ordclients.com/api/';
+// const String baseURL = 'https://wewatch-backend.ordclients.com/api/';
+const String baseURL = 'https://backend.wewatch.me/api/';
 
 
 // Colors
